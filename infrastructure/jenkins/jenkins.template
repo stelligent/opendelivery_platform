@@ -1,0 +1,415 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "CloudFormation Template to provision Manatee Jenkins instance",
+  
+  "Parameters" : {
+	
+	"Email" : {
+	  "Type" : "String",
+	  "Default" : "aws@stelligent.com"
+	},
+	
+	"ApplicationName" : {
+	  "Type" : "String",
+	  "Default" : "jenkins"
+	},
+	
+	"HostedZone" : {
+	  "Type" : "String",
+	  "Default" : "mapntracker.com"
+	},
+	
+	"SGID" : {
+	  "Type" : "String",
+	  "Default" : "sg-dab4d0b2"
+	},
+      
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String",
+      "Default" : "development",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+
+    "InstanceType" : {
+      "Description" : "Jenkins EC2 instance type",
+      "Type" : "String",
+      "Default" : "c1.medium",
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+
+    "S3Bucket" : {
+	  "Description" : "Artifact Bucket",
+	  "Type" : "String",
+	  "Default" : "sea2shore"
+    }
+  },
+  
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "64" },
+      "m1.small"    : { "Arch" : "32" },
+      "m1.large"    : { "Arch" : "64" },
+      "m1.xlarge"   : { "Arch" : "64" },
+      "m2.xlarge"   : { "Arch" : "64" },
+      "m2.2xlarge"  : { "Arch" : "64" },
+      "m2.4xlarge"  : { "Arch" : "64" },
+      "c1.medium"   : { "Arch" : "64" },
+      "c1.xlarge"   : { "Arch" : "64" },
+      "cc1.4xlarge" : { "Arch" : "64" }
+    },
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "32" : "ami-ed65ba84", "64" : "ami-e565ba8c" }
+    }
+  },
+    
+  "Resources" : {     
+      
+    "CfnUser" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[{
+            "Effect":"Allow",
+            "Action":"*",
+            "Resource":"*"
+          }
+        ]}
+       }]
+      }
+    },
+
+	"MySNSTopic" : {
+	    "Type" : "AWS::SNS::Topic",
+	    "Properties" : {
+	        "Subscription" : [ {
+	            "Endpoint" : { "Ref": "Email" },
+	            "Protocol" : "email"
+	        } ]
+	    }
+	},
+
+    "HostKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : { "Ref": "CfnUser" }
+      }
+    },
+
+	"JenkinsDNS" : {
+      "Type" : "AWS::Route53::RecordSetGroup",
+	  "Properties" : {
+	    "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
+	    "RecordSets" : [
+		  {
+			"Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
+			"Type" : "A",
+			"TTL"  : "900",
+			"ResourceRecords" : [ { "Ref" : "IPAddress" } ]
+		  }]
+	  }
+	},
+
+    "WebServer": {  
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "yum" : {
+                "tomcat6"       : [],
+                "subversion"    : [],
+				"gcc"			: [],
+				"libxslt-devel" : [],
+				"ruby-devel"	: [],
+				"httpd"			: []
+              }
+            },
+
+            "sources" : {
+              "/opt/aws/apitools/cfn"       : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz",
+			  "/opt/aws/apitools/sns"       : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/sns-cli.tar.gz",
+			  "/usr/bin/grails-1.3.7"       : "https://s3.amazonaws.com/sea2shore/resources/binaries/grails-1.3.7.tar.gz",
+			  "/usr/bin/groovy-1.8.2"       : "https://s3.amazonaws.com/sea2shore/resources/binaries/groovy-1.8.2.tar.gz",
+			  "/usr/share/tomcat6/scripts/" : "https://s3.amazonaws.com/sea2shore/jenkins_utilities.tar.gz"
+            },
+
+            "files" : {
+              "/usr/share/tomcat6/webapps/jenkins.war" : { 
+                "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war", 
+                "mode" : "000700", 
+                "owner" : "tomcat",
+                "group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+              "/usr/share/tomcat6/webapps/nexus.war" : { 
+                "source" : "http://www.sonatype.org/downloads/nexus-2.0.3.war", 
+                "mode" : "000700", 
+                "owner" : "tomcat",
+                "group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/usr/share/tomcat6/.ssh/id_rsa" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, 
+                "mode" : "000600", 
+                "owner" : "tomcat",
+                "group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/usr/share/tomcat6/production.pem" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/production.pem"]]},
+                "mode" : "000600", 
+                "owner" : "tomcat",
+                "group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/usr/share/tomcat6/development.pem" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/development.pem"]]},
+                "mode" : "000600", 
+                "owner" : "tomcat",
+                "group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
+                "mode" : "000700", 
+                "owner" : "root",
+                "group" : "root",
+				"authentication" : "S3AccessCreds"
+              },
+              "/etc/cron.hourly/jenkins_backup.sh" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/etc/tomcat6/server.xml" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
+                "mode"   : "000554",
+                "owner"  : "root",
+                "group"  : "root",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/usr/share/tomcat6/aws_access" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
+                  ]]},
+                "mode"   : "000400",
+                "owner"  : "tomcat",
+                "group"  : "tomcat",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/usr/share/tomcat6/scripts/config/aws.config" : {
+				"content" : { "Fn::Join" : ["", [
+				  "AWS.config(\n",
+					":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+					":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
+                  ]]},
+				"mode"   : "000500",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
+			  },
+			  "/etc/httpd/conf/httpd.conf2" : {
+				"content" : { "Fn::Join" : ["", [
+				  "NameVirtualHost *:80\n",
+				   "<VirtualHost *:80>\n",
+				    "ProxyPass         /jenkins  http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins\n",
+				    "ProxyPassReverse  /jenkins  http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins\n",
+				    "ProxyRequests     Off\n",
+				
+				    "<Proxy http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins*>\n",
+				      "Order deny,allow\n",
+					  "Allow from all\n",
+					"</Proxy>\n",
+					"RewriteEngine On\n",
+					"RewriteRule   ^/$ http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins$1 [NC,P]\n",
+				   "</VirtualHost>"
+                  ]]},
+				"mode"   : "000544",
+                "owner"  : "root",
+                "group"  : "root"
+			  },
+			  "/usr/share/tomcat6/.route53" : {
+				"content" : { "Fn::Join" : ["", [
+				  "access_key: ", { "Ref" : "HostKeys" }, "\n",
+				  "secret_key: ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\n",
+				  "api: '2012-02-29'\n",
+				  "endpoint: https://route53.amazonaws.com/\n",
+				  "default_ttl: '3600'"
+                  ]]},
+				"mode"   : "000700",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
+			  }
+            }
+          }
+        },
+		"AWS::CloudFormation::Authentication" : {
+		  "S3AccessCreds" : {
+		    "type" : "S3",
+		    "accessKeyId" : { "Ref" : "HostKeys" },
+		    "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+		    "buckets" : [ { "Ref" : "S3Bucket"} ]
+		  }
+		}
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ {"Ref" : "FrontendGroup"} ],
+		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
+        "KeyName"        : { "Ref" : "KeyName" },
+		"Tags": [ { "Key": "Name", "Value": "Jenkins" } ],
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "yum -y install java-1.6.0-openjdk*\n",
+          "yum update -y aws-cfn-bootstrap\n",
+			
+          "# Install packages\n",
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+          "    --access-key ",  { "Ref" : "HostKeys" },
+          "    --secret-key ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+          "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+        
+		  "# Installing Ruby 1.9.3 from RPM\n",
+		  "wget -P /home/ec2-user/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		  "rpm -Uvh /home/ec2-user/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		
+		  "cat /etc/httpd/conf/httpd.conf2 >> /etc/httpd/conf/httpd.conf\n",
+		
+		  "# Install S3 Gems\n",
+		  "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
+		
+		  "# Install Public Gems\n",
+		  "gem install bundler     --version 1.1.4    --no-rdoc --no-ri\n",
+		  "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+		  "gem install cucumber    --version 1.2.1    --no-rdoc --no-ri\n",
+		  "gem install net-ssh     --version 2.5.2    --no-rdoc --no-ri\n",
+		  "gem install capistrano  --version 2.12.0   --no-rdoc --no-ri\n",
+		  "gem install route53     --version 0.2.1    --no-rdoc --no-ri\n",
+		  "gem install rspec       --version 2.10.0   --no-rdoc --no-ri\n",
+		  "gem install trollop       --version 2.0    --no-rdoc --no-ri\n",
+        
+  		  "# Remove default jenkins home directory\n",
+          "rm -rf /usr/share/tomcat6/.jenkins\n",
+
+		  "# Set SVN credentials for Google\n",
+		  "google_svn_user=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties elastic_user`\n",
+		  "google_svn_pass=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties elastic_password`\n",
+		
+		  "# Set SVN credentials for Assembla\n",
+		  "assembla_svn_user=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties client_user`\n",
+		  "assembla_svn_pass=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties client_password`\n",
+		
+		  "# Checkout Jenkins configuration from Google\n",
+          "svn co https://sea2shore.googlecode.com/svn/trunk/src/jenkins_config /usr/share/tomcat6/.jenkins --username $google_svn_user --password $google_svn_pass --non-interactive\n",
+		  
+		  "# Export Manatee SVN SCM Configuration\n",
+		  "svn export http://subversion.assembla.com/svn/manatees/trunk/src/jenkins_config/hudson.scm.SubversionSCM.xml /usr/share/tomcat6/.jenkins/hudson.scm.SubversionSCM.xml --username $assembla_svn_user --password $assembla_svn_pass --non-interactive\n",
+		  "svn export http://subversion.assembla.com/svn/manatees/trunk/src/jenkins_config/hudson.plugins.s3.S3BucketPublisher.xml /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml --username $assembla_svn_user --password $assembla_svn_pass --non-interactive\n",
+		  
+		  "# Pull down Jenkins Plugins\n",
+		  "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/s3/0.2.0/s3.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/ant/1.1/ant.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/build-pipeline-plugin/1.2.3/build-pipeline-plugin.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/copyartifact/1.21/copyartifact.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/grails/1.5/grails.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/groovy/1.12/groovy.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/translation/1.9/translation.hpi\n",
+		  "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/parameterized-trigger/2.15/parameterized-trigger.hpi\n",
+		
+		  "# Update main Jenkins config\n",
+		  "sed -i 's@<accessKey>.*</accessKey>@<accessKey>", { "Ref" : "HostKeys" }, "</accessKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
+		  "sed -i 's@<secretKey>.*</secretKey>@<secretKey>", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "</secretKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
+
+		  "# Add AWS Credentials to Tomcat\n",
+		  "echo \"AWS_ACCESS_KEY=", { "Ref" : "HostKeys" }, "\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"AWS_SECRET_ACCESS_KEY=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\" >> /etc/sysconfig/tomcat6\n",
+		  
+		  "# Add AWS CLI Tools\n",
+		  "echo \"export AWS_CLOUDFORMATION_HOME=/opt/aws/apitools/cfn\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export AWS_SNS_HOME=/opt/aws/apitools/sns\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
+		  
+		  "# Add Jenkins Environment Variable\n",
+		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export SGID=", { "Ref" : "SGID" }, "\" >> /etc/sysconfig/tomcat6\n",
+
+          "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
+		  "chmod +x /usr/share/tomcat6/scripts/aws/*\n",
+          "chmod +x /opt/aws/apitools/cfn/bin/*\n",
+
+		  "service tomcat6 restart\n",
+		  "rm -rf /usr/share/tomcat6/.jenkins/plugins/subversion*\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/subversion/1.40/subversion.hpi\n",
+		  "service tomcat6 restart\n",
+		  "service httpd restart\n",
+          
+          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'"
+        ]]}}
+      }
+    },
+
+    "IPAddress" : {
+      "Type" : "AWS::EC2::EIP"
+    },
+    
+    "IPAssoc" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "Properties" : {
+        "InstanceId" : { "Ref" : "WebServer" },
+        "EIP" : { "Ref" : "IPAddress" }
+       }
+    },
+    
+    "FrontendGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH and access to Apache and Tomcat",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : "0.0.0.0/0"},
+		  {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"}
+        ]
+      }      
+    },
+    
+    "WaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer",
+      "Properties" : {
+        "Handle" : { "Ref" : "WaitHandle" },
+        "Timeout" : "990"
+      }
+    }          
+  },
+  
+  "Outputs" : {
+    "Domain" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
+      "Description" : "URL for newly created Jenkins app"
+    },
+    "NexusURL" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "IPAddress" }, ":8080/nexus"]] },
+      "Description" : "URL for newly created Nexus repository"
+    },
+    "InstanceIPAddress" : {
+      "Value" : { "Ref" : "IPAddress" }
+    }
+  }
+}

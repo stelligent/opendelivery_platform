@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Manatee Environment Configuration job is used to check for changes from manatees/trunk/src/config in subversion. If it notices a change, the job will&#xd;
+start and tar up all the configuration files. It will then push the tar up into S3 for downloading.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://sea2shore.googlecode.com/svn/trunk/src/config</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector">
+    <hudson.triggers.SCMTrigger>
+      <spec>5 * * * *</spec>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>tar -czf jenkins_utilities.tar.gz *
+ls</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.s3.S3BucketPublisher>
+      <profileName>seashore</profileName>
+      <entries>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>jenkins_utilities.tar.gz</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>database_update.rb</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>createDbAndOwner.sql</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>pg_hba.conf</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>db_backup.sh</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>jenkins_backup.sh</sourceFile>
+        </hudson.plugins.s3.Entry>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>server.xml</sourceFile>
+        </hudson.plugins.s3.Entry>
+      </entries>
+    </hudson.plugins.s3.S3BucketPublisher>
+  </publishers>
+  <buildWrappers/>
+</project>

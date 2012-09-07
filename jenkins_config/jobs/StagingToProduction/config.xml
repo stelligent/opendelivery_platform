@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Manatee Blue Green job is used for switching from Dev to Prod. Once you have an environment that is ready for production, use this build to do the DNS migrations.&#xd;
+ In order to perform a successful migration, enter in the IP that you want to be the new production serving instance in the parameter &quot;BLUE_IP&quot;. Then enter in the intended CNAME for the application to be served on, for instance prod.oneclickdeployment.com. &#xd;
+&#xd;
+Click Build and Jenkins will do the rest!&#xd;
+	</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BLUE_IP</name>
+          <description></description>
+          <defaultValue>107.20.245.112</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CNAME</name>
+          <description></description>
+          <defaultValue>prod</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOMAIN</name>
+          <description></description>
+          <defaultValue>oneclickdeployment.com</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>route53 --zone ${DOMAIN}. -g --name ${CNAME}.${DOMAIN}. --type A --ttl 600 --values ${BLUE_IP}
+
+echo ${CNAME}.${DOMAIN}.</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

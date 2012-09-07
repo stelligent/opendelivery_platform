@@ -1,0 +1,48 @@
+# -----------------------------
+# PostgreSQL configuration file
+# -----------------------------
+#
+# This file consists of lines of the form:
+#
+#   name = value
+
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+
+max_connections = 100
+
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+
+shared_buffers = 32MB
+
+#------------------------------------------------------------------------------
+# ERROR REPORTING AND LOGGING
+#------------------------------------------------------------------------------
+
+logging_collector = on
+log_directory = 'pg_log'
+log_filename = 'postgresql-%a.log'
+log_truncate_on_rotation = on
+log_rotation_age = 1d
+log_rotation_size = 0
+
+#------------------------------------------------------------------------------
+# CLIENT CONNECTION DEFAULTS
+#------------------------------------------------------------------------------
+
+datestyle = 'iso, mdy'
+
+lc_messages = 'en_US.UTF-8'			# locale for system error message
+					# strings
+lc_monetary = 'en_US.UTF-8'			# locale for monetary formatting
+lc_numeric = 'en_US.UTF-8'			# locale for number formatting
+lc_time = 'en_US.UTF-8'				# locale for time formatting
+
+#------------------------------------------------------------------------------
+# CUSTOMIZED OPTIONS
+#------------------------------------------------------------------------------
+
+listen_addresses='*'

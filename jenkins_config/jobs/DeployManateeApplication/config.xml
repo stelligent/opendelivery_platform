@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Manatee Deploy job is used to deploy a working manatee application onto a manatee environment. This job is typically run after the Manatee Environment&#xd;
+job. In order to use this job for deploying a Manatee application, enter in the same value you used for the &quot;STACK_NAME&quot; when running the Manatee Environment job&#xd;
+into the &quot;STACK_NAME&quot; parameter in this job. Jenkins will do the rest! Lastly to check your end application, go to your browser and enter in HOSTNAME.oneclickdeployment.com/wildtracks  (HOSTNAME should be the parameter that you used in &#xd;
+the Manatee Environment job)</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>STACK_NAME</name>
+          <description></description>
+          <defaultValue>manatee3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>HOST</name>
+          <description></description>
+          <defaultValue>manatee3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://sea2shore.googlecode.com/svn/trunk/src/deployment</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.CheckoutUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.copyartifact.CopyArtifact>
+      <projectName>Build</projectName>
+      <filter>wildtracks.war, grails-app/**/*</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>if [ !$deployToProduction ]
+then
+ SSH_KEY=/usr/share/tomcat6/development.pem
+else 
+ SSH_KEY=/usr/share/tomcat6/production.pem
+fi
+
+#SSH_KEY=/usr/share/tomcat6/development.pem
+#/usr/share/tomcat6/.ssh/id_rsa
+
+cap deploy:setup stack=${STACK_NAME} key=${SSH_KEY}
+
+sed -i &quot;s@manatee0@${HOST}@&quot; ${WORKSPACE}/features/deployment.feature
+
+host=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb ${STACK_NAME} InstanceIPAddress`
+cucumber features/deployment.feature host=${host} user=ec2-user key=${SSH_KEY}
+
+sns-publish --topic-arn $SNS_TOPIC --subject &quot;Manatee Application Deployed&quot; --message &quot;Your Manatee Application has been deployed successfully. You can view it by going to http://$host/wildtracks This instance was deployed to by $JENKINS_DOMAIN&quot; --aws-credential-file /usr/share/tomcat6/aws_access</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

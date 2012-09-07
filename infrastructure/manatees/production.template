@@ -1,0 +1,273 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "CloudFormation Template to provision Manatee Production instance",
+  
+  "Parameters" : {
+	
+	"KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String",
+      "Default" : "development",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "InstanceType" : {
+	  "Type" : "String",
+	  "Default" : "t1.micro",
+	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+	},
+	"SGID" : {
+	  "Type" : "String",
+	  "Default" : "sg-dab4d0b2"
+	},
+	"ApplicationName" : {
+	  "Type" : "String",
+	  "Default" : "manatees"
+	},
+	"HostedZone" : {
+	  "Type" : "String",
+	  "Default" : "mapntracker.com"
+	},
+	"JenkinsInternalIP" : {
+      "Type" : "String"
+    },
+	"S3Bucket" : {
+	  "Description" : "Artifact Bucket",
+	  "Type" : "String",
+	  "Default" : "sea2shore"
+    },
+	"SNSTopic" : {
+	  "Description" : "SNS Topic",
+	  "Type" : "String"
+    }
+  },
+
+  "Mappings" : {
+	"AWSInstanceType2Arch" : {
+      "t1.micro"   : { "Arch" : "64" },
+      "m1.small"   : { "Arch" : "64" },
+	  "m1.medium"  : { "Arch" : "64" },
+	  "m1.large"   : { "Arch" : "64" },
+	  "m1.xlarge"  : { "Arch" : "64" },
+	  "m2.xlarge"  : { "Arch" : "64" },
+	  "m2.2xlarge" : { "Arch" : "64" },
+	  "m2.4xlarge" : { "Arch" : "64" },
+	  "c1.medium"  : { "Arch" : "64" },
+	  "c1.xlarge"  : { "Arch" : "64" }
+    },
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "32" : "ami-7f418316", "64" : "ami-7341831a" },
+      "us-west-1"      : { "32" : "ami-951945d0", "64" : "ami-971945d2" },
+      "us-west-2"      : { "32" : "ami-16fd7026", "64" : "ami-10fd7020" },
+      "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
+      "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
+      "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
+    }
+  },
+  "Resources" : {
+	
+	"ManateeUser" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[
+          {
+            "Effect":"Allow",
+            "Action":"cloudformation:DescribeStackResource",
+            "Resource":"*"
+          },
+          {
+            "Effect":"Allow",
+            "Action":"s3:*",
+            "Resource":"*"
+         }]}
+        }]
+      }
+    },
+	
+	"ManateeKeys" : {
+	  "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+	    "UserName" : { "Ref" : "ManateeUser" }
+	  }
+	},
+	
+	"ManateeDNS" : {
+      "Type" : "AWS::Route53::RecordSetGroup",
+	  "Properties" : {
+	    "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
+	    "RecordSets" : [
+		  {
+			"Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
+			"Type" : "A",
+			"TTL"  : "900",
+			"ResourceRecords" : [ { "Ref" : "IPAddress" } ]
+		  }]
+	  }
+	},
+	
+	"WebServer": {  
+      "Type": "AWS::EC2::Instance",
+	  "Metadata" : {
+	    "AWS::CloudFormation::Init" : {
+		  "config" : {
+			"sources" : {
+			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]}
+			},
+			"files" : {
+			  "/home/ec2-user/manifests/classes/params.pp" : {
+				"content" : { "Fn::Join" : ["", [
+				  "class params {\n",
+				    "$s3_bucket            = '", { "Ref" : "S3Bucket" }, "'\n",
+				    "$application_name     = '", { "Ref" : "ApplicationName" }, "'\n",
+				    "$hosted_zone          = '", { "Ref" : "HostedZone" }, "'\n",
+				    "$access_key           = '", { "Ref" : "ManateeKeys" }, "'\n",
+				    "$secret_access_key    = '", {"Fn::GetAtt": ["ManateeKeys", "SecretAccessKey"]}, "'\n",
+				    "$jenkins_internal_ip  = '", { "Ref" : "JenkinsInternalIP" }, "'\n",
+				  "}"
+                  ]]},
+				"mode"   : "000500",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+			  }
+			}
+		  }
+	    },
+		"AWS::CloudFormation::Authentication" : {
+		  "S3AccessCreds" : {
+		    "type" : "S3",
+		    "accessKeyId" : { "Ref" : "ManateeKeys" },
+		    "secretKey" : {"Fn::GetAtt": ["ManateeKeys", "SecretAccessKey"]},
+		    "buckets" : [ { "Ref" : "S3Bucket" } ]
+		  }
+		}
+	  },
+	  "Properties": {
+		"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+	                { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+		"InstanceType"     : { "Ref" : "InstanceType" },
+		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
+		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
+		"KeyName"        : { "Ref" : "KeyName" },
+		"Tags": [ { "Key": "Name", "Value": "Manatee" } ],
+		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+		  "#!/bin/bash -v\n",
+		  "ln -sf /usr/share/zoneinfo/EST5EDT /etc/localtime\n",
+	      "date > /home/ec2-user/starttime\n",
+	
+		  "yum update -y aws-cfn-bootstrap\n",
+		  
+		  "# Install Ruby Dependency\n",
+		  "yum install -y libxslt-devel\n",
+		
+		  "# Install Ruby 1.9.3\n",
+		  "wget https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		  "rpm -Uvh ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		
+		  "# Install Puppet 2.7 from Rubygem\n",
+		  "gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
+		  "sudo groupadd puppet\n",
+		  
+		  "# Install Packages\n",
+		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+		  "    --access-key ", { "Ref" : "ManateeKeys" },
+		  "    --secret-key ", { "Fn::GetAtt" : [ "ManateeKeys", "SecretAccessKey" ]},
+		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+		  
+		  "puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
+		  
+		  "# Disable tty for ec2-user\n",
+		  "echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
+		  "echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
+		
+	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n",
+
+	      "date > /home/ec2-user/stoptime\n"
+		]]}}		
+	  }
+	},
+	
+	"FrontendGroup" : {
+	  "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+	    "GroupDescription" : "Enable SSH Access",
+		"SecurityGroupIngress" : [
+		  { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" },
+		  { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" },
+		  { "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : "0.0.0.0/0" }
+		]
+	  }
+	},
+	
+	"IPAddress" : {
+	  "Type" : "AWS::EC2::EIP"
+	},
+	
+	"IPAssociation" : {
+	  "Type" : "AWS::EC2::EIPAssociation",
+	  "Properties" : {
+		"InstanceId" : { "Ref" : "WebServer" },
+		"EIP" : { "Ref" : "IPAddress" }
+	  }
+	},
+	
+	"CPUAlarmLow": {
+	 "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": "300",
+        "EvaluationPeriods": "2",
+        "Threshold": "70",
+        "AlarmActions": [ { "Ref": "SNSTopic" } ],
+		"Dimensions": [{
+		  "Name": "WebServerName",
+		  "Value": { "Ref": "WebServer" }
+		}],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+	
+	"WaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+    
+    "WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer",
+      "Properties" : {
+        "Handle" : { "Ref" : "WaitHandle" },
+        "Timeout" : "900"
+      }
+    }
+  },
+
+  "Outputs" : {
+    "ArtifactBucket" : {
+      "Value" : { "Ref" : "S3Bucket" }
+    },
+	"StackName" : {
+      "Value" : { "Ref" : "AWS::StackName" }
+    },
+	"ApplicationName" : {
+	  "Value" : { "Ref" : "ApplicationName" }
+	},
+    "Domain" : {
+      "Value" : { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
+      "Description" : "Full domain"
+    },
+	"PrivateIpAddress" : {
+	  "Value" : { "Fn::GetAtt" : ["WebServer", "PrivateIp"]}
+	},
+	"InstanceIPAddress" : {
+      "Value" : { "Ref" : "IPAddress" }
+    }
+  }
+}

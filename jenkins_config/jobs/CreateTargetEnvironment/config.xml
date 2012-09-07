@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Manatee Environment job is used to create a new AWS Cloudformation stack that is ready to accept a new Manatee Application. This job is run as part of &#xd;
+the &lt;b&gt;&lt;a href=&quot;http://jenkins3.oneclickdeployment.com/jenkins/view/DeliveryPipeline/&quot;&gt;DeliveryPipeline&lt;/a&gt;&lt;/b&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [ $deployToProduction ]
+then
+ SSH_KEY=development
+else
+ SSH_KEY=production
+fi
+
+#JENKINSINTERNALIP=`dig +short ${JENKINSIP}`
+
+# Create Cloudformaton Stack
+ruby /usr/share/tomcat6/scripts/aws/create_stack.rb ${STACK_NAME} ${WORKSPACE}/production.template ${HOST} ${JENKINSIP} ${SSH_KEY} ${SGID} ${SNS_TOPIC}
+
+# Load SimpleDB Domain with Key/Value Pairs
+ruby /usr/share/tomcat6/scripts/aws/load_domain.rb ${STACK_NAME}
+
+# Pull and store variables from SimpleDB
+host=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb ${STACK_NAME} InstanceIPAddress`
+
+# Run Acceptance Tests
+cucumber features/production.feature host=${host} user=ec2-user key=/usr/share/tomcat6/.ssh/id_rsa
+
+# Publish notifications to SNS
+sns-publish --topic-arn $SNS_TOPIC --subject &quot;New Environment Ready&quot; --message &quot;Your new environment is ready. IP Address: $host. An example command to ssh into the box would be: ssh -i development.pem ec2-user@$host This instance was created by $JENKINS_DOMAIN&quot; --aws-credential-file /usr/share/tomcat6/aws_access</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger>
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+          </configs>
+          <projects>DeployManateeApplication, </projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+  </publishers>
+  <buildWrappers/>
+</project>

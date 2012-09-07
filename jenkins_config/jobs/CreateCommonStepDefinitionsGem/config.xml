@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>This is the build for the common-step-definitions gem. It builds the gem and then pushes it up to s3.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://sea2shore.googlecode.com/svn/trunk/src/gems/common-step-definitions</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector">
+    <hudson.triggers.SCMTrigger>
+      <spec>* * * * *</spec>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>gem build common-step-definitions.gemspec</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.s3.S3BucketPublisher>
+      <profileName>seashore</profileName>
+      <entries>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore/gems</bucket>
+          <sourceFile>common-step-definitions-1.0.0.gem</sourceFile>
+        </hudson.plugins.s3.Entry>
+      </entries>
+    </hudson.plugins.s3.S3BucketPublisher>
+  </publishers>
+  <buildWrappers/>
+</project>

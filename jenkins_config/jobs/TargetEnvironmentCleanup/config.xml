@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Manatee Transient job is used to terminate stacks by STACK_NAME. It will also delete the simpledb configuration domain associated with the STACK. It is&#xd;
+best practice to use this job for terminating target stacks</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>STACK_NAME</name>
+          <description></description>
+          <defaultValue>automanateestack99</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>ruby /usr/share/tomcat6/scripts/aws/delete_domain.rb ${STACK_NAME}
+ruby /usr/share/tomcat6/scripts/aws/delete_stack.rb ${STACK_NAME}
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

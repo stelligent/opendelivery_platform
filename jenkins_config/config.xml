@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>1.447.1</version>
+  <numExecutors>2</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.AuthorizationStrategy$Unsecured"/>
+  <securityRealm class="hudson.security.SecurityRealm$None"/>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <systemMessage>To begin, go to the &lt;b&gt;&lt;a href=&quot;./view/DeliveryPipeline/&quot;&gt;DeliveryPipeline&lt;/a&gt;&lt;/b&gt; and click &#xd;
+&lt;b&gt;Start Build of Pipeline for SetupVariables&lt;/b&gt; and click the &lt;b&gt;Build&lt;/b&gt; button. &#xd;
+After about 20 minutes, you&apos;ll receive an email with a link to the working Manatee application and credentials to SSH into the instance. &#xd;
+Source scripts for the infrastructure, deployment, etc. are located at &#xd;
+&lt;a href=&quot;https://code.google.com/p/sea2shore/source/checkout&quot;&gt;https://sea2shore.googlecode.com/svn/trunk/src/&lt;/a&gt;.&#xd;
+&#xd;
+The Manatee Continuous Delivery Platform consists of:&#xd;
+&lt;ul&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Development Platform:&lt;/b&gt; Support for &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees/production.template&quot;&gt;Java&lt;/a&gt; (See &lt;i&gt;AWS::EC2::Instance&lt;/i&gt;) and Grails Development Platforms&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Continuous Integration Server:&lt;/b&gt; &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/jenkins/jenkins.template&quot;&gt;Fully scripted Jenkins infrastructure&lt;/a&gt; on Tomcat in AWS CloudFormation and Puppet&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Infrastructure Automation - Static:&lt;/b&gt; AWS CloudFormation. &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees/production.template&quot;&gt;Fully scripted &#xd;
+  configuration&lt;/a&gt; of all AWS resources&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Infrastructure Automation - Dynamic:&lt;/b&gt; Downloading, installing and configuring servers, etc. implemented in Puppet&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Deployment Automation:&lt;/b&gt; Fully &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/deployment/config/deploy.rb&quot;&gt;scripted deployment&lt;/a&gt; in Capistrano (Ruby-based deployment DSL)&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Continuous Delivery/Continuous Deployment pipeline:&lt;/b&gt; &lt;a href=&quot;./view/DeliveryPipeline/&quot;&gt;Fully automated pipeline&lt;/a&gt; of Build, Deployment, Test and Release Processes from checkin to production&lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Application Container:&lt;/b&gt; Fully scripted &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees/production.template&quot;&gt;Tomcat&lt;/a&gt; (See &lt;i&gt;tomcat6&lt;/i&gt;) in Puppet&lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Web Server:&lt;/b&gt; Fully scripted &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees/production.template&quot;&gt;Apache HTTP server&lt;/a&gt; (See &lt;i&gt;AWS::CloudFormation::Init&lt;/i&gt; and &lt;i&gt;etc/httpd/conf/virtualhosts&lt;/i&gt;) in Puppet&lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Continuous Integration Versioning:&lt;/b&gt; All &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/jenkins_config/&quot;&gt;Jenkins configuration changes&lt;/a&gt; are committed to version-control repository once an hour. Support for SVN commits.&lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Infrastructure and Deployment Testing :&lt;/b&gt; Automated &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/manatees/features/production.feature&quot;&gt;Infrastructure&lt;/a&gt; and &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/deployment/features/deployment.feature&quot;&gt;Deployment tests&lt;/a&gt; in Cucumber integrated with Jenkins CI (If environment creation fails, we get notified)&lt;/li&gt;&#xd;
+  &lt;li&gt;&lt;b&gt;Database:&lt;/b&gt; PostgreSQL DDL and DML are &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/config/database_update.rb&quot;&gt;scripted&lt;/a&gt;. Automated &lt;a href=&quot;https://sea2shore.googlecode.com/svn/trunk/src/config/jenkins_backup.sh&quot;&gt;daily backups&lt;/a&gt; to AWS S3.&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Dynamic Configuration:&lt;/b&gt; Most of the configuration is dynamic (no fixed IPs, etc). The limited portions that are not dynamic are managed in SimpleDB&lt;/li&gt;&#xd;
+&lt;li&gt;&lt;b&gt;Firewall Configuration:&lt;/b&gt; Built-in firewall configuration.&lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+&#xd;
+</systemMessage>
+  <jdks>
+    <jdk>
+      <name>java</name>
+      <home>/usr/lib/jvm/java</home>
+      <properties/>
+    </jdk>
+  </jdks>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <slaves/>
+  <quietPeriod>5</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+    <au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView>
+      <owner class="hudson" reference="../../.."/>
+      <name>DeliveryPipeline</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+      <selectedJob>SetupVariables</selectedJob>
+      <noOfDisplayedBuilds>1</noOfDisplayedBuilds>
+      <buildViewTitle>Manatee Delivery Pipeline</buildViewTitle>
+      <triggerOnlyLatestJob>false</triggerOnlyLatestJob>
+    </au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>0</slaveAgentPort>
+  <label></label>
+  <nodeProperties/>
+  <globalNodeProperties>
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+          </default>
+          <int>1</int>
+          <string>AWS_CLOUDFORMATION_HOME</string>
+          <string>/opt/aws/apitools/cfn</string>
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+  </globalNodeProperties>
+</hudson>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://sea2shore.googlecode.com/svn/trunk/src/infrastructure/puppet</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>tar -czvf puppet.tar.gz modules/* manifests/*</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.s3.S3BucketPublisher>
+      <profileName>seashore</profileName>
+      <entries>
+        <hudson.plugins.s3.Entry>
+          <bucket>sea2shore</bucket>
+          <sourceFile>puppet.tar.gz</sourceFile>
+        </hudson.plugins.s3.Entry>
+      </entries>
+    </hudson.plugins.s3.S3BucketPublisher>
+  </publishers>
+  <buildWrappers/>
+</project>

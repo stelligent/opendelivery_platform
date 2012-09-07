@@ -1,0 +1,14 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "CloudFormation Template to create a security group for talking instance to instance",
+
+  "Resources" : {
+    "SecurityGroup" : {
+	  "Type" : "AWS::EC2::SecurityGroup",
+	  "Properties" : {
+		"GroupDescription" : "Open port 5432"
+	  }
+	}
+  }
+}
