@@ -285,33 +285,10 @@
 		  "gem install route53     --version 0.2.1    --no-rdoc --no-ri\n",
 		  "gem install rspec       --version 2.10.0   --no-rdoc --no-ri\n",
 		  "gem install trollop       --version 2.0    --no-rdoc --no-ri\n",
-        
-  		  "# Remove default jenkins home directory\n",
-          "rm -rf /usr/share/tomcat6/.jenkins\n",
 
-		  "# Set SVN credentials for Google\n",
-		  "google_svn_user=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties elastic_user`\n",
-		  "google_svn_pass=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties elastic_password`\n",
-		
-		  "# Set SVN credentials for Assembla\n",
-		  "assembla_svn_user=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties client_user`\n",
-		  "assembla_svn_pass=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties client_password`\n",
-		
-		  "# Checkout Jenkins configuration from Google\n",
-          "svn co https://sea2shore.googlecode.com/svn/trunk/src/jenkins_config /usr/share/tomcat6/.jenkins --username $google_svn_user --password $google_svn_pass --non-interactive\n",
-		  
-		  "# Export Manatee SVN SCM Configuration\n",
-		  "svn export http://subversion.assembla.com/svn/manatees/trunk/src/jenkins_config/hudson.scm.SubversionSCM.xml /usr/share/tomcat6/.jenkins/hudson.scm.SubversionSCM.xml --username $assembla_svn_user --password $assembla_svn_pass --non-interactive\n",
-		  "svn export http://subversion.assembla.com/svn/manatees/trunk/src/jenkins_config/hudson.plugins.s3.S3BucketPublisher.xml /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml --username $assembla_svn_user --password $assembla_svn_pass --non-interactive\n",
-		  
-		  "# Pull down Jenkins Plugins\n",
-		  "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/s3/0.2.0/s3.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/ant/1.1/ant.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/build-pipeline-plugin/1.2.3/build-pipeline-plugin.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/copyartifact/1.21/copyartifact.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/git/1.1.23/git.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/translation/1.9/translation.hpi\n",
-		  "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/parameterized-trigger/2.15/parameterized-trigger.hpi\n",
+		  "# Update Jenkins with versioned configuration\n",
+		  "rm -rf /usr/share/tomcat6/.jenkins\n",
+		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",
 		
 		  "# Update main Jenkins config\n",
 		  "sed -i 's@<accessKey>.*</accessKey>@<accessKey>", { "Ref" : "HostKeys" }, "</accessKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
