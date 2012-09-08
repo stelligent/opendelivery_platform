@@ -1,22 +1,35 @@
 #!/bin/bash -v
+# Change into your jenkins home.
 
-# Edit these values for your subversion repository
-svn_user=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties google_svn_user`
-svn_password=`ruby /usr/share/tomcat6/scripts/aws/showback_domain.rb properties google_svn_pass`
-  
 cd /usr/share/tomcat6/.jenkins
 
-# Move non versionable files back to .bak
-mv hudson.scm.SubversionSCM.xml hudson.scm.SubversionSCM.xml.bak
-mv hudson.plugins.s3.S3BucketPublisher.xml hudson.plugins.s3.S3BucketPublisher.xml.bak
+# Add any new conf files, jobs, users, and content.
+git add -f *.xml jobs/*/config.xml .gitignore
 
-svn add -q --parents *.xml jobs/*/config.xml users/*/config.xml userContent/
+# Ignore things we don't care about
+cat > .gitignore <<EOF
+log
+*.log
+*.tmp
+*.old
+*.bak
+*.jar
+.*
+plugins/
+updates/
+jobs/*/builds
+jobs/*/last*
+jobs/*/next*
+jobs/*/*.csv
+jobs/*/*.txt
+jobs/*/*.log
+jobs/*/workspace
+hudson.plugins.s3.S3BucketPublisher.xml
+EOF
 
-# Move non versionable files back 
-mv hudson.scm.SubversionSCM.xml.bak hudson.scm.SubversionSCM.xml
-mv hudson.plugins.s3.S3BucketPublisher.xml.bak hudson.plugins.s3.S3BucketPublisher.xml
+# Remove anything from git that no longer exists in jenkins.
+git status --porcelain | grep '^ D ' | awk '{print $2;}' | xargs -r git rm
 
-# Remove config that no longer exists
-svn status | grep '^!' | awk '{print $2;}' | xargs -r svn rm
-
-svn ci --non-interactive --username $svn_user --password $svn_password -m 'automated commit of Jenkins configuration'
+# And finally, commit and push
+git commit -m 'Automated commit of jenkins configuration' -a
+git push

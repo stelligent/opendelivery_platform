@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'aws-sdk'
-load 'aws.config'
+load File.expand_path('/usr/share/tomcat6/scripts/config/aws.config')
 
 sdb = AWS::SimpleDB.new
 
@@ -69,58 +69,7 @@ namespace :deploy do
     run "sudo service tomcat6 restart"
   end
   
-  task :wildtracks_config, :roles => :app do
-    
-    set :dataSource_url,              "jdbc:postgresql://localhost:5432/manatees_wildtrack"
-    set :dataSource_username,         "manatee_user"
-    set :dataSource_password,         "manatee1234"
-    set :dataStorage_workDir,         "/var/tmp/manatees_wildtracks_workdir"
-    set :dataStorage_ftpUrl,          "ftp.wildtracks.org"
-    set :dataStorage_ftpUsername,     "argos@wildtracks.org"
-    set :dataStorage_ftpPassword,     "Argos123!"
-    set :databaseBackup_script_file,  "/usr/share/tomcat6/.sarvatix/manatees/wildtracks/database_backups/script/db_backup.sh"
-    
-    config_content = from_template("config/templates/wildtracks-config.properties.erb")
-    put config_content, "/home/ec2-user/wildtracks-config.properties"
-    
-    run "sudo mv /home/ec2-user/wildtracks-config.properties /usr/share/tomcat6/.sarvatix/manatees/wildtracks/wildtracks-config.properties"
-    run "sudo chown -R tomcat:tomcat /usr/share/tomcat6/.sarvatix/manatees/wildtracks/wildtracks-config.properties"
-    run "sudo chmod 777 /usr/share/tomcat6/.sarvatix/manatees/wildtracks/wildtracks-config.properties"
-  end
-  
-  task :liquibase, :roles => :db do
-    
-    db_username         = fetch(:dataSource_username)
-    db_password         = fetch(:dataSource_password)
-    private_ip_address  = fetch(:private_ip_address)
-    
-    set :liquibase_jar, "/usr/share/tomcat6/.grails/1.3.7/projects/Build/plugins/liquibase-1.9.3.6/lib/liquibase-1.9.3.jar"
-    set :postgres_jar, "/usr/share/tomcat6/.ivy2/cache/postgresql/postgresql/jars/postgresql-8.4-701.jdbc3.jar"
-    
-    system("cp -rf /usr/share/tomcat6/.jenkins/workspace/DeployManateeApplication/grails-app/migrations/* /usr/share/tomcat6/.jenkins/workspace/DeployManateeApplication/")
-    
-    system("java -jar #{liquibase_jar}\
-              --classpath=#{postgres_jar}\
-              --changeLogFile=changelog.xml\
-              --username=#{db_username}\
-              --password=#{db_password}\
-              --url=jdbc:postgresql://#{private_ip_address}:5432/manatees_wildtrack\
-            update")
-  end
-  
-  task :httpd_conf, :roles => :app do
-    
-    config_content = from_template("config/templates/httpd.conf.erb")
-    put config_content, "/home/ec2-user/httpd.conf"
-    
-    run "sudo mv /home/ec2-user/httpd.conf /etc/httpd/conf/httpd.conf"
-  end
-  
-  
-  after "deploy:setup", "deploy:wildtracks_config"
-  after "deploy:wildtracks_config", "deploy:httpd_conf"
-  after "deploy:httpd_conf", "deploy:deploy"
-  after "deploy:deploy", "deploy:liquibase"
+  after "deploy:setup", "deploy:deploy"
   after "deploy:deploy", "deploy:restart"
 end
 

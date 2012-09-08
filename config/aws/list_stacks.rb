@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'aws-sdk'
-load File.expand_path('../../config/aws.config', __FILE__)
+load File.expand_path('/usr/share/tomcat6/scripts/config/aws.config')
 
 sdb = AWS::SimpleDB.new
 cfn = AWS::CloudFormation.new
