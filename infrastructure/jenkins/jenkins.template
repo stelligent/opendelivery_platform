@@ -17,12 +17,12 @@
 	
 	"HostedZone" : {
 	  "Type" : "String",
-	  "Default" : "mapntracker.com"
+	  "Default" : "integratebutton.com"
 	},
 	
 	"SGID" : {
 	  "Type" : "String",
-	  "Default" : "sg-dab4d0b2"
+	  "Default" : "sg-7e6c1816"
 	},
       
     "KeyName" : {
@@ -45,7 +45,7 @@
     "S3Bucket" : {
 	  "Description" : "Artifact Bucket",
 	  "Type" : "String",
-	  "Default" : "sea2shore"
+	  "Default" : "cdplatform"
     }
   },
   
@@ -125,6 +125,7 @@
               "yum" : {
                 "tomcat6"       : [],
                 "subversion"    : [],
+ 				"git"    		: [],
 				"gcc"			: [],
 				"libxslt-devel" : [],
 				"ruby-devel"	: [],
@@ -133,11 +134,11 @@
             },
 
             "sources" : {
-              "/opt/aws/apitools/cfn"       : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz",
-			  "/opt/aws/apitools/sns"       : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/sns-cli.tar.gz",
-			  "/usr/bin/grails-1.3.7"       : "https://s3.amazonaws.com/sea2shore/resources/binaries/grails-1.3.7.tar.gz",
-			  "/usr/bin/groovy-1.8.2"       : "https://s3.amazonaws.com/sea2shore/resources/binaries/groovy-1.8.2.tar.gz",
-			  "/usr/share/tomcat6/scripts/" : "https://s3.amazonaws.com/sea2shore/jenkins_utilities.tar.gz"
+              "/opt/aws/apitools/cfn"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/cfn-cli.tar.gz"]]},
+			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]},
+			  "/usr/bin/grails-1.3.7"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/binaries/grails-1.3.7.tar.gz"]]},
+			  "/usr/bin/groovy-1.8.2"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/binaries/groovy-1.8.2.tar.gz"]]},
+			  "/usr/share/tomcat6/scripts/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_utilities.tar.gz"]]}
             },
 
             "files" : {
@@ -157,20 +158,6 @@
               },
 			  "/usr/share/tomcat6/.ssh/id_rsa" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, 
-                "mode" : "000600", 
-                "owner" : "tomcat",
-                "group" : "tomcat",
-				"authentication" : "S3AccessCreds"
-              },
-			  "/usr/share/tomcat6/production.pem" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/production.pem"]]},
-                "mode" : "000600", 
-                "owner" : "tomcat",
-                "group" : "tomcat",
-				"authentication" : "S3AccessCreds"
-              },
-			  "/usr/share/tomcat6/development.pem" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/development.pem"]]},
                 "mode" : "000600", 
                 "owner" : "tomcat",
                 "group" : "tomcat",
@@ -281,7 +268,7 @@
           "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
         
 		  "# Installing Ruby 1.9.3 from RPM\n",
-		  "wget -P /home/ec2-user/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		  "wget -P /home/ec2-user/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		  "rpm -Uvh /home/ec2-user/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		
 		  "cat /etc/httpd/conf/httpd.conf2 >> /etc/httpd/conf/httpd.conf\n",
@@ -322,8 +309,7 @@
           "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/ant/1.1/ant.hpi\n",
           "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/build-pipeline-plugin/1.2.3/build-pipeline-plugin.hpi\n",
           "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/copyartifact/1.21/copyartifact.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/grails/1.5/grails.hpi\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/groovy/1.12/groovy.hpi\n",
+          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/git/1.1.23/git.hpi\n",
           "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/translation/1.9/translation.hpi\n",
 		  "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/parameterized-trigger/2.15/parameterized-trigger.hpi\n",
 		
@@ -350,9 +336,6 @@
 		  "chmod +x /usr/share/tomcat6/scripts/aws/*\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
-		  "service tomcat6 restart\n",
-		  "rm -rf /usr/share/tomcat6/.jenkins/plugins/subversion*\n",
-          "wget -P /usr/share/tomcat6/.jenkins/plugins/ http://updates.jenkins-ci.org/download/plugins/subversion/1.40/subversion.hpi\n",
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
           
