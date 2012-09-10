@@ -15,7 +15,6 @@ end
 set :ip_address do
   item = sdb.domains["stacks"].items["#{stack}"]
   item.attributes['InstanceIPAddress'].values[0].to_s.chomp
-endm.attributes['PrivateIpAddress'].values[0].to_s.chomp
 end
 
 set :user,             "ec2-user"
