@@ -15,13 +15,13 @@ class postgresql {
   }
   
   download_file {"wildtracks.sql":                                                                                                 
-      site => "https://s3.amazonaws.com/sea2shore",                                                                           
+      site => "https://s3.amazonaws.com/cdplatform",                                                                           
       cwd => "/tmp",                                                                            
       creates => "/tmp/wildtracks.sql"                                                            
   }
   
   download_file {"createDbAndOwner.sql":                                                                                                 
-      site => "https://s3.amazonaws.com/sea2shore",                                                                           
+      site => "https://s3.amazonaws.com/cdplatform",                                                                           
       cwd => "/tmp",                                                                            
       creates => "/tmp/createDbAndOwner.sql"                                                            
   }

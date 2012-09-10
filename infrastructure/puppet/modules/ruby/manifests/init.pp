@@ -10,7 +10,7 @@ class ruby {
   }
   
   download_file {"ruby-1.9.3p0-2.amzn1.x86_64.rpm":                                                                                                 
-      site => "https://s3.amazonaws.com/sea2shore/resources/rpm",                                                                           
+      site => "https://s3.amazonaws.com/cdplatform/resources/rpm",                                                                           
       cwd => "/tmp",                                                                            
       creates => "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm"                                                            
   }
