@@ -14,18 +14,6 @@ class postgresql {
     }
   }
   
-  download_file {"wildtracks.sql":                                                                                                 
-      site => "https://s3.amazonaws.com/cdplatform",                                                                           
-      cwd => "/tmp",                                                                            
-      creates => "/tmp/wildtracks.sql"                                                            
-  }
-  
-  download_file {"createDbAndOwner.sql":                                                                                                 
-      site => "https://s3.amazonaws.com/cdplatform",                                                                           
-      cwd => "/tmp",                                                                            
-      creates => "/tmp/createDbAndOwner.sql"                                                            
-  }
-  
   package { "postgresql8-server":
     ensure => installed,
   }
@@ -64,21 +52,4 @@ class postgresql {
     command => "echo CREATE USER root | psql -U postgres",
     require => Service["postgresql"]
   }
-  
-  exec { "create-db-owner":
-    require => [ 
-      Download_file["createDbAndOwner.sql"], 
-      Exec["create-user"], 
-      Service["postgresql"]],
-    command => "psql < /tmp/createDbAndOwner.sql -U postgres"
-  }
-  
-  exec { "load-database":
-    require => [ 
-      Download_file["wildtracks.sql"], 
-      Exec["create-user"], 
-      Service["postgresql"], 
-      Exec["create-db-owner"]],
-    command => "psql -U manatee_user -d manatees_wildtrack -f /tmp/wildtracks.sql"
-  } 
 }

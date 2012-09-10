@@ -7,11 +7,6 @@ sdb = AWS::SimpleDB.new
 set :stack, ENV['stack']
 set :ssh_key, ENV['key']
 
-set :domain do
-  item = sdb.domains["stacks"].items["#{stack}"]
-  item.attributes["Domain"].values[0].to_s.chomp
-end
-
 set :artifact_bucket do
   item = sdb.domains["stacks"].items["#{stack}"]
   item.attributes['ArtifactBucket'].values[0].to_s.chomp
@@ -20,11 +15,7 @@ end
 set :ip_address do
   item = sdb.domains["stacks"].items["#{stack}"]
   item.attributes['InstanceIPAddress'].values[0].to_s.chomp
-end
-
-set :private_ip_address do
-  item = sdb.domains["stacks"].items["#{stack}"]
-  item.attributes['PrivateIpAddress'].values[0].to_s.chomp
+endm.attributes['PrivateIpAddress'].values[0].to_s.chomp
 end
 
 set :user,             "ec2-user"

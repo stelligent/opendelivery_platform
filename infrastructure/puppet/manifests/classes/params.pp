@@ -4,5 +4,4 @@ class params {
   $hosted_zone          = ''
   $access_key           = ''
   $secret_access_key    = ''
-  $jenkins_internal_ip  = ''
 }
