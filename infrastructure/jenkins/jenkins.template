@@ -301,6 +301,9 @@
 		  "# Update Jenkins with versioned configuration\n",
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",
+		  
+		  "# Get S3 bucket publisher from S3\n",
+		  "wget -P /usr/share/tomcat/.jenkins/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/hudson.plugins.s3.S3BucketPublisher.xml\n",  
 		
 		  "# Update main Jenkins config\n",
 		  "sed -i 's@<accessKey>.*</accessKey>@<accessKey>", { "Ref" : "HostKeys" }, "</accessKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
