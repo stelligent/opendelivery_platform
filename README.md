@@ -10,8 +10,8 @@ Step 2: Create a new RSA Keypair
  - ssh-keygen -t rsa -C "your@email.com"
  - ssh-add ~/.ssh/id_rsa
 
-Step 3: In S3 bucket created in Step #1, create folders { private, resources, gems }
-Step 4: Inside the resources folder create folders { aws_tools, rpm }
+Step 3: In S3 bucket created in Step #1, create keys { private, resources, gems }
+Step 4: Inside the resources keys create keys { aws_tools, rpm }
 Step 5: Upload select resources to buckets:
 
  - ROOT of S3 bucket
