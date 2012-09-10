@@ -4,7 +4,7 @@
 cd /usr/share/tomcat6/.jenkins
 
 # Add any new conf files, jobs, users, and content.
-git add -f *.xml jobs/*/config.xml .gitignore
+git add  *.xml jobs/*/config.xml plugins/*.hpi .gitignore
 
 # Ignore things we don't care about
 cat > .gitignore <<EOF
@@ -15,7 +15,6 @@ log
 *.bak
 *.jar
 .*
-plugins/
 updates/
 jobs/*/builds
 jobs/*/last*

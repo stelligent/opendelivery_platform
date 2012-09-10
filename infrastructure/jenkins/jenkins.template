@@ -163,6 +163,15 @@
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
+
+			  "/usr/share/tomcat6/.ssh/known_hosts" : {
+				"source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/known_hosts"]]},
+				"mode" : "000644",
+				"owner" : "tomcat",
+				"group" : "tomcat",
+				"authentication" : "S3AccessCreds"
+			  },
+
 			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700", 
@@ -266,6 +275,9 @@
           "    --access-key ",  { "Ref" : "HostKeys" },
           "    --secret-key ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
           "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+		  "# Copy Github credentials to root ssh directory\n",
+		  "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
         
 		  "# Installing Ruby 1.9.3 from RPM\n",
 		  "wget -P /home/ec2-user/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
