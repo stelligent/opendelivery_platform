@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "CloudFormation Template to provision Manatee Production instance",
+  "Description" : "CloudFormation Template to provision Target instance",
   
   "Parameters" : {
 	
@@ -25,11 +25,11 @@
 	},
 	"ApplicationName" : {
 	  "Type" : "String",
-	  "Default" : "manatees"
+	  "Default" : "target"
 	},
 	"HostedZone" : {
 	  "Type" : "String",
-	  "Default" : "mapntracker.com"
+	  "Default" : "integratebutton.com"
 	},
 	"JenkinsInternalIP" : {
       "Type" : "String"
@@ -69,7 +69,7 @@
   },
   "Resources" : {
 	
-	"ManateeUser" : {
+	"User" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
         "Path": "/",
@@ -90,14 +90,14 @@
       }
     },
 	
-	"ManateeKeys" : {
+	"HostKeys" : {
 	  "Type" : "AWS::IAM::AccessKey",
       "Properties" : {
-	    "UserName" : { "Ref" : "ManateeUser" }
+	    "UserName" : { "Ref" : "User" }
 	  }
 	},
 	
-	"ManateeDNS" : {
+	"DNS" : {
       "Type" : "AWS::Route53::RecordSetGroup",
 	  "Properties" : {
 	    "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
@@ -126,8 +126,8 @@
 				    "$s3_bucket            = '", { "Ref" : "S3Bucket" }, "'\n",
 				    "$application_name     = '", { "Ref" : "ApplicationName" }, "'\n",
 				    "$hosted_zone          = '", { "Ref" : "HostedZone" }, "'\n",
-				    "$access_key           = '", { "Ref" : "ManateeKeys" }, "'\n",
-				    "$secret_access_key    = '", {"Fn::GetAtt": ["ManateeKeys", "SecretAccessKey"]}, "'\n",
+				    "$access_key           = '", { "Ref" : "HostKeys" }, "'\n",
+				    "$secret_access_key    = '", { "Fn::GetAtt": ["HostKeys", "SecretAccessKey"] }, "'\n",
 				    "$jenkins_internal_ip  = '", { "Ref" : "JenkinsInternalIP" }, "'\n",
 				  "}"
                   ]]},
@@ -149,8 +149,8 @@
 		"AWS::CloudFormation::Authentication" : {
 		  "S3AccessCreds" : {
 		    "type" : "S3",
-		    "accessKeyId" : { "Ref" : "ManateeKeys" },
-		    "secretKey" : {"Fn::GetAtt": ["ManateeKeys", "SecretAccessKey"]},
+		    "accessKeyId" : { "Ref" : "HostKeys" },
+		    "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
 		    "buckets" : [ { "Ref" : "S3Bucket" } ]
 		  }
 		}
@@ -162,7 +162,7 @@
 		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
 		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
 		"KeyName"        : { "Ref" : "KeyName" },
-		"Tags": [ { "Key": "Name", "Value": "Manatee" } ],
+		"Tags": [ { "Key": "Name", "Value": "Target" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
 		  "ln -sf /usr/share/zoneinfo/EST5EDT /etc/localtime\n",
@@ -183,8 +183,8 @@
 		  
 		  "# Install Packages\n",
 		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
-		  "    --access-key ", { "Ref" : "ManateeKeys" },
-		  "    --secret-key ", { "Fn::GetAtt" : [ "ManateeKeys", "SecretAccessKey" ]},
+		  "    --access-key ", { "Ref" : "HostKeys" },
+		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
 		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 		  
 		  "puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
