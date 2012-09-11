@@ -37,9 +37,13 @@ Step 5: Upload select resources to buckets:
    - known_hosts
 
 Step 6: Run the account_bucket_policies.template with S3 Bucket from Step #1 as parameter
+
 Step 7: Run the security_group.template
+
 Step 8: Add port 5432 with source of security group to security group created in Step #7
+
 Step 9: Create development and production.pem
+
 Step 10: Create local aws.config file and store it in the config/aws/ folder
  - example: 
 	AWS.config(
