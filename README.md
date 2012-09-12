@@ -11,7 +11,7 @@ Please see the [wiki](https://github.com/stelligent/continuous_delivery_open_pla
 
 ## LICENSE
 
-Copyright (c) @ 2012 Stelligent Systems LLC
+Copyright (c) 2012 Stelligent Systems LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
