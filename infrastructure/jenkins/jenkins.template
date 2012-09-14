@@ -305,6 +305,9 @@
 		  "# Get S3 bucket publisher from S3\n",
 		  "wget -P /usr/share/tomcat6/.jenkins/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/hudson.plugins.s3.S3BucketPublisher.xml\n",  
 		
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
+		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		
 		  "# Update main Jenkins config\n",
 		  "sed -i 's@<accessKey>.*</accessKey>@<accessKey>", { "Ref" : "HostKeys" }, "</accessKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
 		  "sed -i 's@<secretKey>.*</secretKey>@<secretKey>", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "</secretKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
@@ -328,8 +331,7 @@
 		  "chmod +x /usr/share/tomcat6/scripts/aws/*\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
-		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		  
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",

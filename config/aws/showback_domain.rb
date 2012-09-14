@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'aws-sdk'
+require 'trollop'
+
 load File.expand_path('/opt/aws/aws.config')
 
 opts = Trollop::options do
@@ -10,7 +12,7 @@ end
 sdb = AWS::SimpleDB.new
   
 AWS::SimpleDB.consistent_reads do
-  domain = sdb.domains["stacks"]
+  domain = sdb.domains["cdplatform"]
   item = domain.items["#{opts[:item]}"]
   
   item.attributes.each_value do |name, value|

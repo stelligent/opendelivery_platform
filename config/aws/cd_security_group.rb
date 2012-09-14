@@ -23,7 +23,7 @@ AWS::SimpleDB.consistent_reads do
   item = domain.items["properties"]
   
   item.attributes.add(
-    'SGID' => ,  "#{security_group}")
+    'SGID' => "#{security_group_id}")
 end
 
-puts security_group
+puts security_group_id

@@ -51,18 +51,13 @@
         "Path": "/",
         "Policies": [{
           "PolicyName": "root",
-          "PolicyDocument": { "Statement":[
-          {
+          "PolicyDocument": { "Statement":[{
             "Effect":"Allow",
-            "Action":"cloudformation:DescribeStackResource",
+            "Action":"*",
             "Resource":"*"
-          },
-          {
-            "Effect":"Allow",
-            "Action":"s3:*",
-            "Resource":"*"
-         }]}
-        }]
+          }
+        ]}
+       }]
       }
     },
 	
@@ -158,6 +153,7 @@
 		  "wget -P /tmp/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/s3_upload.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/create_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/showback_domain.rb\n",
 		  
 		  "# Move Ruby 1.9.3 to Default Ruby\n",
 		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
@@ -169,6 +165,7 @@
 		  "# Install RubyGems\n",
 		  "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
 		  "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+		  "gem install bigdecimal  --version 1.1.0    --no-rdoc --no-ri\n",
 		
 		  "# Push platform dependencies up to S3\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "S3Bucket" } , "\n",
@@ -183,7 +180,11 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/id_rsa                                  --key private/id_rsa                                  --bucket ", { "Ref" : "S3Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/id_rsa.pub                              --key private/id_rsa.pub                              --bucket ", { "Ref" : "S3Bucket" } , "\n",
 		
-		   "ruby /tmp/create_domain.rb --domain cdplatform\n",
+		  "ruby /tmp/create_domain.rb --domain cdplatform\n",
+		
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
+		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		  "echo \"export SGID=`ruby /tmp/showback_domain.rb --item properties --key SGID`\" >> /home/ec2-user/hi\n",
 		   
 	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
