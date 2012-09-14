@@ -1,0 +1,225 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "CloudFormation Template to provision Target instance",
+  
+  "Parameters" : {
+	
+	"KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String",
+      "Default" : "development",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+    "InstanceType" : {
+	  "Type" : "String",
+	  "Default" : "c1.medium",
+	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+	}
+  },
+
+  "Mappings" : {
+	"AWSInstanceType2Arch" : {
+      "t1.micro"   : { "Arch" : "64" },
+      "m1.small"   : { "Arch" : "64" },
+	  "m1.medium"  : { "Arch" : "64" },
+	  "m1.large"   : { "Arch" : "64" },
+	  "m1.xlarge"  : { "Arch" : "64" },
+	  "m2.xlarge"  : { "Arch" : "64" },
+	  "m2.2xlarge" : { "Arch" : "64" },
+	  "m2.4xlarge" : { "Arch" : "64" },
+	  "c1.medium"  : { "Arch" : "64" },
+	  "c1.xlarge"  : { "Arch" : "64" }
+    },
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "32" : "ami-7f418316", "64" : "ami-7341831a" },
+      "us-west-1"      : { "32" : "ami-951945d0", "64" : "ami-971945d2" },
+      "us-west-2"      : { "32" : "ami-16fd7026", "64" : "ami-10fd7020" },
+      "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
+      "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
+      "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
+    }
+  },
+  "Resources" : {
+	
+	"User" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[
+          {
+            "Effect":"Allow",
+            "Action":"cloudformation:DescribeStackResource",
+            "Resource":"*"
+          },
+          {
+            "Effect":"Allow",
+            "Action":"s3:*",
+            "Resource":"*"
+         }]}
+        }]
+      }
+    },
+	
+	"HostKeys" : {
+	  "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+	    "UserName" : { "Ref" : "User" }
+	  }
+	},
+	
+	"S3Bucket" : {
+	  "Type" : "AWS::S3::Bucket",
+	  "DeletionPolicy" : "Retain"
+	},
+	
+	
+	"WebServer": {  
+      "Type": "AWS::EC2::Instance",
+	  "Metadata" : {
+	    "AWS::CloudFormation::Init" : {
+		  "config" : {
+			"files" : {
+			  "/opt/aws/aws.config" : {
+				"content" : { "Fn::Join" : ["", [
+				  "AWS.config(\n",
+					":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+					":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
+                  ]]},
+				"mode"   : "000500",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+			  },
+			
+			  "/tmp/cfn-cli.tar.gz" : {
+				"source" : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz",
+				"mode"   : "000500",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+			  },
+			  
+			  "/tmp/sns-cli.tar.gz" : {
+				"source" : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/sns-cli.tar.gz",
+				"mode"   : "000500",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+			  },
+			  
+			  "/tmp/common-step-definitions-1.0.0.gem" : {
+				"source" : "https://s3.amazonaws.com/sea2shore/gems/common-step-definitions-1.0.0.gem",
+				"mode"   : "000500",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+			  }
+			}
+		  }
+	    }
+	  },
+	  "Properties": {
+		"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+	                { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+		"InstanceType"     : { "Ref" : "InstanceType" },
+		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
+		"KeyName"        : { "Ref" : "KeyName" },
+		"Tags": [ { "Key": "Name", "Value": "AWSCLI" } ],
+		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+		  "#!/bin/bash -v\n",
+	
+		  "yum update -y aws-cfn-bootstrap\n",
+		
+		  "# Remove Ruby 1.8.7\n",
+		  "yum erase -y ruby rubygems\n",
+		
+		  "# Install Ruby 1.9.3\n",
+		  "yum -y install ruby19-devel\n",
+		  "yum -y install libxml2-devel\n",
+		  "yum -y install libxslt-devel\n",
+		  "yum -y install git\n",
+		  "yum -y install make\n",
+		  "yum -y install gcc\n",
+		
+		  "# Install Packages\n",
+		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+		  "    --access-key ", { "Ref" : "HostKeys" },
+		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+		
+		  "# Get CD Platform Files\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/jenkins_backup.sh\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/database_update.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/hudson.plugins.s3.S3BucketPublisher.xml\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/pg_hba.conf\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/s3_upload.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/server.xml\n",
+		  "wget -P /tmp/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		  
+		  "# Move Ruby 1.9.3 to Default Ruby\n",
+		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
+		  "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
+			
+		  "# Install RubyGems\n",
+		  "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
+		  "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+		
+		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins_backup.sh                       --key jenkins_backup.sh                               --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/database_update.rb                      --key database_update.rb                              --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/hudson.plugins.s3.S3BucketPublisher.xml --key hudson.plugins.s3.S3BucketPublisher.xml         --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                             --key pg_hba.conf                                     --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem       --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm         --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/sns-cli.tar.gz                          --key resources/aws_tools/sns-cli.tar.gz              --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/cfn-cli.tar.gz                          --key resources/aws_tools/cfn-cli.tar.gz              --bucket ", { "Ref" : "S3Bucket" } , "\n",
+		
+	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
+		]]}}		
+	  }
+	},
+	
+	"FrontendGroup" : {
+	  "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+	    "GroupDescription" : "Enable SSH Access",
+		"SecurityGroupIngress" : [
+		  { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }
+		]
+	  }
+	},
+	
+	"IPAddress" : {
+	  "Type" : "AWS::EC2::EIP"
+	},
+	
+	"IPAssociation" : {
+	  "Type" : "AWS::EC2::EIPAssociation",
+	  "Properties" : {
+		"InstanceId" : { "Ref" : "WebServer" },
+		"EIP" : { "Ref" : "IPAddress" }
+	  }
+	},
+	
+	"WaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+    
+    "WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "WebServer",
+      "Properties" : {
+        "Handle" : { "Ref" : "WaitHandle" },
+        "Timeout" : "900"
+      }
+    }
+  },
+
+  "Outputs" : {
+	"InstanceIPAddress" : {
+      "Value" : { "Ref" : "IPAddress" }
+    }
+  }
+}
