@@ -12,7 +12,7 @@ end
 sdb = AWS::SimpleDB.new
   
 AWS::SimpleDB.consistent_reads do
-  domain = sdb.domains["cdplatform"]
+  domain = sdb.domains["stacks"]
   item = domain.items["#{opts[:item]}"]
   
   item.attributes.each_value do |name, value|

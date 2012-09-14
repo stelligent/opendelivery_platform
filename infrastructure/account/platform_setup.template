@@ -18,6 +18,10 @@
 	  "Type" : "String",
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+	},
+	"Email" : {
+	  "Type" : "String",
+	  "Default" : ""
 	}
   },
 
@@ -180,7 +184,7 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/id_rsa                                  --key private/id_rsa                                  --bucket ", { "Ref" : "S3Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/id_rsa.pub                              --key private/id_rsa.pub                              --bucket ", { "Ref" : "S3Bucket" } , "\n",
 		
-		  "ruby /tmp/create_domain.rb --domain cdplatform\n",
+		  "ruby /tmp/create_domain.rb --domain stacks\n",
 		
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
