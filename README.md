@@ -1,55 +1,32 @@
-License
--------
+## DESCRIPTION
 
-See LICENSE file.
+The Open Continuous Delivery platform provides a complete working Continuous Delivery solution using industry-standard open source tools such as Jenkins, Puppet, Chef, Capistrano, Ruby, Maven, git, Java, Grails, etc.  
 
-Steps for setup of CD Platform
--------
-Step 1: Create a new S3 Bucket
-Step 2: Create a new RSA Keypair
- - ssh-keygen -t rsa -C "your@email.com"
- - ssh-add ~/.ssh/id_rsa
+## DETAILS
 
-Step 3: In S3 bucket created in Step #1, create keys { private, resources, gems }
-Step 4: Inside the resources keys create keys { aws_tools, rpm }
-Step 5: Upload select resources to buckets:
+Please see the [wiki](https://github.com/stelligent/continuous_delivery_open_platform/wiki/).
 
- - ROOT of S3 bucket
-   - hudson.plugins.s3.S3BucketPublisher.xml
-   - jenkins_backup.sh
-   - pg_hba.conf
-   - server.xml
-   - database_update.rb
+## SUPPORT
 
- - ROOT/resources/aws_tools/
-   - cfn-cli.tar.gz
-   - sns-cli.tar.gz
 
- - ROOT/resources/rpm
-   - ruby-1.9.3p0-2.amzn1.x86_64.rpm
+## LICENSE
 
- - ROOT/gems/
-   - common-step-definitions-1.0.0.gem
+Copyright (c) 2012 Stelligent Systems LLC
 
- - ROOT/private/
-   - id_rsa
-   - id_rsa.pub
-   - known_hosts
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Step 6: Run the account_bucket_policies.template with S3 Bucket from Step #1 as parameter
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-Step 7: Run the security_group.template
-
-Step 8: Add port 5432 with source of security group to security group created in Step #7
-
-Step 9: Create development and production.pem
-
-Step 10: Create local aws.config file and store it in the config/aws/ folder
- - example: 
-	AWS.config(
-	  :access_key_id => "AKISAASVMCEFASMFUFRZMBQ",
-	  :secret_access_key => "0EIfOsAl/0UqOaiJzE7emhecH/DSASDasdasds/SQ"
-	)
-
-Step 11: Create SDB domain called "stacks"
- - ruby create_domain.rb --domain stacks
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

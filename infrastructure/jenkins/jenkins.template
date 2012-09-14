@@ -22,7 +22,7 @@
 	
 	"SGID" : {
 	  "Type" : "String",
-	  "Default" : "sg-7e6c1816"
+	  "Default" : "sg-dab4d0b2"
 	},
       
     "KeyName" : {
