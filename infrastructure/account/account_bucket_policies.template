@@ -5,9 +5,8 @@
   
   "Parameters" : {
 	"S3Bucket" : {
-	  "Description" : "Public S3 bucket for storing artifacts",
+	  "Description" : "Enter the S3 bucket generated when running the platform_setup.template. This bucket stores artifacts used by CD platform.",
       "Type" : "String",
-      "Default" : "sea2shore",
       "ConstraintDescription" : "Must be a valid S3 Bucket"
 	}
   },
