@@ -2,7 +2,7 @@ require 'rubygems'
 require 'aws-sdk'
 require 'trollop'
 
-load File.expand_path('../../config/aws.config', __FILE__)
+load File.expand_path('/opt/aws/aws.config')
 
 opts = Trollop::options do
   opt :domain, "Name of Domain", :short => "d", :type => String

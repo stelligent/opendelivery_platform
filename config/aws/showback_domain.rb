@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'aws-sdk'
-load File.expand_path('/usr/share/tomcat6/scripts/config/aws.config')
+load File.expand_path('/opt/aws/aws.config')
 
 opts = Trollop::options do
   opt :key, "Key", :short => "k", :type => String
