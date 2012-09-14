@@ -21,9 +21,8 @@ security_group.authorize_ingress(:tcp, "#{opts[:port]}", security_group)
 AWS::SimpleDB.consistent_reads do
   domain = sdb.domains["cdplatform"]
   item = domain.items["properties"]
-  
-  item.attributes.add(
-    'SGID' => "#{security_group_id}")
+  item.attributes.delete('SGID')
+  item.attributes.add('SGID' => "#{security_group_id}")
 end
 
 puts security_group_id
