@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'aws-sdk'
+require 'trollop'
+
 load File.expand_path('../../config/aws.config', __FILE__)
 
 opts = Trollop::options do
