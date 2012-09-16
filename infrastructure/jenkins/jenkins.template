@@ -135,10 +135,7 @@
 
             "sources" : {
               "/opt/aws/apitools/cfn"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/cfn-cli.tar.gz"]]},
-			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]},
-			  "/usr/bin/grails-1.3.7"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/binaries/grails-1.3.7.tar.gz"]]},
-			  "/usr/bin/groovy-1.8.2"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/binaries/groovy-1.8.2.tar.gz"]]},
-			  "/usr/share/tomcat6/scripts/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_utilities.tar.gz"]]}
+			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]}
             },
 
             "files" : {
@@ -163,14 +160,6 @@
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
-
-			  "/usr/share/tomcat6/.ssh/known_hosts" : {
-				"source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/known_hosts"]]},
-				"mode" : "000644",
-				"owner" : "tomcat",
-				"group" : "tomcat",
-				"authentication" : "S3AccessCreds"
-			  },
 
 			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
@@ -230,6 +219,15 @@
 				   "</VirtualHost>"
                   ]]},
 				"mode"   : "000544",
+                "owner"  : "root",
+                "group"  : "root"
+			  },
+			  "/root/.ssh/config" : {
+				"content" : { "Fn::Join" : ["", [
+				  "Host github.com\n",
+				  "StrictHostKeyChecking no\n"
+                  ]]},
+				"mode"   : "000600",
                 "owner"  : "root",
                 "group"  : "root"
 			  },
@@ -328,15 +326,11 @@
 		  
 		
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/showback_domain.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
-		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
 		  "echo \"export SGID=`ruby /tmp/showback_domain.rb --item properties --key SGID`\" >> /etc/sysconfig/tomcat6\n",
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
 		  "chmod +x /usr/share/tomcat6/scripts/aws/*\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
-
-		  
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",

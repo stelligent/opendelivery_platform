@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "CloudFormation Template to provision Target instance",
+  "Description" : "CloudFormation Template to Setup CD Platform",
   
   "Parameters" : {
 	
@@ -77,12 +77,29 @@
 	  "DeletionPolicy" : "Retain"
 	},
 	
+	"SNSTopic" : {
+	    "Type" : "AWS::SNS::Topic",
+	    "Properties" : {
+	        "Subscription" : [ {
+	            "Endpoint" : { "Ref": "Email" },
+	            "Protocol" : "email"
+	        } ]
+	    }
+	},
+	
 	
 	"WebServer": {  
       "Type": "AWS::EC2::Instance",
+	  "DependsOn" : "SNSTopic",
 	  "Metadata" : {
 	    "AWS::CloudFormation::Init" : {
 		  "config" : {
+			
+			"sources" : {
+              "/opt/aws/apitools/cfn"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz"]]},
+			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/resources/aws_tools/sns-cli.tar.gz"]]}
+            },
+
 			"files" : {
 			  "/opt/aws/aws.config" : {
 				"content" : { "Fn::Join" : ["", [
@@ -94,6 +111,16 @@
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
 			  },
+			
+			  "/opt/aws/aws_access" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
+                  ]]},
+                "mode"   : "000400",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
+              },
 			
 			  "/tmp/cfn-cli.tar.gz" : {
 				"source" : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz",
@@ -170,6 +197,7 @@
 		  "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
 		  "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
 		  "gem install bigdecimal  --version 1.1.0    --no-rdoc --no-ri\n",
+		  "gem install github_api  --version 0.7.0    --no-rdoc --no-ri\n",
 		
 		  "# Push platform dependencies up to S3\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "S3Bucket" } , "\n",
@@ -185,10 +213,13 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/id_rsa.pub                              --key private/id_rsa.pub                              --bucket ", { "Ref" : "S3Bucket" } , "\n",
 		
 		  "ruby /tmp/create_domain.rb --domain stacks\n",
+		  
+		  "# Add AWS CLI Tools\n",
+		  "export AWS_CLOUDFORMATION_HOME=/opt/aws/apitools/cfn\n",
+		  "export AWS_SNS_HOME=/opt/aws/apitools/sns\n",
+		  "export PATH=$PATH:/opt/aws/apitools/sns/bin:/opt/aws/apitools/cfn/bin\n",
 		
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
-		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
-		  "echo \"export SGID=`ruby /tmp/showback_domain.rb --item properties --key SGID`\" >> /home/ec2-user/hi\n",
+		  "sns-publish --topic-arn ", { "Ref" : "SNSTopic" }, " --subject \"Test\" --message \"Test\" --aws-credential-file /opt/aws/aws_access\n",
 		   
 	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
