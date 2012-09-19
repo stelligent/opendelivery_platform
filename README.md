@@ -4,7 +4,7 @@ The Open Continuous Delivery platform provides a complete working Continuous Del
 
 ## DETAILS
 
-Please see the [wiki](https://github.com/stelligent/continuous_delivery_open_platform/wiki/).
+Please see the [wiki](https://github.com/stelligent/continuous_delivery_open_platform/wiki/) or the [Quick Start Guide] (https://github.com/stelligent/continuous_delivery_open_platform/wiki/Quick-Start-Guide).
 
 ## SUPPORT
 
