@@ -19,11 +19,6 @@
 	  "Type" : "String",
 	  "Default" : "integratebutton.com"
 	},
-	
-	"SGID" : {
-	  "Type" : "String",
-	  "Default" : "sg-dab4d0b2"
-	},
       
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -124,7 +119,6 @@
             "packages" : {
               "yum" : {
                 "tomcat6"       : [],
-                "subversion"    : [],
  				"git"    		: [],
 				"gcc"			: [],
 				"libxslt-devel" : [],
@@ -260,7 +254,6 @@
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ {"Ref" : "FrontendGroup"} ],
-		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
         "KeyName"        : { "Ref" : "KeyName" },
 		"Tags": [ { "Key": "Name", "Value": "Jenkins" } ],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
@@ -294,21 +287,16 @@
 		  "gem install capistrano  --version 2.12.0   --no-rdoc --no-ri\n",
 		  "gem install route53     --version 0.2.1    --no-rdoc --no-ri\n",
 		  "gem install rspec       --version 2.10.0   --no-rdoc --no-ri\n",
-		  "gem install trollop       --version 2.0    --no-rdoc --no-ri\n",
+		  "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
 
 		  "# Update Jenkins with versioned configuration\n",
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
-		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",
-		  
-		  "# Get S3 bucket publisher from S3\n",
-		  "wget -P /usr/share/tomcat6/.jenkins/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/hudson.plugins.s3.S3BucketPublisher.xml\n",  
+		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",  
 		
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
-		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/showback_domain.rb\n",
 		
-		  "# Update main Jenkins config\n",
-		  "sed -i 's@<accessKey>.*</accessKey>@<accessKey>", { "Ref" : "HostKeys" }, "</accessKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
-		  "sed -i 's@<secretKey>.*</secretKey>@<secretKey>", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "</secretKey>@' /usr/share/tomcat6/.jenkins/hudson.plugins.s3.S3BucketPublisher.xml\n",
+		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
 
 		  "# Add AWS Credentials to Tomcat\n",
 		  "echo \"AWS_ACCESS_KEY=", { "Ref" : "HostKeys" }, "\" >> /etc/sysconfig/tomcat6\n",
@@ -323,13 +311,11 @@
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
-		  
+		  "echo \"export S3BUCKET=", { "Ref" : "S3Bucket" }, "\" >> /etc/sysconfig/tomcat6\n",
 		
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/showback_domain.rb\n",
 		  "echo \"export SGID=`ruby /tmp/showback_domain.rb --item properties --key SGID`\" >> /etc/sysconfig/tomcat6\n",
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
-		  "chmod +x /usr/share/tomcat6/scripts/aws/*\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
 		  "service tomcat6 restart\n",

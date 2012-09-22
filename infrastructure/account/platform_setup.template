@@ -16,7 +16,7 @@
     },
     "InstanceType" : {
 	  "Type" : "String",
-	  "Default" : "m1.medium",
+	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
 	},
 	"ApplicationName" : {
@@ -34,6 +34,10 @@
 	"GithubPassword" : {
 	  "Type" : "String",
 	  "NoEcho" : "TRUE"
+	},
+	"Email" : {
+	  "Type" : "String",
+	  "Default" : "aws@stelligent.com"
 	}
   },
 
@@ -164,7 +168,6 @@
 		  "# Get CD Platform Files\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/jenkins_backup.sh\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/database_update.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/hudson.plugins.s3.S3BucketPublisher.xml\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/pg_hba.conf\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/server.xml\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/s3_upload.rb\n",
@@ -194,7 +197,6 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins_backup.sh                       --key jenkins_backup.sh                               --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/database_update.rb                      --key database_update.rb                              --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/hudson.plugins.s3.S3BucketPublisher.xml --key hudson.plugins.s3.S3BucketPublisher.xml         --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                             --key pg_hba.conf                                     --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem       --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm         --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "Bucket" } , "\n",
@@ -256,12 +258,15 @@
 	  "Type" : "AWS::CloudFormation::Stack",
 	  "DependsOn" : "BucketPolicyStack",
 	  "Properties" : {
-	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "Bucket" }, "/templates/jenkins.template"]]},
+	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/templates/jenkins.template"]]},
 	    "TimeoutInMinutes" : "20",
 		"Parameters" : {
 		  "S3Bucket" : { "Ref" : "Bucket"},
 		  "HostedZone" : { "Ref" : "HostedZone" },
-		  "ApplicationName" : { "Ref" : "ApplicationName" }
+		  "ApplicationName" : { "Ref" : "ApplicationName" },
+		  "KeyName" : { "Ref" : "KeyName" },
+		  "InstanceType" : { "Ref" : "InstanceType" },
+		  "Email" : { "Ref" : "Email" }
 		}
 	  }
 	},
