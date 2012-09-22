@@ -293,8 +293,8 @@
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",  
 		
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/cd_security_group.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/aws/showback_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
 		
 		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
 
