@@ -175,7 +175,7 @@
 		
 		  "# Install Puppet 2.7 from Rubygem\n",
 		  "gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
-		  "sudo groupadd puppet\n",
+		  "groupadd puppet\n",
 		  
 		  "# Install Packages\n",
 		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
