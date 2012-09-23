@@ -296,7 +296,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
 		
-		  "ruby /tmp/cd_security_group --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
 
 		  "# Add AWS Credentials to Tomcat\n",
 		  "echo \"AWS_ACCESS_KEY=", { "Ref" : "HostKeys" }, "\" >> /etc/sysconfig/tomcat6\n",
