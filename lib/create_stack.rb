@@ -35,9 +35,11 @@ while stack.status != "CREATE_COMPLETE"
   
   case stack.status
   when "ROLLBACK_IN_PROGESS"
-    stack.delete
+    #stack.delete
+    puts "hi"
   when "ROLLBACK_COMPLETE"
-    stack.delete
+    #stack.delete
+    puts "hi"
   end
 end
 
