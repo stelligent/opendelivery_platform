@@ -6,8 +6,8 @@ load File.expand_path('/opt/aws/aws.config')
 opts = Trollop::options do
   opt :stackname, "Name of stack", :short => "n", :type => String
   opt :templatelocation, "Path to CloudFormation Template", :short => "l",  :type => String
+  opt :domain, "Route 53 Domain", :short => "d",  :type => String
   opt :application, "Name of application", :short => "a",  :type => String
-  opt :jenkinsinternalip, "Jenkins internal IP", :short => "j",  :type => String
   opt :sshkey, "SSH Key used in CloudFormation Template", :short => "k",  :type => String
   opt :securitygroup, "Name of security group used in CloudFormation Template", :short => "g",  :type => String
   opt :snstopic, "Simple Notification Topic used in CloudFormation Template", :short => "s",  :type => String
@@ -21,8 +21,8 @@ stack = cfn.stacks.create(
         "#{opts[:stackname]}", 
         template,
         :parameters => {
+          "HostedZone" => "#{opts[:domain]}",
           "ApplicationName" => "#{opts[:application]}",
-          "JenkinsInternalIP" => "#{opts[:jenkinsinternalip]}",
           "KeyName" => "#{opts[:sshkey]}",
           "SGID" => "#{opts[:securitygroup]}",
           "SNSTopic" => "#{opts[:snstopic]}"

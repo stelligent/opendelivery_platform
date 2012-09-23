@@ -31,9 +31,6 @@
 	  "Type" : "String",
 	  "Default" : "integratebutton.com"
 	},
-	"JenkinsInternalIP" : {
-      "Type" : "String"
-    },
 	"S3Bucket" : {
 	  "Description" : "Artifact Bucket",
 	  "Type" : "String",
@@ -128,7 +125,6 @@
 				    "$hosted_zone          = '", { "Ref" : "HostedZone" }, "'\n",
 				    "$access_key           = '", { "Ref" : "HostKeys" }, "'\n",
 				    "$secret_access_key    = '", { "Fn::GetAtt": ["HostKeys", "SecretAccessKey"] }, "'\n",
-				    "$jenkins_internal_ip  = '", { "Ref" : "JenkinsInternalIP" }, "'\n",
 				  "}"
                   ]]},
 				"mode"   : "000500",
