@@ -48,18 +48,6 @@ class system {
     }
   }
   
-  download_file {"database_update.rb":                                                                                                 
-      site => "https://s3.amazonaws.com/cdplatform",                                                                           
-      cwd => "/home/ec2-user",                                                            
-      creates => "/home/ec2-user/database_update.rb",                                                         
-  }
-  
-  download_file {"id_rsa.pub":                                                                                                 
-      site => "https://s3.amazonaws.com/cdplatform/private",
-      cwd => "/tmp",
-      creates => "/tmp/id_rsa.pub"                                                            
-  }
-  
   exec {"authorized_keys":
     command => "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys",
     require => Download_file["id_rsa.pub"]                                                        

@@ -132,7 +132,7 @@
                 "group"  : "ec2-user"
 			  },
 			
-			  "/usr/share/tomcat6/.ssh/id_rsa.pub" : { 
+			  "/tmp/id_rsa.pub" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]}, 
                 "mode" : "000600", 
                 "owner" : "tomcat",
