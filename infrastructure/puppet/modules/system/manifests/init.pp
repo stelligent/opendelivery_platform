@@ -49,8 +49,7 @@ class system {
   }
   
   exec {"authorized_keys":
-    command => "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys",
-    require => Download_file["id_rsa.pub"]                                                        
+    command => "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys"                                                       
   }
 }
 

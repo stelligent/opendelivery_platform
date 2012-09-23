@@ -23,7 +23,6 @@ jobs/*/*.csv
 jobs/*/*.txt
 jobs/*/*.log
 jobs/*/workspace
-hudson.plugins.s3.S3BucketPublisher.xml
 EOF
 
 # Remove anything from git that no longer exists in jenkins.

@@ -11,6 +11,7 @@ opts = Trollop::options do
   opt :sshkey, "SSH Key used in CloudFormation Template", :short => "k",  :type => String
   opt :securitygroup, "Name of security group used in CloudFormation Template", :short => "g",  :type => String
   opt :snstopic, "Simple Notification Topic used in CloudFormation Template", :short => "s",  :type => String
+  opt :s3bucket, "S3 Bucket", :short => "b",  :type => String
 end
 
 file = File.open("#{opts[:templatelocation]}", "r")
@@ -25,6 +26,7 @@ stack = cfn.stacks.create(
           "ApplicationName" => "#{opts[:application]}",
           "KeyName" => "#{opts[:sshkey]}",
           "SGID" => "#{opts[:securitygroup]}",
+          "S3Bucket" => "#{opts[:s3bucket]}",
           "SNSTopic" => "#{opts[:snstopic]}"
         },
         :capabilities => ["CAPABILITY_IAM"]
