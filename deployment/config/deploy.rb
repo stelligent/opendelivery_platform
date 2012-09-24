@@ -44,16 +44,14 @@ role :db,  ip_address, :primary => true
 
 set :deploy_via, :remote_cache
 
-task :setup do
-  run "sudo chown -R tomcat:tomcat #{deploy_to}"
-  run "sudo service httpd stop"
-  run "sudo service tomcat6 stop"
-  run "sudo rm -rf #{deploy_to}/*"
-end
-
 namespace :deploy do
   
-  
+  task :setup do
+    run "sudo chown -R tomcat:tomcat #{deploy_to}"
+    run "sudo service httpd stop"
+    run "sudo service tomcat6 stop"
+    run "sudo rm -rf #{deploy_to}/*"
+  end
   
   task :deploy do
     run "cd #{deploy_to} && sudo wget #{artifact_url}"
