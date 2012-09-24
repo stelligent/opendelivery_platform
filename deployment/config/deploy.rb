@@ -36,8 +36,6 @@ set :ssh_options,      { :forward_agent => true,
                          :paranoid => false, 
                          :keys => ssh_key }
 
-set :application, domain
-
 role :web, ip_address
 role :app, ip_address
 role :db,  ip_address, :primary => true
