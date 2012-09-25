@@ -28,7 +28,7 @@ set :ip_address do
 end
 
 set :artifact_url do
-  item = sdb.domains["stacks"].items["#{stack}"]
+  item = sdb.domains["stacks"].items["properties"]
   item.attributes['ArtifactUrl'].values[0].to_s.chomp
 end
 
