@@ -44,7 +44,7 @@ while stack.status != "CREATE_COMPLETE"
 end
 
 stack = cfn.stacks["#{opts[:stackname]}"]
-File.open("/tmp/properties", "w") do |aFile|
+File.open("/tmp/#{opts[:stackname]}", "w") do |aFile|
    stack.outputs.each do |output|
      cfnOutput = output.key + "=" + output.value + "\n"
      aFile.syswrite(cfnOutput) 
