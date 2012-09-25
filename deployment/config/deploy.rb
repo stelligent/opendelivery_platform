@@ -35,7 +35,6 @@ end
 set :user,             "ec2-user"
 set :use_sudo,         false
 set :deploy_to,        "/usr/share/tomcat6/webapps"
-set :artifact_url,     "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war"
 set :ssh_options,      { :forward_agent => true, 
                          :paranoid => false, 
                          :keys => ssh_key }
