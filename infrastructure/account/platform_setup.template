@@ -173,6 +173,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/s3_upload.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_domain.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/add_github_key.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/fork_github_repo.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/platform_setup.template\n",
@@ -210,6 +211,9 @@
 		  
 		  "# Create Simple DB Domain\n",
 		  "ruby /tmp/create_domain.rb  --domain stacks\n",
+		
+		  "# Set S3 Bucket Property\n",
+		  "ruby /tmp/set_properties.rb --itemname properties --property S3Bucket --value", { "Ref" : "Bucket" }, "\n",
 		
 		  "# Setup Git Repository\n",
 		  "ruby /tmp/add_github_key.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
