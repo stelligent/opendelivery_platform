@@ -27,6 +27,11 @@ set :ip_address do
   item.attributes['InstanceIPAddress'].values[0].to_s.chomp
 end
 
+set :artifact_url do
+  item = sdb.domains["stacks"].items["#{stack}"]
+  item.attributes['ArtifactUrl'].values[0].to_s.chomp
+end
+
 set :user,             "ec2-user"
 set :use_sudo,         false
 set :deploy_to,        "/usr/share/tomcat6/webapps"
