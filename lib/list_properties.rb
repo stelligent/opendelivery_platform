@@ -13,7 +13,7 @@ AWS::SimpleDB.consistent_reads do
   domain = sdb.domains["stacks"]
   item = domain.items["#{opts[:itemname]}"]
   
-  item.attributes.each do |attribute|
-    puts "Name of attribute: " + attribute.name + "Value: " + attribute.value
+  item.attributes.each_value do |name, value|
+    puts "Name of attribute: " + name + "Value: " + value
   end
 end
