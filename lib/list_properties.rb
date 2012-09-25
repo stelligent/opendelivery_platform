@@ -14,6 +14,6 @@ AWS::SimpleDB.consistent_reads do
   item = domain.items["#{opts[:itemname]}"]
   
   item.attributes.each_value do |name, value|
-    puts "Name of attribute: " + name + "Value: " + value
+    puts "Name of attribute: #{name} | Value: #{value}"
   end
 end
