@@ -2,8 +2,6 @@ class postgresql {
   
   include params
   
-  $jenkins_internal_ip = $params::jenkins_internal_ip
-  
   Exec { path => '/usr/bin:/bin:/usr/sbin:/sbin' }
   
   define download_file($site="",$cwd="",$creates=""){                                                                                         
