@@ -25,7 +25,7 @@ cfn.stacks.each do |i|
         if v == "development"
           if diff > 1
             # If the difference between current time and CloudFormation stack creation time is greater that 24 hours, delete the stack
-            puts  i.delete
+            i.delete
           end
         end
       end
