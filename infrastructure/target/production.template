@@ -190,10 +190,8 @@
 		  "echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
 		  "else\n",
 		  "touch /home/ec2-user/hi\n",
-		  "exit 0\n",
 		  "fi\n",
-		
-	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
+		  "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
 	  }
 	},
