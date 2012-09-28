@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "CloudFormation Template to provision Manatee Jenkins instance",
+  "Description" : "Jenkins",
   
   "Parameters" : {
 	
@@ -164,6 +164,13 @@
               },
               "/etc/cron.hourly/jenkins_backup.sh" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/etc/cron.hourly/transient_environments.rb" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
                 "mode"   : "000500",
                 "owner"  : "root",
                 "group"  : "root",

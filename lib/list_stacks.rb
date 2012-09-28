@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'rubygems'
 require 'aws-sdk'
 load File.expand_path('/opt/aws/aws.config')

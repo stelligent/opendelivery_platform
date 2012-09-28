@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "CloudFormation Template to provision Target instance",
+  "Description" : "Target",
   
   "Parameters" : {
 	

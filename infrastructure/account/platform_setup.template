@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "CloudFormation Template to Setup CD Platform",
+  "Description" : "Setup",
   
   "Parameters" : {
 	
@@ -185,6 +185,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/add_github_key.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/fork_github_repo.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/transient_environments.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/platform_setup.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/account_bucket_policies.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/jenkins/jenkins.template\n",
@@ -214,13 +215,15 @@
 		  "ruby /tmp/fork_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
 		
 		  "# Store Puppet Tar up in S3\n",
+		  "cd /tmp\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
-		  "tar -czvf puppet.tar.gz /tmp/platform/infrastructure/puppet/modules/* /tmp/platform/infrastructure/puppet/manifests/* -C /tmp/\n",
+		  "tar -czvf puppet.tar.gz /tmp/platform/infrastructure/puppet/modules/* /tmp/platform/infrastructure/puppet/manifests/*\n",
 		
 		  "# Push platform dependencies up to S3\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins_backup.sh                       --key jenkins_backup.sh                               --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/database_export.rb                      --key database_export.rb                              --bucket ", { "Ref" : "Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb               --key transient_environments.rb                       --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                             --key pg_hba.conf                                     --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem       --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm         --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "Bucket" } , "\n",
