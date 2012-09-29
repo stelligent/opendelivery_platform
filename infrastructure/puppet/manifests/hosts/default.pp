@@ -5,5 +5,4 @@ node default {
 	class { "tomcat6":    stage => main }
 	class { "postgresql": stage => main }
 	class { "httpd":      stage => main }
-	class { "post"        stage => post }
 }

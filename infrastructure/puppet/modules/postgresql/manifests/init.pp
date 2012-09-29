@@ -1,17 +1,8 @@
 class postgresql {
   
-  include params
-  
-  define download_file($site="",$cwd="",$creates=""){                                                                                         
-    exec { $name:                                                                                                                     
-      command => "wget ${site}/${name}",                                                         
-      cwd => $cwd,
-      creates => "${cwd}/${name}"                                                                                       
-    }
-  }
-  
   package { "postgresql8-server":
     ensure => installed,
+  }
   
   exec { "initdb": 
     unless => "[ -d /var/lib/postgresql/data ]",

@@ -117,19 +117,15 @@
 			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]}
 			},
 			"files" : {
-			  "/home/ec2-user/manifests/classes/params.pp" : {
+			  "/opt/aws/aws.config" : {
 				"content" : { "Fn::Join" : ["", [
-				  "class params {\n",
-				    "$s3_bucket            = '", { "Ref" : "S3Bucket" }, "'\n",
-				    "$application_name     = '", { "Ref" : "ApplicationName" }, "'\n",
-				    "$hosted_zone          = '", { "Ref" : "HostedZone" }, "'\n",
-				    "$access_key           = '", { "Ref" : "HostKeys" }, "'\n",
-				    "$secret_access_key    = '", { "Fn::GetAtt": ["HostKeys", "SecretAccessKey"] }, "'\n",
-				  "}"
+				  "AWS.config(\n",
+					":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+					":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
                   ]]},
 				"mode"   : "000500",
-                "owner"  : "ec2-user",
-                "group"  : "ec2-user"
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
 			  },
 			
 			  "/tmp/id_rsa.pub" : { 
@@ -161,6 +157,8 @@
 		"Tags": [ { "Key": "Name", "Value": "Target" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
+		  "if ['a' == 'b']\n",
+		  "then\n",
 		  	"yum update -y aws-cfn-bootstrap\n",
 
 			"# Install Ruby Dependency\n",
@@ -185,8 +183,20 @@
 			"# Disable tty for ec2-user\n",
 			"echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
 			"echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
+			
+		   "else\n",
 		
-		  "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
+			"# Install Packages\n",
+			"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+			"    --access-key ", { "Ref" : "HostKeys" },
+			"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+			"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+			
+			"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+			
+		   "fi\n",
+		
+		   "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
 	  }
 	},
