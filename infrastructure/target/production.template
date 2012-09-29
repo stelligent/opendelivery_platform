@@ -19,6 +19,11 @@
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
 	},
+	"AMIBuild" : {
+	  "Type" : "TRUE",
+	  "AllowedValues" : ["TRUE", "FALSE"],
+	},
+	
 	"SGID" : {
 	  "Type" : "String",
 	  "Default" : "sg-dab4d0b2"
@@ -157,7 +162,7 @@
 		"Tags": [ { "Key": "Name", "Value": "Target" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
-		    "if [ ", { "Ref" : "KeyName" }, " == 'development' ]; then\n",
+		    "if [ ", { "Ref" : "AMIBuild" }, " == 'FALSE' ]; then\n",
 			
 				"yum update -y aws-cfn-bootstrap\n",
 
@@ -186,16 +191,18 @@
 				
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+				
 			"else\n",
 			
-			"# Install Packages\n",
-			"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
-			"    --access-key ", { "Ref" : "HostKeys" },
-			"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-			"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+				"# Install Packages\n",
+				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+				"    --access-key ", { "Ref" : "HostKeys" },
+				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 			
-			"# Add rsa key to Authorized Keys\n",
-			"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+				"# Add rsa key to Authorized Keys\n",
+				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+				
 		   "fi\n",
 		
 		   "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
