@@ -18,6 +18,8 @@ set :stack, ENV['stack']
 set :ssh_key, ENV['key']
 set :type, ENV['type']
 
+w.env = { "HOME" => "/root"}
+
 set :ip_address do
   item = sdb.domains["stacks"].items["#{stack}"]
   item.attributes['InstanceIPAddress'].values[0].to_s.chomp
