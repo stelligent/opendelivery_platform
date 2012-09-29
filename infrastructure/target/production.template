@@ -163,35 +163,35 @@
 		  "#!/bin/bash -v\n",
 		  "if ['a' == 'b']\n",
 		  "then\n",
-		
-		  "yum update -y aws-cfn-bootstrap\n",
+		  	"yum update -y aws-cfn-bootstrap\n",
 		  
-		  "# Install Ruby Dependency\n",
-		  "yum install -y libxslt-devel\n",
-		
-		  "# Install Ruby 1.9.3\n",
-		  "wget https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-		  "rpm -Uvh ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-		
-		  "# Install Puppet 2.7 from Rubygem\n",
-		  "gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
-		  "groupadd puppet\n",
-		  
-		  "# Install Packages\n",
-		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
-		  "    --access-key ", { "Ref" : "HostKeys" },
-		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
-		  
-		  "puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
-		  
-		  "# Disable tty for ec2-user\n",
-		  "echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
-		  "echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
+			"# Install Ruby Dependency\n",
+			"yum install -y libxslt-devel\n",
+
+			"# Install Ruby 1.9.3\n",
+			"wget https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+			"rpm -Uvh ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+
+			"# Install Puppet 2.7 from Rubygem\n",
+			"gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
+			"groupadd puppet\n",
+
+			"# Install Packages\n",
+			"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+			"    --access-key ", { "Ref" : "HostKeys" },
+			"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+			"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+			"puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
+
+			"# Disable tty for ec2-user\n",
+			"echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
+			"echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
 		  "else\n",
-		  "touch /home/ec2-user/hi\n",
-		   "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n",
-		  "fi\n"
+		  	"touch /home/ec2-user/hi\n",
+		  "fi\n",
+		
+		  "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
 	  }
 	},

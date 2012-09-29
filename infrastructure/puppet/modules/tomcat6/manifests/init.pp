@@ -1,7 +1,5 @@
 class tomcat6 {
   
-  Exec { path => '/usr/bin:/bin:/usr/sbin:/sbin' }
-  
   package { "tomcat6":
     ensure => "installed" 
   }
