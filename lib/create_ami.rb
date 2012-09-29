@@ -27,7 +27,7 @@ image = ec2.images.create(:instance_id => "#{@instance}",
 while image.state != :available
   sleep 10
   case image.state
-  when :failed
+  when "failed"
     image.delete
     raise RuntimeError, 'Image Creation Failed'
   end
