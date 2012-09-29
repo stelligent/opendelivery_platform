@@ -221,6 +221,7 @@
 		  "cd /tmp\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
 		  "tar -czvf puppet.tar.gz /tmp/platform/infrastructure/puppet/modules/* /tmp/platform/infrastructure/puppet/manifests/*\n",
+		  "tar -czvf capistrano.tar.gz /tmp/platform/deployment/*\n",
 		
 		  "# Push platform dependencies up to S3\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "Bucket" } , "\n",
@@ -237,7 +238,8 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                 --key templates/platform_setup.template               --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/account_bucket_policies.template        --key templates/account_bucket_policies.template      --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins.template                        --key templates/jenkins.template                      --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/puppet.tar.gz                           --key puppet.tar.gz                                   --bucket ", { "Ref" : "Bucket" } , "\n", 
+		  "ruby /tmp/s3_upload.rb --filename /tmp/puppet.tar.gz                           --key puppet.tar.gz                                   --bucket ", { "Ref" : "Bucket" } , "\n",
+		  "ruby /tmp/s3_upload.rb --filename /tmp/capistrano.tar.gz                       --key capistrano.tar.gz                               --bucket ", { "Ref" : "Bucket" } , "\n", 
 		
 	      "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
 		]]}}		
