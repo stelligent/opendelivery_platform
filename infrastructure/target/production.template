@@ -123,16 +123,16 @@
 					":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
 					":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
                   ]]},
-				"mode"   : "000500",
-                "owner"  : "tomcat",
-                "group"  : "tomcat"
+				"mode"   : "000555",
+                "owner"  : "ec2-user",
+                "group"  : "ec2-user"
 			  },
 			
 			  "/tmp/id_rsa.pub" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]}, 
                 "mode" : "000600", 
-                "owner" : "tomcat",
-                "group" : "tomcat",
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
 				"authentication" : "S3AccessCreds"
               }
 			}
