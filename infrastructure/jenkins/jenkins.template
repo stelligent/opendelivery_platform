@@ -10,6 +10,10 @@
 	  "Default" : "aws@stelligent.com"
 	},
 	
+	"SetupTemplate" : {
+	  "Type" : "String"
+	},
+	
 	"ApplicationName" : {
 	  "Type" : "String",
 	  "Default" : "jenkins"
@@ -302,6 +306,7 @@
 		
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
 		
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
 
@@ -324,6 +329,7 @@
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
+		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }, "\n",
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",

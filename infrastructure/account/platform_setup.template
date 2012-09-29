@@ -292,7 +292,8 @@
 		  "ApplicationName" : { "Ref" : "ApplicationName" },
 		  "KeyName" : { "Ref" : "KeyName" },
 		  "InstanceType" : { "Ref" : "InstanceType" },
-		  "Email" : { "Ref" : "Email" }
+		  "Email" : { "Ref" : "Email" },
+		  "SetupTemplate" : { "Ref" : "AWS::StackName" }
 		}
 	  }
 	},

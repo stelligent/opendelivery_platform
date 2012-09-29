@@ -14,10 +14,6 @@ def from_template(file)
   result = ERB.new(template).result(self.get_binding)
 end
 
-set :default_environment, {
-'HOME' => "/root"
-}
-
 set :stack, ENV['stack']
 set :ssh_key, ENV['key']
 set :type, ENV['type']

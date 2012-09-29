@@ -171,7 +171,7 @@
 				
 				"wget -P /tmp/ ",  { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, "\n",
 				"cd /root/deployment/\n",
-				"cap setup key=/tmp/id_rsa type=local\n",
+				"HOME=/root cap setup key=/tmp/id_rsa type=local\n",
 				
 				
 			"else\n",
