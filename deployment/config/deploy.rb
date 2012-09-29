@@ -36,9 +36,9 @@ set :ssh_options,      { :forward_agent => true,
                          :keys => ssh_key }
                          
 if type == "local"
-  role :web, localhost
-  role :app, localhost
-  role :db,  localhost, :primary => true
+  role :web, "localhost"
+  role :app, "localhost"
+  role :db,  "localhost", :primary => true
 else
   role :web, ip_address
   role :app, ip_address

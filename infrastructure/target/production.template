@@ -59,17 +59,12 @@
         "Path": "/",
         "Policies": [{
           "PolicyName": "root",
-          "PolicyDocument": { "Statement":[
-          {
+          "PolicyDocument": { "Statement":[{
             "Effect":"Allow",
-            "Action":"cloudformation:DescribeStackResource",
+            "Action":"*",
             "Resource":"*"
-          },
-          {
-            "Effect":"Allow",
-            "Action":"s3:*",
-            "Resource":"*"
-         }]}
+          }
+        ]}
         }]
       }
     },
@@ -102,7 +97,7 @@
 		  "config" : {
 			"sources" : {
 			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]},
-			  "/root/deploy"    : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/capistrano.tar.gz"]]}
+			  "/root/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/capistrano.tar.gz"]]}
 			},
 			"files" : {
 			  "/opt/aws/aws.config" : {
