@@ -101,7 +101,8 @@
 	    "AWS::CloudFormation::Init" : {
 		  "config" : {
 			"sources" : {
-			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]}
+			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]},
+			  "/root/deploy"    : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/capistrano.tar.gz"]]}
 			},
 			"files" : {
 			  "/opt/aws/aws.config" : {
@@ -172,6 +173,11 @@
 				
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+				
+				"wget -P /tmp/ ",  { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, "\n",
+				"cd /root/deployment/\n",
+				"cap setup stack=${STACK_NAME} key=/tmp/id_rsa type=local"
+				
 				
 			"else\n",
 			
