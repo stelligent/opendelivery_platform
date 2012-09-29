@@ -62,7 +62,7 @@ Feature: Scripted Provisioning of Target Environment
 
         Examples: file that should exist  
         | file                              |
-        | /home/ec2-user/aws.config         |
+        | /opt/aws/aws.config         |
         | /var/lib/pgsql/data/pg_hba.conf   |
     
 	
