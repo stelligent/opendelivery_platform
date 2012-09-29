@@ -209,6 +209,9 @@
 
 		  "# Set S3 Bucket Property\n",
 		  "ruby /tmp/set_properties.rb --itemname properties --property S3Bucket --value", { "Ref" : "Bucket" }, "\n",
+		
+		  "# Set Base AWS AMI\n",
+		  "ruby /tmp/set_properties.rb --itemname ami --property base --value ami-7341831a\n",
 
 		  "# Setup Git Repository\n",
 		  "ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",

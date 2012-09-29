@@ -14,6 +14,8 @@ opts = Trollop::options do
   opt :securitygroup, "Name of security group used in CloudFormation Template", :short => "g",  :type => String
   opt :snstopic, "Simple Notification Topic used in CloudFormation Template", :short => "s",  :type => String
   opt :s3bucket, "S3 Bucket", :short => "b",  :type => String
+  opt :scriptedorami, "SCRIPTED or AMI", :short => "m", :type => String
+  opt :ami, "AMI to use", :short => "i", :type => String
 end
 
 file = File.open("#{opts[:templatelocation]}", "r")
@@ -24,6 +26,8 @@ stack = cfn.stacks.create(
         "#{opts[:stackname]}", 
         template,
         :parameters => {
+          "UseScriptedOrAMI" => "#{opts[:scriptedorami]}",
+          "AMI" => "#{opts[:ami]}",
           "HostedZone" => "#{opts[:domain]}",
           "ApplicationName" => "#{opts[:application]}",
           "KeyName" => "#{opts[:sshkey]}",

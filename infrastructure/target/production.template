@@ -19,11 +19,16 @@
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
 	},
-	"AMIBuild" : {
-	  "Type" : "TRUE",
-	  "AllowedValues" : ["TRUE", "FALSE"],
+	"UseScriptedOrAMI" : {
+	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: SCRIPTED or AMI",
+	  "Type" : "String",
+	  "Default" : "TRUE",
+	  "AllowedValues" : ["SCRIPTED", "AMI"],
 	},
-	
+	"AMI" : {
+	  "Type" : "String",
+	  "Default" : "ami-7341831a"
+	},
 	"SGID" : {
 	  "Type" : "String",
 	  "Default" : "sg-dab4d0b2"
@@ -47,28 +52,6 @@
     }
   },
 
-  "Mappings" : {
-	"AWSInstanceType2Arch" : {
-      "t1.micro"   : { "Arch" : "64" },
-      "m1.small"   : { "Arch" : "64" },
-	  "m1.medium"  : { "Arch" : "64" },
-	  "m1.large"   : { "Arch" : "64" },
-	  "m1.xlarge"  : { "Arch" : "64" },
-	  "m2.xlarge"  : { "Arch" : "64" },
-	  "m2.2xlarge" : { "Arch" : "64" },
-	  "m2.4xlarge" : { "Arch" : "64" },
-	  "c1.medium"  : { "Arch" : "64" },
-	  "c1.xlarge"  : { "Arch" : "64" }
-    },
-    "AWSRegionArch2AMI" : {
-      "us-east-1"      : { "32" : "ami-7f418316", "64" : "ami-7341831a" },
-      "us-west-1"      : { "32" : "ami-951945d0", "64" : "ami-971945d2" },
-      "us-west-2"      : { "32" : "ami-16fd7026", "64" : "ami-10fd7020" },
-      "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
-      "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
-      "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
-    }
-  },
   "Resources" : {
 	
 	"User" : {
@@ -153,8 +136,7 @@
 		}
 	  },
 	  "Properties": {
-		"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-	                { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+		"ImageId" : { "Ref" : "AMI" },
 		"InstanceType"     : { "Ref" : "InstanceType" },
 		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
 		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
@@ -162,7 +144,7 @@
 		"Tags": [ { "Key": "Name", "Value": "Target" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
-		    "if [ ", { "Ref" : "AMIBuild" }, " == 'FALSE' ]; then\n",
+		    "if [ ", { "Ref" : "UseScriptedOrAMI" }, " == 'SCRIPTED' ]; then\n",
 			
 				"yum update -y aws-cfn-bootstrap\n",
 
