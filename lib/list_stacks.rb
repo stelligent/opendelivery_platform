@@ -12,8 +12,7 @@ AWS::SimpleDB.consistent_reads do
   domain = sdb.domains["stacks"]   
       
   domain.items.each do |item|
-    stack = item.name
-    stack = cfn.stacks["#{stack}"]
+    stack = cfn.stacks["#{item.name}"]
     
     unless stack.exists? == false
       case stack.status
