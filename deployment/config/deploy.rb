@@ -18,8 +18,6 @@ set :stack, ENV['stack']
 set :ssh_key, ENV['key']
 set :type, ENV['type']
 
-w.env = { "HOME" => "/root"}
-
 set :ip_address do
   item = sdb.domains["stacks"].items["#{stack}"]
   item.attributes['InstanceIPAddress'].values[0].to_s.chomp
@@ -50,6 +48,7 @@ end
 set :deploy_via, :remote_cache
 
 task :setup do
+  run "export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/mysql/bin:/usr/local/lib:opt/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   run "sudo chown -R tomcat:tomcat #{deploy_to}"
   run "sudo service httpd stop"
   run "sudo service tomcat6 stop"
