@@ -22,7 +22,6 @@
 	"UseScriptedOrAMI" : {
 	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: SCRIPTED or AMI",
 	  "Type" : "String",
-	  "Default" : "TRUE",
 	  "AllowedValues" : ["SCRIPTED", "AMI"]
 	},
 	"AMI" : {
