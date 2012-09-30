@@ -346,7 +346,7 @@
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
-		  "#ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }, "\n",
+		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }, "\n",
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
