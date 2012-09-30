@@ -170,7 +170,6 @@
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
-
 			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700", 
@@ -194,6 +193,13 @@
               },
 			  "/etc/tomcat6/server.xml" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
+                "mode"   : "000554",
+                "owner"  : "root",
+                "group"  : "root",
+				"authentication" : "S3AccessCreds"
+              },
+			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
                 "mode"   : "000554",
                 "owner"  : "root",
                 "group"  : "root",
@@ -294,8 +300,7 @@
 		  "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
         
 		  "# Installing Ruby 1.9.3 from RPM\n",
-		  "wget -P /home/ec2-user/ https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-		  "rpm -Uvh /home/ec2-user/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+		  "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		
 		  "cat /etc/httpd/conf/httpd.conf2 >> /etc/httpd/conf/httpd.conf\n",
 		

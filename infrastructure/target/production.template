@@ -122,6 +122,22 @@
                 "group"  : "ec2-user"
 			  },
 			
+			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]}, 
+                "mode" : "000600", 
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+				"authentication" : "S3AccessCreds"
+              },
+
+			  "/tmp/id_rsa" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, 
+                "mode" : "000600", 
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+				"authentication" : "S3AccessCreds"
+              },
+			
 			  "/tmp/id_rsa.pub" : { 
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]}, 
                 "mode" : "000600", 
@@ -153,24 +169,24 @@
 		    "if [ ", { "Ref" : "UseScriptedOrAMI" }, " == 'SCRIPTED' ]; then\n",
 			
 				"yum update -y aws-cfn-bootstrap\n",
-
-				"# Install Ruby Dependency\n",
-				"yum install -y libxslt-devel\n",
-
-				"# Install Ruby 1.9.3\n",
-				"wget https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-				"rpm -Uvh ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-
-				"# Install Puppet 2.7 from Rubygem\n",
-				"gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
-				"groupadd puppet\n",
-
+				
 				"# Install Packages\n",
 				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
 				"    --access-key ", { "Ref" : "HostKeys" },
 				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
 				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
+				"# Install Ruby Dependency\n",
+				"yum install -y libxslt-devel\n",
+
+				"# Install Ruby 1.9.3\n",
+				"rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+
+				"# Install Puppet 2.7 from Rubygem\n",
+				"gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
+				"groupadd puppet\n",
+
+				"# Run Puppet\n",
 				"puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
 
 				"# Disable tty for ec2-user\n",
@@ -179,7 +195,6 @@
 				
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
-				
 				
 			"else\n",
 			
@@ -192,8 +207,9 @@
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
 				
-				"wget -P /tmp/ ",  { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, "\n",
 				"cd /root/deployment/\n",
+				
+				"# Run Capistrano Deployment\n",
 				"HOME=/root cap setup key=/tmp/id_rsa type=local\n",
 				
 		   "fi\n",

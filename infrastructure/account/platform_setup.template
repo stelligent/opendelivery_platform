@@ -186,9 +186,15 @@
 	
 		  "yum update -y aws-cfn-bootstrap\n",
 		
+		  "# Install Packages\n",
+		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+		  "    --access-key ", { "Ref" : "HostKeys" },
+		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+		
 		  "# Remove Ruby 1.8.7\n",
 		  "yum erase -y ruby rubygems\n",
-		
+
 		  "# Install Ruby 1.9.3\n",
 		  "yum -y install ruby19-devel\n",
 		  "yum -y install libxml2-devel\n",
@@ -196,12 +202,6 @@
 		  "yum -y install git\n",
 		  "yum -y install make\n",
 		  "yum -y install gcc\n",
-		
-		  "# Install Packages\n",
-		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
-		  "    --access-key ", { "Ref" : "HostKeys" },
-		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 		
 		  "# Get CD Platform Files\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/jenkins_backup.sh\n",
@@ -273,7 +273,6 @@
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                            --key private/id_rsa                                  --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa.pub                        --key private/id_rsa.pub                              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                 --key templates/platform_setup.template               --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/account_bucket_policies.template        --key templates/account_bucket_policies.template      --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins.template                        --key templates/jenkins.template                      --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/puppet.tar.gz                           --key puppet.tar.gz                                   --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/capistrano.tar.gz                       --key capistrano.tar.gz                               --bucket ", { "Ref" : "Bucket" } , "\n", 
@@ -309,7 +308,7 @@
 	  "Type" : "AWS::CloudFormation::Stack",
 	  "DependsOn" : "WaitCondition",
 	  "Properties" : {
-	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/templates/jenkins.template"]]},
+	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/templates/jenkins.template"]]},
 	    "TimeoutInMinutes" : "20",
 		"Parameters" : {
 		  "Group" : { "Ref" : "Group" },
