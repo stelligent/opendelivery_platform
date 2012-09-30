@@ -26,7 +26,9 @@
 	          "Action":["s3:GetObject"],
 	          "Effect":"Allow",
 	          "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3Bucket" } , "/*"]]},
-	          "Principal": { "AWS": [ { "Ref" : "Group" } ] }
+	          "Principal": { 
+		        "AWS" : { "Ref" : "Group" } 
+		      }
 	        }
 		  ]
 	    },

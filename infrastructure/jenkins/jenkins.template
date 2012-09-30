@@ -25,7 +25,7 @@
 	},
 	
 	"Group" : {
-	  "Type" : "String",
+	  "Type" : "String"
 	},
       
     "KeyName" : {

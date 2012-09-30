@@ -71,7 +71,19 @@
   "Resources" : {
 	
     "Group" : {
-	   "Type": "AWS::IAM::Group"
+	  "Type": "AWS::IAM::Group",
+	  "Properties" : {
+	      "Policies" : [ {
+	         "PolicyName" : "myapppolicy",
+	         "PolicyDocument" : {
+	           "Statement" : [ {
+	             "Effect" : "Allow",
+	             "Action" : [ "s3:*" ],
+	             "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*"]]}
+	            } ]
+	         }
+	      }]
+	  }
 	},
 	
 	"addUserToGroup" : {
@@ -293,22 +305,8 @@
 	  }
 	},
 	
-	"BucketPolicyStack" : {
-	  "Type" : "AWS::CloudFormation::Stack",
-	  "DependsOn" : "WaitCondition",
-	  "Properties" : {
-	    "TemplateURL" : "https://s3.amazonaws.com/sea2shore/templates/account_bucket_policies.template",
-	    "TimeoutInMinutes" : "5",
-		"Parameters" : {
-		  "S3Bucket" : { "Ref" : "Bucket"},
-		  "Group" : { "Fn::GetAtt": ["Group", "Arn"] }
-		}
-	  }
-	},
-	
 	"JenkinsStack" : {
 	  "Type" : "AWS::CloudFormation::Stack",
-	  "DependsOn" : "BucketPolicyStack",
 	  "Properties" : {
 	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/templates/jenkins.template"]]},
 	    "TimeoutInMinutes" : "20",
