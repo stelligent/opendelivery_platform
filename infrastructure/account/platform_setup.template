@@ -308,7 +308,7 @@
 	  "Type" : "AWS::CloudFormation::Stack",
 	  "DependsOn" : "WaitCondition",
 	  "Properties" : {
-	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/templates/jenkins.template"]]},
+	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "Bucket" }, "/templates/jenkins.template"]]},
 	    "TimeoutInMinutes" : "20",
 		"Parameters" : {
 		  "Group" : { "Ref" : "Group" },
