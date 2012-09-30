@@ -32,6 +32,9 @@
 	  "Type" : "String",
 	  "Default" : "sg-dab4d0b2"
 	},
+	"Group" : {
+	  "Type" : "String",
+	},
 	"ApplicationName" : {
 	  "Type" : "String",
 	  "Default" : "ami"
@@ -52,6 +55,14 @@
   },
 
   "Resources" : {
+	
+	"addUserToGroup" : {
+	   "Type" : "AWS::IAM::UserToGroupAddition",
+	   "Properties" : {
+	      "GroupName" : { "Ref" : "Group" },
+	      "Users" : [ { "Ref" : "User" } ]
+	   }
+	},
 	
 	"User" : {
       "Type" : "AWS::IAM::User",

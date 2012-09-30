@@ -23,6 +23,10 @@
 	  "Type" : "String",
 	  "Default" : "integratebutton.com"
 	},
+	
+	"Group" : {
+	  "Type" : "String",
+	},
       
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -66,9 +70,17 @@
     }
   },
     
-  "Resources" : {     
+  "Resources" : {  
+	
+	"addUserToGroup" : {
+	   "Type" : "AWS::IAM::UserToGroupAddition",
+	   "Properties" : {
+	      "GroupName" : { "Ref" : "Group" },
+	      "Users" : [ { "Ref" : "User" } ]
+	   }
+	},   
       
-    "CfnUser" : {
+    "User" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
         "Path": "/",
@@ -97,7 +109,7 @@
     "HostKeys" : {
       "Type" : "AWS::IAM::AccessKey",
       "Properties" : {
-        "UserName" : { "Ref": "CfnUser" }
+        "UserName" : { "Ref": "User" }
       }
     },
 

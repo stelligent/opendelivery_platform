@@ -16,6 +16,7 @@ opts = Trollop::options do
   opt :s3bucket, "S3 Bucket", :short => "b",  :type => String
   opt :scriptedorami, "SCRIPTED or AMI", :short => "m", :type => String
   opt :ami, "AMI to use", :short => "i", :type => String
+  opt :group, "AMI to use", :short => "t", :type => String
 end
 
 file = File.open("#{opts[:templatelocation]}", "r")
@@ -26,6 +27,7 @@ stack = cfn.stacks.create(
         "#{opts[:stackname]}", 
         template,
         :parameters => {
+          "Group" => "#{opts[:group]}",
           "UseScriptedOrAMI" => "#{opts[:scriptedorami]}",
           "AMI" => "#{opts[:ami]}",
           "HostedZone" => "#{opts[:domain]}",

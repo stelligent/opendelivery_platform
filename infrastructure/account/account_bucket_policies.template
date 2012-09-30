@@ -8,6 +8,9 @@
 	  "Description" : "Enter the S3 bucket generated when running the platform_setup.template. This bucket stores artifacts used by CD platform.",
       "Type" : "String",
       "ConstraintDescription" : "Must be a valid S3 Bucket"
+	},
+	"Group" : {
+	  "Type" : "String"
 	}
   },
 
@@ -23,7 +26,7 @@
 	          "Action":["s3:GetObject"],
 	          "Effect":"Allow",
 	          "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "S3Bucket" } , "/*"]]},
-	          "Principal":{ "AWS": "*" }
+	          "Principal": { "Ref" : "Group" }
 	        }
 		  ]
 	    },

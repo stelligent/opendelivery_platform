@@ -37,7 +37,6 @@ set :artifact do
   File.basename("#{artifact_url}")
 end
 
-# set :newrelic_jar      "#{s3_bucket}/resources/binaries/newrelic.jar"
 set :user,             "ec2-user"
 set :use_sudo,         false
 set :deploy_to,        "/usr/share/tomcat6/webapps"
@@ -67,20 +66,6 @@ end
 task :deploy do
   run "cd #{deploy_to} && sudo wget #{artifact_url}"
 end
-
-#task :newrelic do
-  
-#  set :new_relic_license do
-#    item = sdb.domains["stacks"].items["properties"]
-#    item.attributes['NewRelicLicense'].values[0].to_s.chomp
-#  end
-  
-#  run "cd #{deploy_to}/#{artifact}/WEB-INF/lib/ && wget #{newrelic_jar}"
-#  run "sudo echo \"JAVA_OPTS=-\"javaagent:#{deploy_to}/#{artifact}/WEB-INF/lib/newrelic.jar\"\" >> /etc/init.d/tomcat6"
-  
-#  config_content = from_template("config/templates/newrelic.yml.erb")
-#  put config_content, "#{deploy_to}/#{artifact}/WEB-INF/lib/newrelic.yml"
-#end
 
 task :restart, :roles => :app do
   run "sudo service httpd restart"
