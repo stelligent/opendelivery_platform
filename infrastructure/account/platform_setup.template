@@ -307,6 +307,7 @@
 	
 	"JenkinsStack" : {
 	  "Type" : "AWS::CloudFormation::Stack",
+	  "DependsOn" : "WaitCondition",
 	  "Properties" : {
 	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/sea2shore/templates/jenkins.template"]]},
 	    "TimeoutInMinutes" : "20",
