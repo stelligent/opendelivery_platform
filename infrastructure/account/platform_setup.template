@@ -14,11 +14,13 @@
       "AllowedPattern" : "[-_ a-zA-Z0-9]*",
       "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
+
     "InstanceType" : {
 	  "Type" : "String",
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
 	},
+	
 	"ApplicationName" : {
 	  "Type" : "String",
 	  "Default" : "jenkins"
@@ -28,13 +30,16 @@
 	  "Type" : "String",
 	  "Default" : "elasticoperations.com"
 	},
+	
 	"GithubUsername" : {
 	  "Type" : "String"
 	},
+	
 	"GithubPassword" : {
 	  "Type" : "String",
 	  "NoEcho" : "TRUE"
 	},
+	
 	"Email" : {
 	  "Type" : "String",
 	  "Default" : "aws@stelligent.com"
@@ -190,7 +195,8 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/account_bucket_policies.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/jenkins/jenkins.template\n",
 		  "wget -P /tmp/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-		  
+		  "# wget -P /tmp/ https://s3.amazonaws.com/sea2shore/resources/binaries/newrelic.jar\n",
+				  
 		  "# Move Ruby 1.9.3 to Default Ruby\n",
 		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
 		  "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
@@ -209,6 +215,9 @@
 
 		  "# Set S3 Bucket Property\n",
 		  "ruby /tmp/set_properties.rb --itemname properties --property S3Bucket --value", { "Ref" : "Bucket" }, "\n",
+		
+		  "# Set New Relic License\n",
+		  "# ruby /tmp/set_properties.rb --itemname properties --property NewRelicLicense\n"
 		
 		  "# Set Base AWS AMI\n",
 		  "ruby /tmp/set_properties.rb --itemname ami --property base --value ami-7341831a\n",
@@ -236,6 +245,7 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                             --key pg_hba.conf                                     --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem       --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm         --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "Bucket" } , "\n",
+		  "# ruby /tmp/s3_upload.rb --filename /tmp/newrelic.jar                            --key resources/binaries/newrelic.jar                 --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/sns-cli.tar.gz                          --key resources/aws_tools/sns-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/cfn-cli.tar.gz                          --key resources/aws_tools/cfn-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                            --key private/id_rsa                                  --bucket ", { "Ref" : "Bucket" } , "\n",

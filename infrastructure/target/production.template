@@ -169,10 +169,6 @@
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
 				
-				"wget -P /tmp/ ",  { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, "\n",
-				"cd /root/deployment/\n",
-				"HOME=/root cap setup key=/tmp/id_rsa type=local\n",
-				
 				
 			"else\n",
 			
@@ -184,6 +180,10 @@
 			
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+				
+				"wget -P /tmp/ ",  { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, "\n",
+				"cd /root/deployment/\n",
+				"HOME=/root cap setup key=/tmp/id_rsa type=local\n",
 				
 		   "fi\n",
 		
