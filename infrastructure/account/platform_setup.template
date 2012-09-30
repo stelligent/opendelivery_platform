@@ -245,7 +245,7 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                             --key pg_hba.conf                                     --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem       --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm         --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "# ruby /tmp/s3_upload.rb --filename /tmp/newrelic.jar                            --key resources/binaries/newrelic.jar                 --bucket ", { "Ref" : "Bucket" } , "\n",
+		  "# ruby /tmp/s3_upload.rb --filename /tmp/newrelic.jar                          --key resources/binaries/newrelic.jar                 --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/sns-cli.tar.gz                          --key resources/aws_tools/sns-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/cfn-cli.tar.gz                          --key resources/aws_tools/cfn-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                            --key private/id_rsa                                  --bucket ", { "Ref" : "Bucket" } , "\n",
