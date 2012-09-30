@@ -71,7 +71,7 @@
   "Resources" : {
 	
     "Group" : {
-	   "Type": "AWS::IAM::Group",
+	   "Type": "AWS::IAM::Group"
 	},
 	
 	"addUserToGroup" : {
