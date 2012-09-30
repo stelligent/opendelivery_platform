@@ -301,7 +301,7 @@
 	    "TimeoutInMinutes" : "5",
 		"Parameters" : {
 		  "S3Bucket" : { "Ref" : "Bucket"},
-		  "Group" : { "Ref" : "Group" }
+		  "Group" : { "Fn::GetAtt": ["Group", "Arn"] }
 		}
 	  }
 	},
