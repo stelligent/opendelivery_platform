@@ -33,7 +33,7 @@
 	  "Default" : "sg-dab4d0b2"
 	},
 	"Group" : {
-	  "Type" : "String",
+	  "Type" : "String"
 	},
 	"ApplicationName" : {
 	  "Type" : "String",
