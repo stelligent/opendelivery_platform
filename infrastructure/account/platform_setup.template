@@ -217,11 +217,16 @@
 		  "ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
 		  "ruby /tmp/fork_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
 		
-		  "# Store Puppet Tar up in S3\n",
-		  "cd /tmp\n",
+		  "# Clone Github Repository\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
-		  "tar -czvf puppet.tar.gz /tmp/platform/infrastructure/puppet/modules/* /tmp/platform/infrastructure/puppet/manifests/*\n",
-		  "tar -czvf capistrano.tar.gz /tmp/platform/deployment/*\n",
+		  
+		  "# Tar Puppet Modules and Manifests\n",
+		  "cd /tmp/platform/infrastructure/puppet\n",
+		  "tar -czvf puppet.tar.gz modules/* manifests/*\n",
+		  
+		  "# Tar Capistrano Deployment configuration\n",
+		  "cd /tmp/platform\n",
+		  "tar -czvf capistrano.tar.gz deployment/*\n",
 		
 		  "# Push platform dependencies up to S3\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/server.xml                              --key server.xml                                      --bucket ", { "Ref" : "Bucket" } , "\n",
