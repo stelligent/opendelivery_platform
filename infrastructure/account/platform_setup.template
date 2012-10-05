@@ -73,16 +73,16 @@
     "Group" : {
 	  "Type": "AWS::IAM::Group",
 	  "Properties" : {
-	      "Policies" : [ {
-	         "PolicyName" : "myapppolicy",
-	         "PolicyDocument" : {
-	           "Statement" : [ {
-	             "Effect" : "Allow",
-	             "Action" : [ "s3:*" ],
-	             "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*"]]}
-	            } ]
-	         }
-	      }]
+		"Policies" : [ {
+		   "PolicyName" : "myapppolicy",
+		   "PolicyDocument" : {
+		     "Statement" : [ {
+		       "Effect" : "Allow",
+		       "Action" : [ "s3:*" ],
+		       "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "Bucket" } , "/*"]]}
+		      } ]
+		   }
+		}]
 	  }
 	},
 	

@@ -1,0 +1,59 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "EOPS IAM User",
+
+  "Parameters" : {
+    "Password": {
+      "NoEcho": "true",
+      "Type": "String",
+      "Description" : "New account password",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    }
+  },
+
+  "Resources" : {
+
+	"EOPSUser" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+		  "LoginProfile": {
+	        "Password": { "Ref" : "Password" }
+	      },
+	
+          "PolicyName": "EOPS",
+          "PolicyDocument": { "Statement":[{
+            "Effect":"Allow",
+            "Action":"*",
+            "Resource":"*"
+          }
+        ]}
+       }]
+      }
+    },
+
+    "EOPSKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : { "Ref": "EOPSUser" }
+      }
+    }
+  },
+
+  "Outputs" : {
+    "AccessKey" : {
+      "Value" : { "Ref" : "EOPSKeys" },
+      "Description" : "AWSAccessKeyId of new user"
+    },
+    "SecretKey" : {
+      "Value" : { "Fn::GetAtt" : ["EOPSKeys", "SecretAccessKey"]},
+      "Description" : "AWSSecretKey of new user"
+    }
+  }
+}
+
