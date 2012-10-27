@@ -32,29 +32,11 @@ Feature: Scripted Provisioning of Target Environment
 
     Scenario: Is the proper version of GCC installed?
         When I run "gcc -v"
-        Then I should see "4.4.6"
+        Then I should see "4.6.6"
 
     Scenario: Is Tomcat installed?
         When I check the version of Tomcat installed
         Then the major version should be 6
-
-    Scenario Outline: Is the proper version of libxslt-devel installed?
-        When I run "sudo yum info libxslt-devel"
-        Then I should see "<output>"
-
-        Examples: output I should see
-            | output             |
-            | Installed Packages | 
-            | 1.1.26             |
-
-    Scenario Outline: Is the proper version of libxml2-devel installed?
-        When I run "sudo yum info libxml2-devel"
-        Then I should see "<output>"
-
-        Examples: output I should see
-            | output             |
-            | Installed Packages | 
-            | 2.7.6              |
 
     Scenario Outline: These files should be present
         When I run "sudo ls -las <file>"

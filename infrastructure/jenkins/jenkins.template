@@ -245,7 +245,7 @@
                 "owner"  : "root",
                 "group"  : "root"
 			  },
-			  "/root/.ssh/config" : {
+			  "/usr/share/tomcat6/.ssh/config" : {
 				"content" : { "Fn::Join" : ["", [
 				  "Host github.com\n",
 				  "StrictHostKeyChecking no\n"
