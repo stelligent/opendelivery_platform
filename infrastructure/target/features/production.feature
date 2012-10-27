@@ -18,14 +18,6 @@ Feature: Scripted Provisioning of Target Environment
         When I run "java -version"
         Then I should see "1.6"
 
-    Scenario: Is the proper version of perl installed?
-        When I run "perl -version"
-        Then I should see "perl, v5.10.1"
-
-    Scenario: Is the proper version of make installed?
-        When I run "make -version"
-        Then I should see "GNU Make 3.81"
-
     Scenario: Is the proper version of Ruby installed?
         When I run "ruby -v"
         Then I should see "ruby 1.9.3"
