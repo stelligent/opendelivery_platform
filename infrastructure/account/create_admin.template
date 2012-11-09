@@ -21,10 +21,11 @@
       "Type" : "AWS::IAM::User",
       "Properties" : {
         "Path": "/",
-		"LoginProfile": {
+        "Policies": [{
+		  "LoginProfile": {
 	        "Password": { "Ref" : "Password" }
 	      },
-        "Policies": [{
+	
           "PolicyName": "EOPS",
           "PolicyDocument": { "Statement":[{
             "Effect":"Allow",

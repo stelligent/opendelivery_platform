@@ -1,0 +1,60 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Sample Template RDS_with_DBParameterGroup: Sample template showing how to create an Amazon RDS Database Instance with a DBParameterGroup.**WARNING** This template creates an Amazon Relational Database Service database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters": {
+    "SecurityGroupOwner": {
+      "Description" : "The owner of the security group",
+      "Type": "String"
+    },
+    "SecurityGroup": {
+      "Description" : "The production or development security group",
+      "Type": "String"
+    },
+    "DBUser": {
+      "NoEcho": "true",
+      "Description" : "The database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+    "DBPassword": {
+      "NoEcho": "true",
+      "Description" : "The database admin account password",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    }
+  },
+
+  "Resources" : {
+    "MyDB" : {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+	    "DBSecurityGroups" : [ {"Ref" : "DbSecurityByEC2SecurityGroup"} ],
+        "AllocatedStorage" : "5",
+        "DBInstanceClass" : "db.m1.small",
+        "Engine" : "MySQL",
+        "EngineVersion" : "5.5",
+        "MasterUsername" : { "Ref" : "DBUser" },
+        "MasterUserPassword" : { "Ref" : "DBPassword" }
+      }
+    },
+	"DbSecurityByEC2SecurityGroup" : {
+	  "Type" : "AWS::RDS::DBSecurityGroup",
+	  "Properties" : {
+	    "GroupDescription" : "Ingress for Amazon EC2 security group",
+	    "DBSecurityGroupIngress" : [{
+	      "EC2SecurityGroupId" : { "Ref" : "SecurityGroup" },
+	      "EC2SecurityGroupOwnerId" : { "Ref" : "SecurityGroupOwner" }
+	    }]
+	  }
+	}
+  }
+}
+

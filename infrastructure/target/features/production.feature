@@ -24,7 +24,7 @@ Feature: Scripted Provisioning of Target Environment
 
     Scenario: Is the proper version of GCC installed?
         When I run "gcc -v"
-        Then I should see "4.6.6"
+        Then I should see "4"
 
     Scenario: Is Tomcat installed?
         When I check the version of Tomcat installed

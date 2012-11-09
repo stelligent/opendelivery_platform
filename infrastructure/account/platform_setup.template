@@ -8,7 +8,7 @@
 	"KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
-      "Default" : "development",
+      "Default" : "production",
       "MinLength": "1",
       "MaxLength": "64",
       "AllowedPattern" : "[-_ a-zA-Z0-9]*",
@@ -38,6 +38,14 @@
 	"GithubPassword" : {
 	  "Type" : "String",
 	  "NoEcho" : "TRUE"
+	},
+	
+	"GithubOrganization" : {
+	  "Type" : "String"
+	},
+	
+	"ProjectName" : {
+	  "Type" : "String"
 	},
 	
 	"Email" : {
@@ -213,7 +221,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/add_github_key.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/fork_github_repo.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_github_repo.rb.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/transient_environments.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/platform_setup.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/jenkins/jenkins.template\n",
@@ -246,11 +254,30 @@
 
 		  "# Setup Git Repository\n",
 		  "ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
-		  "ruby /tmp/fork_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
+
+		  "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _platform\n",
+		  "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _jenkins\n",
 		
 		  "# Clone Github Repository\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
-		  
+		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /tmp/platform\n",
+		
+		  "cd /tmp/platform/continuous_delivery_open_platform\n",
+		  "rm -rf .git\n",
+		  "git init\n",
+		  "git add .\n",
+		  "git commit -m \"First commit\"\n",
+		  "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform.git\n",
+		  "git push -u origin master\n",
+		
+		  "cd /tmp/platform/continuous_delivery_open_platform_jenkins_configuration\n",
+		  "rm -rf .git\n",
+		  "git init\n",
+		  "git add .\n",
+		  "git commit -m \"First commit\"\n",
+		  "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git\n",
+		  "git push -u origin master\n",
+		
 		  "# Tar Puppet Modules and Manifests\n",
 		  "cd /tmp/platform/infrastructure/puppet\n",
 		  "tar -czvf puppet.tar.gz modules/* manifests/*\n",
@@ -317,7 +344,8 @@
 		  "KeyName" : { "Ref" : "KeyName" },
 		  "InstanceType" : { "Ref" : "InstanceType" },
 		  "Email" : { "Ref" : "Email" },
-		  "SetupTemplate" : { "Ref" : "AWS::StackName" }
+		  "SetupTemplate" : { "Ref" : "AWS::StackName" },
+		  "GithubUsername" : { "Ref" : "GithubUsername" }
 		}
 	  }
 	},

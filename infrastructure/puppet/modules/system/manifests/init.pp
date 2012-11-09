@@ -7,6 +7,7 @@ class system {
   package { "libxslt-devel":       ensure => "installed" }
   package { "libxml2-devel":       ensure => "installed" }
   package { "make":                ensure => "installed" }
+  package { "gcc-c++":             ensure => "installed" }
   
   # Install basic gems
   package { "bundler":             ensure => "1.1.4",  provider => gem }

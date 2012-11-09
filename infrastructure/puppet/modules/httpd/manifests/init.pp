@@ -1,12 +1,12 @@
 class httpd {
  
-  package { 'httpd':
+  package { 'httpd-devel':
     ensure => installed,
   }
   
   service { 'httpd':
     ensure    => running,
     enable    => true,
-    require => Package["httpd"]
+    require => Package["httpd-devel"]
   }  
 }

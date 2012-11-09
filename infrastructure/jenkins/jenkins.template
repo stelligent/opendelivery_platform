@@ -27,6 +27,14 @@
 	"Group" : {
 	  "Type" : "String"
 	},
+	
+	"GithubUsername" : {
+	  "Type" : "String"
+	},
+	
+	"ProjectName" : {
+	  "Type" : "String"
+	},
       
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -319,13 +327,13 @@
 
 		  "# Update Jenkins with versioned configuration\n",
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
-		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /usr/share/tomcat6/.jenkins\n",  
+		  "git clone git@github.com:", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",  
 		
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/cd_security_group.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/showback_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/terminate_instance.rb\n",
 		
-		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, " --port 5432\n",
+		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 
 		  "# Add AWS Credentials to Tomcat\n",
 		  "echo \"AWS_ACCESS_KEY=", { "Ref" : "HostKeys" }, "\" >> /etc/sysconfig/tomcat6\n",
@@ -346,12 +354,12 @@
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
           "chmod +x /opt/aws/apitools/cfn/bin/*\n",
-		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }, "\n",
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
           
-          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'"
+          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
+		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }
         ]]}}
       }
     },
