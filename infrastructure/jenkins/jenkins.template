@@ -28,7 +28,7 @@
 	  "Type" : "String"
 	},
 	
-	"GithubUsername" : {
+	"GithubOrganization" : {
 	  "Type" : "String"
 	},
 	
@@ -327,11 +327,11 @@
 
 		  "# Update Jenkins with versioned configuration\n",
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
-		  "git clone git@github.com:", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",  
+		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",  
 		
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/cd_security_group.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/showback_domain.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubUsername" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/terminate_instance.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/cd_security_group.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/showback_domain.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/terminate_instance.rb\n",
 		
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 

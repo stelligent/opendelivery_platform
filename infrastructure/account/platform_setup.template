@@ -221,7 +221,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/add_github_key.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_github_repo.rb.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_github_repo.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/transient_environments.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/platform_setup.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/jenkins/jenkins.template\n",
@@ -260,9 +260,9 @@
 		
 		  "# Clone Github Repository\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
-		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /tmp/platform\n",
+		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /tmp/jenkins\n",
 		
-		  "cd /tmp/platform/continuous_delivery_open_platform\n",
+		  "cd /tmp/platform\n",
 		  "rm -rf .git\n",
 		  "git init\n",
 		  "git add .\n",
@@ -270,7 +270,7 @@
 		  "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform.git\n",
 		  "git push -u origin master\n",
 		
-		  "cd /tmp/platform/continuous_delivery_open_platform_jenkins_configuration\n",
+		  "cd /tmp/jenkins\n",
 		  "rm -rf .git\n",
 		  "git init\n",
 		  "git add .\n",
@@ -345,7 +345,8 @@
 		  "InstanceType" : { "Ref" : "InstanceType" },
 		  "Email" : { "Ref" : "Email" },
 		  "SetupTemplate" : { "Ref" : "AWS::StackName" },
-		  "GithubUsername" : { "Ref" : "GithubUsername" }
+		  "GithubOrganization" : { "Ref" : "GithubOrganization" },
+		  "ProjectName": { "Ref" : "ProjectName" }
 		}
 	  }
 	},
