@@ -152,7 +152,6 @@
             },
 
             "sources" : {
-              "/opt/aws/apitools/cfn"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/cfn-cli.tar.gz"]]},
 			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]}
             },
 
@@ -206,13 +205,6 @@
                 "group"  : "root",
 				"authentication" : "S3AccessCreds"
               },
-			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
-                "mode"   : "000554",
-                "owner"  : "root",
-                "group"  : "root",
-				"authentication" : "S3AccessCreds"
-              },
 			  "/usr/share/tomcat6/aws_access" : {
                 "content" : { "Fn::Join" : ["", [
                   "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
@@ -233,7 +225,7 @@
                 "owner"  : "tomcat",
                 "group"  : "tomcat"
 			  },
-			  "/etc/httpd/conf/httpd.conf2" : {
+			  "/etc/httpd/conf.d/virtualhost.conf" : {
 				"content" : { "Fn::Join" : ["", [
 				  "NameVirtualHost *:80\n",
 				   "<VirtualHost *:80>\n",
@@ -306,11 +298,21 @@
 
 		  "# Copy Github credentials to root ssh directory\n",
 		  "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
-        
-		  "# Installing Ruby 1.9.3 from RPM\n",
-		  "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		
-		  "cat /etc/httpd/conf/httpd.conf2 >> /etc/httpd/conf/httpd.conf\n",
+		  "# Remove Ruby 1.8.7\n",
+		  "yum erase -y ruby rubygems\n",
+        
+		  "# Install Ruby 1.9.3\n",
+		  "yum -y install ruby19-devel\n",
+		  "yum -y install libxml2-devel\n",
+		  "yum -y install libxslt-devel\n",
+		  "yum -y install git\n",
+		  "yum -y install make\n",
+		  "yum -y install gcc\n",
+		
+		  "# Move Ruby 1.9.3 to Default Ruby\n",
+		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
+		  "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 		
 		  "# Install S3 Gems\n",
 		  "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
@@ -334,26 +336,17 @@
 		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/terminate_instance.rb\n",
 		
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
-
-		  "# Add AWS Credentials to Tomcat\n",
-		  "echo \"AWS_ACCESS_KEY=", { "Ref" : "HostKeys" }, "\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"AWS_SECRET_ACCESS_KEY=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\" >> /etc/sysconfig/tomcat6\n",
 		  
 		  "# Add AWS CLI Tools\n",
-		  "echo \"export AWS_CLOUDFORMATION_HOME=/opt/aws/apitools/cfn\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export AWS_SNS_HOME=/opt/aws/apitools/sns\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin\" >> /etc/sysconfig/tomcat6\n",
 		  
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"export S3BUCKET=", { "Ref" : "S3Bucket" }, "\" >> /etc/sysconfig/tomcat6\n",
-		
-		  "echo \"export SGID=`ruby /tmp/showback_domain.rb --item properties --key SGID`\" >> /etc/sysconfig/tomcat6\n",
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
-          "chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",

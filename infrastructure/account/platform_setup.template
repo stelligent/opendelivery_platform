@@ -147,13 +147,6 @@
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
 			  },
-			
-			  "/tmp/cfn-cli.tar.gz" : {
-				"source" : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/cfn-cli.tar.gz",
-				"mode"   : "000500",
-                "owner"  : "ec2-user",
-                "group"  : "ec2-user"
-			  },
 			  
 			  "/tmp/sns-cli.tar.gz" : {
 				"source" : "https://s3.amazonaws.com/sea2shore/resources/aws_tools/sns-cli.tar.gz",
@@ -221,11 +214,11 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/showback_domain.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/add_github_key.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/check_github_repo.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_github_repo.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/transient_environments.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/account/platform_setup.template\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/infrastructure/jenkins/jenkins.template\n",
-		  "wget -P /tmp/ https://s3.amazonaws.com/sea2shore/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 				  
 		  "# Move Ruby 1.9.3 to Default Ruby\n",
 		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
@@ -244,7 +237,7 @@
 		  "ruby /tmp/create_domain.rb  --domain stacks\n",
 
 		  "# Set S3 Bucket Property\n",
-		  "ruby /tmp/set_properties.rb --itemname properties --property S3Bucket --value", { "Ref" : "Bucket" }, "\n",
+		  "ruby /tmp/set_properties.rb --itemname properties --property S3Bucket --value ", { "Ref" : "Bucket" }, "\n",
 		
 		  "# Set Base AWS AMI\n",
 		  "ruby /tmp/set_properties.rb --itemname ami --property base --value ami-7341831a\n",
@@ -254,29 +247,34 @@
 
 		  "# Setup Git Repository\n",
 		  "ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
-
-		  "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _platform\n",
-		  "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _jenkins\n",
 		
 		  "# Clone Github Repository\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform.git /tmp/platform\n",
 		  "git clone git@github.com:stelligent/continuous_delivery_open_platform_jenkins_configuration.git /tmp/jenkins\n",
-		
-		  "cd /tmp/platform\n",
-		  "rm -rf .git\n",
-		  "git init\n",
-		  "git add .\n",
-		  "git commit -m \"First commit\"\n",
-		  "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform.git\n",
-		  "git push -u origin master\n",
-		
-		  "cd /tmp/jenkins\n",
-		  "rm -rf .git\n",
-		  "git init\n",
-		  "git add .\n",
-		  "git commit -m \"First commit\"\n",
-		  "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git\n",
-		  "git push -u origin master\n",
+				
+		  "platform=`ruby /tmp/check_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --organization ", { "Ref" : "GithubOrganization" }, " --repo ", { "Ref" : "ProjectName" }, "_platform`\n",
+		  "if [  \"$platform\" == \"false\" ]; then\n",
+		    "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _platform\n",
+		    "cd /tmp/platform\n",
+		    "rm -rf .git\n",
+		    "git init\n",
+		    "git add .\n",
+		    "git commit -m \"First commit\"\n",
+		    "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform.git\n",
+		    "git push -u origin master\n",
+		  "fi\n",
+          
+		  "jenkins=`ruby check_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --organization ", { "Ref" : "GithubOrganization" }, " --repo ", { "Ref" : "ProjectName" }, "_jenkins`\n",
+		  "if [  \"$jenkins\" == \"false\" ]; then\n",
+		    "ruby /tmp/create_github_repo.rb --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, " --project ", { "Ref" : "ProjectName" }, " --organization ", { "Ref" : "GithubOrganization" }, " --extension _jenkins\n",
+		    "cd /tmp/jenkins\n",
+		    "rm -rf .git\n",
+		    "git init\n",
+		    "git add .\n",
+		    "git commit -m \"First commit\"\n",
+		    "git remote add origin git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git\n",
+		    "git push -u origin master\n",
+		  "fi\n",
 		
 		  "# Tar Puppet Modules and Manifests\n",
 		  "cd /tmp/platform/infrastructure/puppet\n",
@@ -293,9 +291,7 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb                        --key transient_environments.rb                       --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                                      --key pg_hba.conf                                     --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem                --key gems/common-step-definitions-1.0.0.gem          --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm                  --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm   --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/sns-cli.tar.gz                                   --key resources/aws_tools/sns-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/cfn-cli.tar.gz                                   --key resources/aws_tools/cfn-cli.tar.gz              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                                     --key private/id_rsa                                  --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa.pub                                 --key private/id_rsa.pub                              --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                          --key templates/platform_setup.template               --bucket ", { "Ref" : "Bucket" } , "\n",
