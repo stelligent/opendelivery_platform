@@ -135,8 +135,7 @@
 	  }
 	},
 
-    "WebServer": { 
-	  "DependsOn" : "FrontendGroup", 
+    "WebServer": {
       "Type": "AWS::EC2::Instance",
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
@@ -226,6 +225,15 @@
                 "owner"  : "tomcat",
                 "group"  : "tomcat"
 			  },
+			
+			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : { 
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]}, 
+                "mode" : "000600", 
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+				"authentication" : "S3AccessCreds"
+              },
+
 			  "/etc/httpd/conf.d/virtualhost.conf" : {
 				"content" : { "Fn::Join" : ["", [
 				  "NameVirtualHost *:80\n",
@@ -300,20 +308,11 @@
 		  "# Copy Github credentials to root ssh directory\n",
 		  "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
 		
-		  "# Remove Ruby 1.8.7\n",
-		  "yum erase -y ruby rubygems\n",
-        
+		  "# Install Ruby Dependency\n",
+		  "yum install -y libxslt-devel\n",
+
 		  "# Install Ruby 1.9.3\n",
-		  "yum -y install ruby19-devel\n",
-		  "yum -y install libxml2-devel\n",
-		  "yum -y install libxslt-devel\n",
-		  "yum -y install git\n",
-		  "yum -y install make\n",
-		  "yum -y install gcc\n",
-		
-		  "# Move Ruby 1.9.3 to Default Ruby\n",
-		  "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
-		  "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
+		  "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 		
 		  "# Install S3 Gems\n",
 		  "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
@@ -340,7 +339,7 @@
 		  
 		  "# Add AWS CLI Tools\n",
 		  "echo \"export AWS_SNS_HOME=/opt/aws/apitools/sns\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/usr/local/bin\" >> /etc/sysconfig/tomcat6\n",
 		  
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
