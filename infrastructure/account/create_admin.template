@@ -21,11 +21,10 @@
       "Type" : "AWS::IAM::User",
       "Properties" : {
         "Path": "/",
+        "LoginProfile": {
+	      "Password": { "Ref" : "Password" }
+	    },
         "Policies": [{
-		  "LoginProfile": {
-	        "Password": { "Ref" : "Password" }
-	      },
-	
           "PolicyName": "EOPS",
           "PolicyDocument": { "Statement":[{
             "Effect":"Allow",
@@ -46,6 +45,10 @@
   },
 
   "Outputs" : {
+	"EOPSUsername" : {
+      "Value" : { "Ref" : "EOPSUser" },
+      "Description" : "Username of EOPS user"
+    },
     "AccessKey" : {
       "Value" : { "Ref" : "EOPSKeys" },
       "Description" : "AWSAccessKeyId of new user"
@@ -56,4 +59,3 @@
     }
   }
 }
-

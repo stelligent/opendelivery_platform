@@ -135,7 +135,8 @@
 	  }
 	},
 
-    "WebServer": {  
+    "WebServer": { 
+	  "DependsOn" : "FrontendGroup", 
       "Type": "AWS::EC2::Instance",
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
@@ -152,7 +153,7 @@
             },
 
             "sources" : {
-			  "/opt/aws/apitools/sns"       : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]}
+			  "/opt/aws/apitools/sns" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]}
             },
 
             "files" : {
@@ -332,9 +333,8 @@
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
 		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",  
 		
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/cd_security_group.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/showback_domain.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_platform/master/lib/terminate_instance.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
 		
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 		  
