@@ -1,41 +1,41 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  
+
   "Description" : "Jenkins",
-  
+
   "Parameters" : {
-	
+
 	"Email" : {
 	  "Type" : "String",
 	  "Default" : "aws@stelligent.com"
 	},
-	
+
 	"SetupTemplate" : {
 	  "Type" : "String"
 	},
-	
+
 	"ApplicationName" : {
 	  "Type" : "String",
 	  "Default" : "jenkins"
 	},
-	
+
 	"HostedZone" : {
 	  "Type" : "String",
 	  "Default" : "integratebutton.com"
 	},
-	
+
 	"Group" : {
 	  "Type" : "String"
 	},
-	
+
 	"GithubOrganization" : {
 	  "Type" : "String"
 	},
-	
+
 	"ProjectName" : {
 	  "Type" : "String"
 	},
-      
+
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
@@ -59,7 +59,7 @@
 	  "Default" : "cdplatform"
     }
   },
-  
+
   "Mappings" : {
     "AWSInstanceType2Arch" : {
       "t1.micro"    : { "Arch" : "64" },
@@ -77,17 +77,17 @@
       "us-east-1"      : { "32" : "ami-ed65ba84", "64" : "ami-e565ba8c" }
     }
   },
-    
-  "Resources" : {  
-	
+
+  "Resources" : {
+
 	"addUserToGroup" : {
 	   "Type" : "AWS::IAM::UserToGroupAddition",
 	   "Properties" : {
 	      "GroupName" : { "Ref" : "Group" },
 	      "Users" : [ { "Ref" : "User" } ]
 	   }
-	},   
-      
+	},
+
     "User" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
@@ -152,34 +152,35 @@
             },
 
             "sources" : {
-			  "/opt/aws/apitools/sns" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]}
+			  "/opt/aws/apitools/sns" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]},
+			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/cfn-cli.tar.gz"]]}
             },
 
             "files" : {
-              "/usr/share/tomcat6/webapps/jenkins.war" : { 
-                "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war", 
-                "mode" : "000700", 
+              "/usr/share/tomcat6/webapps/jenkins.war" : {
+                "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
+                "mode" : "000700",
                 "owner" : "tomcat",
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
-              "/usr/share/tomcat6/webapps/nexus.war" : { 
-                "source" : "http://www.sonatype.org/downloads/nexus-2.0.3.war", 
-                "mode" : "000700", 
+              "/usr/share/tomcat6/webapps/nexus.war" : {
+                "source" : "http://www.sonatype.org/downloads/nexus-2.0.3.war",
+                "mode" : "000700",
                 "owner" : "tomcat",
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
-			  "/usr/share/tomcat6/.ssh/id_rsa" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, 
-                "mode" : "000600", 
+			  "/usr/share/tomcat6/.ssh/id_rsa" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "mode" : "000600",
                 "owner" : "tomcat",
                 "group" : "tomcat",
 				"authentication" : "S3AccessCreds"
               },
-			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : { 
+			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
-                "mode" : "000700", 
+                "mode" : "000700",
                 "owner" : "root",
                 "group" : "root",
 				"authentication" : "S3AccessCreds"
@@ -225,10 +226,10 @@
                 "owner"  : "tomcat",
                 "group"  : "tomcat"
 			  },
-			
-			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]}, 
-                "mode" : "000600", 
+
+			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
+                "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
 				"authentication" : "S3AccessCreds"
@@ -241,7 +242,7 @@
 				    "ProxyPass         /jenkins  http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins\n",
 				    "ProxyPassReverse  /jenkins  http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins\n",
 				    "ProxyRequests     Off\n",
-				
+
 				    "<Proxy http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, ":8080/jenkins*>\n",
 				      "Order deny,allow\n",
 					  "Allow from all\n",
@@ -298,7 +299,7 @@
           "#!/bin/bash -v\n",
           "yum -y install java-1.6.0-openjdk*\n",
           "yum update -y aws-cfn-bootstrap\n",
-			
+
           "# Install packages\n",
           "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
           "    --access-key ",  { "Ref" : "HostKeys" },
@@ -307,16 +308,16 @@
 
 		  "# Copy Github credentials to root ssh directory\n",
 		  "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
-		
+
 		  "# Install Ruby Dependency\n",
 		  "yum install -y libxslt-devel\n",
 
 		  "# Install Ruby 1.9.3\n",
 		  "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-		
+
 		  "# Install S3 Gems\n",
 		  "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
-		
+
 		  "# Install Public Gems\n",
 		  "gem install bundler     --version 1.1.4    --no-rdoc --no-ri\n",
 		  "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
@@ -330,17 +331,17 @@
 
 		  "# Update Jenkins with versioned configuration\n",
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
-		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",  
-		
+		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
+
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
-		
+
 		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
-		  
+
 		  "# Add AWS CLI Tools\n",
 		  "echo \"export AWS_SNS_HOME=/opt/aws/apitools/sns\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/usr/local/bin\" >> /etc/sysconfig/tomcat6\n",
-		  
+		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/usr/local/bin:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
+
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
@@ -350,7 +351,9 @@
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
-          
+
+		  "chmod +x /opt/aws/apitools/cfn/bin/*\n",
+
           "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
 		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }
         ]]}}
@@ -360,7 +363,7 @@
     "IPAddress" : {
       "Type" : "AWS::EC2::EIP"
     },
-    
+
     "IPAssoc" : {
       "Type" : "AWS::EC2::EIPAssociation",
       "Properties" : {
@@ -368,7 +371,7 @@
         "EIP" : { "Ref" : "IPAddress" }
        }
     },
-    
+
     "FrontendGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
@@ -378,9 +381,9 @@
           {"IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : "0.0.0.0/0"},
 		  {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"}
         ]
-      }      
+      }
     },
-    
+
     "WaitHandle" : {
       "Type" : "AWS::CloudFormation::WaitConditionHandle"
     },
@@ -392,9 +395,9 @@
         "Handle" : { "Ref" : "WaitHandle" },
         "Timeout" : "990"
       }
-    }          
+    }
   },
-  
+
   "Outputs" : {
     "Domain" : {
       "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
