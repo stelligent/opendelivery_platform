@@ -1,0 +1,9 @@
+NameVirtualHost *:80
+<VirtualHost *:80>
+  RailsEnv <%= rails_env %>
+  DocumentRoot /var/www/<%= artifact_name %>/public
+  <Directory /var/www/<%= artifact_name %>/public>
+    AllowOverride all
+    Options -MultiViews
+  </Directory>
+</VirtualHost>

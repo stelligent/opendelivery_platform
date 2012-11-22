@@ -1,0 +1,9 @@
+Stripe.api_key = "<%= stripe_secret_key %>"
+STRIPE_PUBLIC_KEY = "<%= stripe_public_key %>"
+
+StripeEvent.setup do
+  subscribe 'customer.subscription.deleted' do |event|
+    user = User.find_by_customer_id(event.data.object.customer)
+    user.expire
+  end
+end
