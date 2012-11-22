@@ -10,7 +10,9 @@ opts = Trollop::options do
   opt :securityGroupOwner, "Security Owner", :short => "o", :type => String
   opt :securityGroup, "Security Group", :short => "s",  :type => String
   opt :dbUser, "Database Username", :short => "u",  :type => String
+  opt :dbName, "Database Name", :short => "x",  :type => String
   opt :dbPassword, "Database Password", :short => "p",  :type => String
+  opt :templatelocation, "Template Location", :short => "t",  :type => String
 end
 
 file = File.open("#{opts[:templatelocation]}", "r")
@@ -24,6 +26,7 @@ stack = cfn.stacks.create(
           "SecurityGroupOwner" => "#{opts[:securityGroupOwner]}",
           "SecurityGroup" => "#{opts[:securityGroup]}",
           "DBUser" => "#{opts[:dbUser]}",
+          "DatabaseName" => "#{opts[:dbName]}",
           "DBPassword" => "#{opts[:dbPassword]}"
         },
         :capabilities => ["CAPABILITY_IAM"]

@@ -18,6 +18,7 @@ set :stack, ENV['stack']
 set :ssh_key, ENV['key']
 set :type, ENV['type']
 set :language, ENV['language']
+set :stage, ENV['stage']
 
 set :ip_address do
   item = sdb.domains["stacks"].items["#{stack}"]
@@ -38,13 +39,55 @@ set :artifact do
   File.basename("#{artifact_url}")
 end
 
-set :user,             "ec2-user"
-set :use_sudo,         false
+case
+when stage == "development"
+  set :database_name do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['DBNAME'].values[0].to_s.chomp
+  end
+
+  set :database_username do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['DBUSER'].values[0].to_s.chomp
+  end
+
+  set :database_password do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['DBPASSWORD'].values[0].to_s.chomp
+  end
+
+  set :database_endpoint do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['DatabaseEndpoint'].values[0].to_s.chomp
+  end
+
+when stage == "production"
+
+  set :database_name do
+    item = sdb.domains["stacks"].items["properties"]
+    item.attributes['ProductionDatabaseName'].values[0].to_s.chomp
+  end
+
+  set :database_username do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['ProductionDatabaseUsername'].values[0].to_s.chomp
+  end
+
+  set :database_password do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['ProductionDatabasePassword'].values[0].to_s.chomp
+  end
+
+  set :database_endpoint do
+    item = sdb.domains["stacks"].items["#{stack}"]
+    item.attributes['ProductionDatabaseIP'].values[0].to_s.chomp
+  end
+end
 
 case
 when language == "rails"
   set :deploy_to, "/var/www"
-  
+
   set :artifact_name do
     artifact = File.basename("#{artifact_url}", ".*")
     File.basename(artifact, ".*")
@@ -56,10 +99,12 @@ when language == "java"
   end
 end
 
-set :ssh_options,      { :forward_agent => true, 
-                         :paranoid => false, 
+set :user,             "ec2-user"
+set :use_sudo,         false
+set :ssh_options,      { :forward_agent => true,
+                         :paranoid => false,
                          :keys => ssh_key }
-                         
+
 if type == "local"
   role :web, "localhost"
   role :app, "localhost"
@@ -78,10 +123,10 @@ task :setup do
   put config_content, "/home/ec2-user/s3_download.rb"
   run "sudo chmod 655 /home/ec2-user/s3_download.rb"
 end
-  
+
 task :deploy do
   run "sudo ruby /home/ec2-user/s3_download.rb --outputdirectory #{deploy_to}/ --bucket #{s3_bucket} --key #{artifact}"
-  case 
+  case
   when language == "rails"
     run "cd #{deploy_to} && sudo tar -zxf #{artifact}"
   end
@@ -95,20 +140,24 @@ task :db_migrate do
   run "cd #{deploy_to}/#{artifact_name} && sudo rake db:migrate"
 end
 
-task :virtualhost do
-  config_content = from_template("config/templates/virtualhost.erb")
-  put config_content, "/home/ec2-user/virtualhost.conf"
-  run "sudo mv /home/ec2-user/virtualhost.conf /etc/httpd/conf.d/"
+task :database_yml do
+  config_content = from_template("config/templates/database.yml.erb")
+  put config_content, "/home/ec2-user/database.yml"
+  run "sudo mv /home/ec2-user/database.yml #{deploy_to}/#{artifact_name}/config/"
 end
 
 task :restart, :roles => :app do
-  case 
+  case
   when language == "rails"
     run "sudo service httpd restart"
   when language == "java"
     run "sudo service httpd restart"
     run "sudo service tomcat6 restart"
   end
+end
+
+task :post_deploy do
+  run "cd #{deploy_to}/#{artifact_name} && sudo chown -R ec2-user:ec2-user ."
 end
 
 task :start, :roles => :app do
@@ -119,9 +168,9 @@ task :stop, :roles => :app do
   run "sudo service httpd stop"
 end
 
-case 
+case
 when language == "rails"
-after "setup", "deploy", "bundle_install", "db_migrate", "virtualhost", "restart"
+after "setup", "deploy", "database_yml", "bundle_install", "db_migrate", "post_deploy", "restart"
 when language == "java"
 after "setup", "deploy", "restart"
 end

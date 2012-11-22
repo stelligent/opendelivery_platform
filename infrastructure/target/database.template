@@ -12,6 +12,11 @@
       "Description" : "The production or development security group",
       "Type": "String"
     },
+    "DatabaseName" : {
+	  "Description" : "The database name",
+	  "Default" : "eops",
+	  "Type": "String"
+    },
     "DBUser": {
       "NoEcho": "true",
       "Description" : "The database admin account username",
@@ -39,6 +44,7 @@
 	    "DBSecurityGroups" : [ {"Ref" : "DbSecurityByEC2SecurityGroup"} ],
         "AllocatedStorage" : "5",
         "DBInstanceClass" : "db.m1.small",
+        "DBName" : { "Ref" : "DatabaseName" },
         "Engine" : "MySQL",
         "EngineVersion" : "5.5",
         "MasterUsername" : { "Ref" : "DBUser" },
@@ -55,6 +61,12 @@
 	    }]
 	  }
 	}
+  },
+
+  "Outputs" : {
+	"DatabaseEndpoint" : {
+      "Value" : { "Fn::GetAtt" : [ "MyDB", "Endpoint.Address" ] }
+    }
   }
 }
 

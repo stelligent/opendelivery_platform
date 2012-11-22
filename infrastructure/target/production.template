@@ -182,8 +182,8 @@
 				"# Install Ruby 1.9.3\n",
 				"rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 
-				"# Install Puppet 2.7 from Rubygem\n",
-				"gem install puppet --version 2.7.18 --no-rdoc --no-ri\n",
+				"# Install Puppet 3.0.1 from Rubygem\n",
+				"gem install puppet --no-rdoc --no-ri\n",
 				"groupadd puppet\n",
 
 				"# Run Puppet\n",
