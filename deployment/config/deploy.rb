@@ -5,7 +5,7 @@ task :preconfigure do
   run "sudo chmod 655 /home/ec2-user/s3_download.rb"
 end
 
-task :deploy do
+task :update_code do
   run "sudo ruby /home/ec2-user/s3_download.rb --outputdirectory #{deploy_to}/ --bucket #{s3_bucket} --key #{artifact}"
   case
   when language == "rails"
@@ -29,11 +29,21 @@ task :postconfigure do
   run "cd #{deploy_to}/#{artifact_name} && sudo chown -R ec2-user:ec2-user ."
 end
 
-case
-when language == "rails"
-after "preconfigure", "deploy", "database:configuration", "stripe:initializer", "bundler:install",
-      "database:migration", "virtualhost:configuration", "whenever:set", "postconfigure", "restart"
+task :deploy do
+  rails
+  preconfigure
+  update_code
+  database.configuration
+  configuration.application
+  bundler.install
+  virtualhost.configuration
+  whenever.set
+  assets.precompile
+  postconfigure
+  restart
+end
 
+case
 when language == "java"
 after "preconfigure", "deploy", "restart"
 end

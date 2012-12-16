@@ -1,31 +1,20 @@
-require 'rubygems'
-require 'aws-sdk'
-require 'trollop'
-
-load File.expand_path('/opt/aws/aws.config')
+require_relative "boot"
 
 opts = Trollop::options do
-  opt :stackname, "Stack Name", :short => "s", :type => String
   opt :imagename, "Name of image", :short =>  "i", :type => String
+  opt :autoscalingGroup, "Autoscaling Group", :short =>  "a", :type => String
+  opt :sdbdomain, "Name of sdb domain", :short => "q", :type => String
 end
 
-cfn = AWS::CloudFormation.new
 ec2 = AWS::EC2.new
 sdb = AWS::SimpleDB.new
+auto_scale = AWS::AutoScaling.new
 
-stack = cfn.stacks["#{opts[:stackname]}"]
+image = ec2.images.create(:instance_id => "#{auto_scale.groups["#{opts[:autoscalingGroup]}"].auto_scaling_instances.first.id}",
+                          :name => "#{opts[:imagename]}")
 
-stack.resources.each do |resource|
-  if resource.resource_type == "AWS::EC2::Instance"
-    @instance = resource.physical_resource_id
-  end
-end
-
-image = ec2.images.create(:instance_id => "#{@instance}",
-                  :name => "#{opts[:imagename]}")
-                  
 sleep 10
-                  
+
 while image.state != :available
   sleep 10
   case image.state
@@ -36,9 +25,9 @@ while image.state != :available
 end
 
 AWS::SimpleDB.consistent_reads do
-  domain = sdb.domains["stacks"]
+  domain = sdb.domains["#{opts[:sdbdomain]}"]
   item = domain.items["ami"]
-  
+
   item.attributes.set(
     "latest" => "#{image.id}")
 end

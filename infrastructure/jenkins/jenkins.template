@@ -152,20 +152,12 @@
             },
 
             "sources" : {
-			  "/opt/aws/apitools/sns" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/sns-cli.tar.gz"]]},
-			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws_tools/cfn-cli.tar.gz"]]}
+			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws/cfn-cli.tar.gz"]]}
             },
 
             "files" : {
               "/usr/share/tomcat6/webapps/jenkins.war" : {
                 "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
-                "mode" : "000700",
-                "owner" : "tomcat",
-                "group" : "tomcat",
-				"authentication" : "S3AccessCreds"
-              },
-              "/usr/share/tomcat6/webapps/nexus.war" : {
-                "source" : "http://www.sonatype.org/downloads/nexus-2.0.3.war",
                 "mode" : "000700",
                 "owner" : "tomcat",
                 "group" : "tomcat",
@@ -333,19 +325,25 @@
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
 		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
 
+          "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n"
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
 
-		  "ruby /tmp/cd_security_group.rb --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
+		  "# Set SNS Topic Property\n",
+		  "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n",
+
+		  "ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 
 		  "# Add AWS CLI Tools\n",
-		  "echo \"export AWS_SNS_HOME=/opt/aws/apitools/sns\" >> /etc/sysconfig/tomcat6\n",
-		  "echo \"export PATH=$PATH:/opt/aws/apitools/sns/bin:/usr/local/bin:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export PATH=$PATH:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
 
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
+		  "echo \"export SIMPLEDB_STACK=", { "Ref" : "SetupTemplate" }, "\" >> /etc/sysconfig/tomcat6\n",
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
 
@@ -353,6 +351,10 @@
 		  "service httpd restart\n",
 
 		  "chmod +x /opt/aws/apitools/cfn/bin/*\n",
+
+		  "# Disable tty for ec2-user\n",
+		  "echo \"Defaults:%tomcat !requiretty\" >> /etc/sudoers\n",
+		  "echo \"Defaults:tomcat !requiretty\" >> /etc/sudoers\n",
 
           "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
 		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }

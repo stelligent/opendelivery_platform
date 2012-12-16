@@ -1,7 +1,5 @@
-#!/usr/bin/env ruby
-
+require_relative "boot"
 require 'github_api'
-require 'trollop'
 
 opts = Trollop::options do
   opt :user, "Github Username", :short => "u", :type => String

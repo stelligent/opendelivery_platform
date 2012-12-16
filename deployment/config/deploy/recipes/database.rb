@@ -5,6 +5,6 @@ namespace :database do
   end
 
   task :migration do
-    run "cd #{deploy_to}/#{artifact_name} && rake db:migrate"
+    run "cd #{deploy_to}/#{artifact_name} && rake db:migrate RAILS_ENV=#{stage}"
   end
 end

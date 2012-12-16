@@ -1,0 +1,84 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Redis Queue Template",
+
+  "Parameters" : {
+	"KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String",
+      "Default" : "development",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[-_ a-zA-Z0-9]*",
+      "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
+    },
+
+    "InstanceType" : {
+	  "Type" : "String",
+	  "Default" : "c1.medium",
+	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+	}
+  },
+
+  "Mappings" : {
+	"AWSInstanceType2Arch" : {
+      "t1.micro"   : { "Arch" : "64" },
+      "m1.small"   : { "Arch" : "64" },
+	  "m1.medium"  : { "Arch" : "64" },
+	  "m1.large"   : { "Arch" : "64" },
+	  "m1.xlarge"  : { "Arch" : "64" },
+	  "m2.xlarge"  : { "Arch" : "64" },
+	  "m2.2xlarge" : { "Arch" : "64" },
+	  "m2.4xlarge" : { "Arch" : "64" },
+	  "c1.medium"  : { "Arch" : "64" },
+	  "c1.xlarge"  : { "Arch" : "64" }
+    },
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "32" : "ami-7f418316", "64" : "ami-7341831a" },
+      "us-west-1"      : { "32" : "ami-951945d0", "64" : "ami-971945d2" },
+      "us-west-2"      : { "32" : "ami-16fd7026", "64" : "ami-10fd7020" },
+      "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
+      "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
+      "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
+    }
+  },
+
+  "Resources" : {
+    "WebServer": {
+      "Type": "AWS::EC2::Instance",
+	  "Properties": {
+		"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+	                { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+		"InstanceType"     : { "Ref" : "InstanceType" },
+		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
+		"KeyName"        : { "Ref" : "KeyName" },
+		"Tags": [ { "Key": "Name", "Value": "Redis" } ],
+		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+		  "#!/bin/bash -v\n",
+		  "wget https://s3.amazonaws.com/platformsetup-bucket-u64lvcql1hyy/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm\n",
+		  "rpm -Uvh redis-2.6.2-1.el5.x86_64.rpm\n",
+		  "sysctl vm.overcommit_memory=1\n",
+		  "redis-server\n"
+		]]}}
+	  }
+	},
+
+	"FrontendGroup" : {
+	  "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+	    "GroupDescription" : "Enable Redis Access",
+		"SecurityGroupIngress" : [
+		  { "IpProtocol" : "tcp", "FromPort" : "6379", "ToPort" : "6379", "CidrIp" : "0.0.0.0/0" },
+		  { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }
+		]
+	  }
+	}
+  },
+
+  "Outputs" : {
+	"RedisIPAddress" : {
+      "Value" : { "Fn::GetAtt" : ["WebServer", "PublicDnsName"]}
+    }
+  }
+}

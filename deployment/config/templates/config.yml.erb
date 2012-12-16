@@ -1,0 +1,18 @@
+defaults: &defaults
+  sesusername: "<%= sesusername %>"
+  sespassword: "<%= sespassword %>"
+  sesdomain: "<%= sesdomain %>"
+  sesaddress: "email-smtp.us-east-1.amazonaws.com"
+  sesmailer: "<%= sesmailer %>"
+  loggly: "<%= loggly %>"
+  sidekiq_redis_url: "redis://<%= redis_domain %>:6379"
+  stripe_api_key: "<%= stripe_secret_key %>"
+  stripe_public_key: "<%= stripe_public_key %>"
+
+staging:
+  host: staging.stelligent.com
+  <<: *defaults
+
+production:
+  host: havoc.stelligent.com
+  <<: *defaults

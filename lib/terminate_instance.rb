@@ -1,8 +1,4 @@
-require 'rubygems'
-require 'aws-sdk'
-require 'trollop'
-
-load File.expand_path('/opt/aws/aws.config')
+require_relative "boot"
 
 opts = Trollop::options do
   opt :stackname, "Stack Name", :short => "s", :type => String

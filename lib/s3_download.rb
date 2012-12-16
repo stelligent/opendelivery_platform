@@ -1,11 +1,5 @@
-#!/usr/bin/env ruby
-
-require 'rubygems'
-require 'aws-sdk'
-require 'trollop'
-require 'pathname'
-
-load File.expand_path('/opt/aws/aws.config')
+require_relative "boot"
+require "pathname"
 
 opts = Trollop::options do
   opt :outputdirectory, "Output directory", :short => "d", :type => String
@@ -24,4 +18,3 @@ Dir.mkdir("#{opts[:outputdirectory]}") unless File.exists?("#{opts[:outputdirect
 File.open("#{opts[:outputdirectory]}/#{base}", 'w') do |file|
   file.write(obj.read)
 end
-

@@ -1,10 +1,4 @@
-#!/usr/bin/env ruby
-
-require 'rubygems'
-require 'aws-sdk'
-require 'trollop'
-
-load File.expand_path('/opt/aws/aws.config')
+require_relative "boot"
 
 opts = Trollop::options do
   opt :filename, "Name of file", :short => "n", :type => String

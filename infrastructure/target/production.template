@@ -1,10 +1,10 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  
+
   "Description" : "Target",
-  
+
   "Parameters" : {
-	
+
 	"KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
@@ -25,37 +25,55 @@
 	  "AllowedValues" : ["SCRIPTED", "AMI"]
 	},
 	"AMI" : {
+	  "Description" : "AMI to create/deploy to",
 	  "Type" : "String",
 	  "Default" : "ami-7341831a"
 	},
-	"SGID" : {
-	  "Type" : "String",
-	  "Default" : "sg-dab4d0b2"
+	"SecurityGroupName" : {
+	  "Description" : "Name of Security Group to use",
+	  "Type" : "String"
 	},
 	"Group" : {
+	  "Description" : "AWS IAM User Group",
 	  "Type" : "String"
 	},
 	"ApplicationName" : {
-	  "Type" : "String",
-	  "Default" : "ami"
+	  "Description" : "Name of CNAME/A Record to use",
+	  "Type" : "String"
 	},
 	"HostedZone" : {
-	  "Type" : "String",
-	  "Default" : "devopscloud.com"
+	  "Description" : "Route53 Domain to use",
+	  "Type" : "String"
 	},
 	"S3Bucket" : {
-	  "Description" : "Artifact Bucket",
-	  "Type" : "String",
-	  "Default" : "sea2shore"
+	  "Description" : "Bucket for storing and retrieving artifacts",
+	  "Type" : "String"
     },
 	"SNSTopic" : {
-	  "Description" : "SNS Topic",
+	  "Description" : "SNS Topic ID to subscribe to",
+	  "Type" : "String"
+    },
+    "SSLCertificateArn" : {
+	  "Description" : "AWS ARN for your SSL certificate in AWS",
+	  "Type" : "String"
+    },
+    "Language" : {
+	  "Description" : "Language of application. Can either be Rails or Java",
+	  "Type" : "String",
+	  "AllowedValues" : [ "rails", "java"]
+    },
+    "MinSize" : {
+	  "Description" : "Minimum size of Autoscaling Group",
+	  "Type" : "String"
+    },
+    "MaxSize" : {
+	  "Description" : "Maximum size of Autoscaling Group",
 	  "Type" : "String"
     }
   },
 
   "Resources" : {
-	
+
 	"addUserToGroup" : {
 	   "Type" : "AWS::IAM::UserToGroupAddition",
 	   "Properties" : {
@@ -63,7 +81,7 @@
 	      "Users" : [ { "Ref" : "User" } ]
 	   }
 	},
-	
+
 	"User" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
@@ -79,31 +97,75 @@
         }]
       }
     },
-	
+
 	"HostKeys" : {
 	  "Type" : "AWS::IAM::AccessKey",
       "Properties" : {
 	    "UserName" : { "Ref" : "User" }
 	  }
 	},
-	
+
 	"DNS" : {
       "Type" : "AWS::Route53::RecordSetGroup",
 	  "Properties" : {
 	    "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
+	    "Comment" : "CNAME alias targeted to myELB LoadBalancer.",
 	    "RecordSets" : [
 		  {
 			"Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
-			"Type" : "A",
+			"Type" : "CNAME",
 			"TTL"  : "900",
-			"ResourceRecords" : [ { "Ref" : "IPAddress" } ]
+			"ResourceRecords" : [{ "Fn::GetAtt" : ["ElasticLoadBalancer","DNSName"] }]
 		  }]
 	  }
 	},
-	
-	"WebServer": {  
-      "Type": "AWS::EC2::Instance",
-	  "Metadata" : {
+
+	"ElasticLoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "Listeners" : [
+   		  { "LoadBalancerPort" : "80",
+            "InstancePort" : "80",
+            "InstanceProtocol" : "HTTP",
+            "Protocol" : "HTTP"
+          },
+		  { "LoadBalancerPort" : "443",
+		    "InstancePort" : "80",
+		    "InstanceProtocol" : "HTTP",
+		    "Protocol" : "HTTPS",
+		    "SSLCertificateId" : { "Ref" : "SSLCertificateArn" }
+		  }
+        ],
+        "HealthCheck" : {
+          "Target" : "HTTP:80/",
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "5"
+        }
+      }
+    },
+
+	"WebServerAutoScalingGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "MinSize" : { "Ref" : "MinSize" },
+        "MaxSize" : { "Ref" : "MaxSize" },
+        "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
+        "Tags": [ { "Key": "Name", "Value": "Target", "PropagateAtLaunch" : "true" } ],
+		"NotificationConfiguration" : {
+		  "TopicARN" : { "Ref" : "SNSTopic" },
+		  "NotificationTypes" : [ "autoscaling:EC2_INSTANCE_LAUNCH","autoscaling:EC2_INSTANCE_LAUNCH_ERROR","autoscaling:EC2_INSTANCE_TERMINATE", "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"]
+		}
+      }
+    },
+
+	"LaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata" : {
 	    "AWS::CloudFormation::Init" : {
 		  "config" : {
 			"sources" : {
@@ -121,26 +183,26 @@
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
 			  },
-			
-			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]}, 
-                "mode" : "000600", 
+
+			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
+                "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
 				"authentication" : "S3AccessCreds"
               },
 
-			  "/tmp/id_rsa" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]}, 
-                "mode" : "000600", 
+			  "/tmp/id_rsa" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
 				"authentication" : "S3AccessCreds"
               },
-			
-			  "/tmp/id_rsa.pub" : { 
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]}, 
-                "mode" : "000600", 
+
+			  "/tmp/id_rsa.pub" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]},
+                "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
 				"authentication" : "S3AccessCreds"
@@ -157,21 +219,19 @@
 		  }
 		}
 	  },
-	  "Properties": {
+      "Properties": {
 		"ImageId" : { "Ref" : "AMI" },
 		"InstanceType"     : { "Ref" : "InstanceType" },
-		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" } ],
-		"SecurityGroupIds" : [ { "Ref" : "SGID" } ],
+		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" }, { "Ref" : "SecurityGroupName" } ],
 		"KeyName"        : { "Ref" : "KeyName" },
-		"Tags": [ { "Key": "Name", "Value": "Target" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
 		    "if [ ", { "Ref" : "UseScriptedOrAMI" }, " == 'SCRIPTED' ]; then\n",
-			
+
 				"yum update -y aws-cfn-bootstrap\n",
-				
+
 				"# Install Packages\n",
-				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
 				"    --access-key ", { "Ref" : "HostKeys" },
 				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
 				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
@@ -192,33 +252,51 @@
 				"# Disable tty for ec2-user\n",
 				"echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
 				"echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
-				
+
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
-				
+
+				"# Run Capistrano Deployment\n",
+				"cd /root/deployment/\n",
+				"HOME=/root cap production deploy key=/tmp/id_rsa type=local language=", { "Ref" : "Language" }, "\n",
+
 			"else\n",
-			
+
 				"# Install Packages\n",
-				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
 				"    --access-key ", { "Ref" : "HostKeys" },
 				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
 				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
-			
+
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
-				
-				"cd /root/deployment/\n",
-				
-				"# Run Capistrano Deployment\n",
-				"HOME=/root cap setup key=/tmp/id_rsa type=local\n",
-				
 		   "fi\n",
-		
+
 		   "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
-		]]}}		
+		]]}}
 	  }
 	},
-	
+
+	"WebServerScaleUpPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "WebServerAutoScalingGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "1"
+      }
+	},
+
+	"WebServerScaleDownPolicy" : {
+      "Type" : "AWS::AutoScaling::ScalingPolicy",
+      "Properties" : {
+        "AdjustmentType" : "ChangeInCapacity",
+        "AutoScalingGroupName" : { "Ref" : "WebServerAutoScalingGroup" },
+        "Cooldown" : "60",
+        "ScalingAdjustment" : "-1"
+      }
+	},
+
 	"FrontendGroup" : {
 	  "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
@@ -230,45 +308,14 @@
 		]
 	  }
 	},
-	
-	"IPAddress" : {
-	  "Type" : "AWS::EC2::EIP"
-	},
-	
-	"IPAssociation" : {
-	  "Type" : "AWS::EC2::EIPAssociation",
-	  "Properties" : {
-		"InstanceId" : { "Ref" : "WebServer" },
-		"EIP" : { "Ref" : "IPAddress" }
-	  }
-	},
-	
-	"CPUAlarmLow": {
-	 "Type": "AWS::CloudWatch::Alarm",
-     "Properties": {
-        "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
-        "MetricName": "CPUUtilization",
-        "Namespace": "AWS/EC2",
-        "Statistic": "Average",
-        "Period": "300",
-        "EvaluationPeriods": "2",
-        "Threshold": "70",
-        "AlarmActions": [ { "Ref": "SNSTopic" } ],
-		"Dimensions": [{
-		  "Name": "WebServerName",
-		  "Value": { "Ref": "WebServer" }
-		}],
-        "ComparisonOperator": "LessThanThreshold"
-      }
-    },
-	
+
 	"WaitHandle" : {
       "Type" : "AWS::CloudFormation::WaitConditionHandle"
     },
-    
+
     "WaitCondition" : {
       "Type" : "AWS::CloudFormation::WaitCondition",
-      "DependsOn" : "WebServer",
+      "DependsOn" : "WebServerAutoScalingGroup",
       "Properties" : {
         "Handle" : { "Ref" : "WaitHandle" },
         "Timeout" : "900"
@@ -277,9 +324,6 @@
   },
 
   "Outputs" : {
-    "ArtifactBucket" : {
-      "Value" : { "Ref" : "S3Bucket" }
-    },
 	"StackName" : {
       "Value" : { "Ref" : "AWS::StackName" }
     },
@@ -290,11 +334,11 @@
       "Value" : { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
       "Description" : "Full domain"
     },
-	"PrivateIpAddress" : {
-	  "Value" : { "Fn::GetAtt" : ["WebServer", "PrivateIp"]}
-	},
-	"InstanceIPAddress" : {
-      "Value" : { "Ref" : "IPAddress" }
+	"AutoscalingGroup" : {
+      "Value" : { "Ref" : "WebServerAutoScalingGroup" }
+    },
+    "LoadBalancerDNS" : {
+	  "Value" : { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}
     }
   }
 }
