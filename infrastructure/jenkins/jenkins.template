@@ -326,7 +326,7 @@
 		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
 
           "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n"
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",

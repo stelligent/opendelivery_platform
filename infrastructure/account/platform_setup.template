@@ -209,7 +209,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/pg_hba.conf\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/server.xml\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n"
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/database_export.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/s3_upload.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/create_domain.rb\n",
@@ -238,7 +238,7 @@
 		  "gem install github_api  --version 0.7.0    --no-rdoc --no-ri\n",
 
 		  "# Create Simple DB Domain\n",
-		  "ruby /tmp/create_domain.rb  --sdbdomain", { "Ref" : "AWS::StackName" }, "\n",
+		  "ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",
 
 		  "# Set S3 Bucket Property\n",
 		  "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property S3Bucket --value ", { "Ref" : "Bucket" }, "\n",
