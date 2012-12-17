@@ -152,7 +152,9 @@
             },
 
             "sources" : {
-			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws/cfn-cli.tar.gz"]]}
+			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws/cfn-cli.tar"]],
+			  "authentication" : "S3AccessCreds"
+			  }
             },
 
             "files" : {
