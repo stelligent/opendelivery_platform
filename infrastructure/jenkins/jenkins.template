@@ -167,7 +167,7 @@
 				"authentication" : "S3AccessCreds"
               },
 			  "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/gems/common-step-definitions-1.0.0.gem"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700",
                 "owner" : "root",
                 "group" : "root",
