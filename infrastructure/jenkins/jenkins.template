@@ -332,9 +332,6 @@
 
 		  "ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 
-		  "# Add AWS CLI Tools\n",
-		  "# echo \"export PATH=$PATH:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
-
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
 		  "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
@@ -345,8 +342,6 @@
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
-
-		  "# chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
 		  "# Disable tty for ec2-user\n",
 		  "echo \"Defaults:%tomcat !requiretty\" >> /etc/sudoers\n",
