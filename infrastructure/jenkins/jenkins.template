@@ -151,12 +151,6 @@
               }
             },
 
-            "sources" : {
-			  "/opt/aws/apitools/cfn" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/aws/cfn-cli.tar"]],
-			  "authentication" : "S3AccessCreds"
-			  }
-            },
-
             "files" : {
               "/usr/share/tomcat6/webapps/jenkins.war" : {
                 "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
@@ -339,7 +333,7 @@
 		  "ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "FrontendGroup" }, "\n",
 
 		  "# Add AWS CLI Tools\n",
-		  "echo \"export PATH=$PATH:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
+		  "# echo \"export PATH=$PATH:/opt/aws/apitools/cfn/bin\" >> /etc/sysconfig/tomcat6\n",
 
 		  "# Add Jenkins Environment Variable\n",
 		  "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
@@ -352,7 +346,7 @@
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
 
-		  "chmod +x /opt/aws/apitools/cfn/bin/*\n",
+		  "# chmod +x /opt/aws/apitools/cfn/bin/*\n",
 
 		  "# Disable tty for ec2-user\n",
 		  "echo \"Defaults:%tomcat !requiretty\" >> /etc/sudoers\n",

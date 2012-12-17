@@ -148,13 +148,6 @@
                 "group"  : "ec2-user"
 			  },
 
-			  "/tmp/cfn-cli.tar" : {
-				"source" : "https://s3.amazonaws.com/OpenDelivery/resources/aws/cfn-cli.tar",
-				"mode"   : "000500",
-                "owner"  : "ec2-user",
-                "group"  : "ec2-user"
-			  },
-
 			  "/tmp/common-step-definitions-1.0.0.gem" : {
 				"source" : "https://s3.amazonaws.com/OpenDelivery/resources/gems/common-step-definitions-1.0.0.gem",
 				"mode"   : "000500",
@@ -295,7 +288,6 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb                        --key transient_environments.rb                         --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                                      --key pg_hba.conf                                       --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem                --key resources/gems/common-step-definitions-1.0.0.gem  --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/cfn-cli.tar                                      --key resources/aws/cfn-cli.tar                         --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                                     --key private/id_rsa                                    --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa.pub                                 --key private/id_rsa.pub                                --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                          --key templates/platform_setup.template                 --bucket ", { "Ref" : "Bucket" } , "\n",
