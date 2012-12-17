@@ -17,6 +17,7 @@ opts = Trollop::options do
   opt :minsize,           "Mininumum Size of Autoscaling group",                       :short => "q", :type => String
   opt :maxsize,           "Maximum Size of Autoscaling group",                         :short => "z", :type => String
   opt :instancesize,      "Size of Instance to use",                                   :short => "w", :type => String
+  opt :sdbdomain,         "SimpleDb Domain for configuration",                         :short => "e", :type => String
 end
 
 StackBuilder.build(opts[:templatelocation], opts[:stackname],
@@ -33,4 +34,5 @@ StackBuilder.build(opts[:templatelocation], opts[:stackname],
                    "Language"          => opts[:language],
                    "MinSize"           => opts[:minsize],
                    "MaxSize"           => opts[:maxsize],
-                   "InstanceType"      => opts[:instancesize])
+                   "InstanceType"      => opts[:instancesize],
+                   "SDBDomain"         => opts[:sdbdomain])

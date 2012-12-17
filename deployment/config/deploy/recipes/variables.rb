@@ -2,6 +2,12 @@ require 'rubygems'
 require 'aws-sdk'
 load File.expand_path('/opt/aws/aws.config')
 
+set :stack, ENV['stack']
+set :ssh_key, ENV['key']
+set :type, ENV['type']
+set :language, ENV['language']
+set :sdbdomain, ENV['sdbdomain']
+
 def sdb
   @sdb ||= AWS::SimpleDB.new
 end
@@ -11,17 +17,12 @@ def auto_scale
 end
 
 def sdb_var(item_key, attr_key)
-  sdb.domains["stacks"].items[item_key].attributes[attr_key].values[0].to_s.chomp
+  sdb.domains["#{sdbdomain}"].items[item_key].attributes[attr_key].values[0].to_s.chomp
 end
 
 def ec2
   @ec2 ||= AWS::EC2.new
 end
-
-set :stack, ENV['stack']
-set :ssh_key, ENV['key']
-set :type, ENV['type']
-set :language, ENV['language']
 
 set :user, "ec2-user"
 set :use_sudo, false
