@@ -40,9 +40,3 @@ task :deploy do
   postconfigure
   restart
 end
-
-task :deploy_java do
-  preconfigure
-  #deploy_java
-  restart
-end
