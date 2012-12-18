@@ -23,16 +23,17 @@
 
 	"ApplicationName" : {
 	  "Type" : "String",
-	  "Default" : "jenkins"
+	  "Default" : "jenkins29"
 	},
 
 	"HostedZone" : {
 	  "Type" : "String",
-	  "Default" : "elasticoperations.com"
+	  "Default" : "opencdplatform.com"
 	},
 
 	"GithubUsername" : {
-	  "Type" : "String"
+	  "Type" : "String",
+	  "Default" : "student29"
 	},
 
 	"GithubPassword" : {
@@ -41,11 +42,13 @@
 	},
 
 	"GithubOrganization" : {
-	  "Type" : "String"
+	  "Type" : "String",
+	  "Default" : "OpenDelivery"
 	},
 
 	"ProjectName" : {
-	  "Type" : "String"
+	  "Type" : "String",
+	  "Default" : "simple_app_29"
 	},
 
 	"Email" : {
