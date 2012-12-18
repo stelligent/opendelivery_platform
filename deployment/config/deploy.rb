@@ -36,7 +36,6 @@ task :deploy do
   database.configuration
   bundler.install
   virtualhost.configuration
-  assets.precompile
   postconfigure
   restart
 end
