@@ -6,10 +6,6 @@ Feature: Scripted Provisioning of Target Environment
     Background:
         Given I am sshed into the environment
 
-    Scenario: Is the proper version of Postgresql installed?
-        When I run "/usr/bin/postgres --version"
-        Then I should see "8.4"
-
     Scenario: Is the proper version of Apache installed?
         When I run "/usr/sbin/httpd -v"
         Then I should see "2.2"
@@ -26,20 +22,15 @@ Feature: Scripted Provisioning of Target Environment
         When I run "gcc -v"
         Then I should see "4"
 
-    Scenario: Is Tomcat installed?
-        When I check the version of Tomcat installed
-        Then the major version should be 6
-
     Scenario Outline: These files should be present
         When I run "sudo ls -las <file>"
         Then I should see "<file>"
 
-        Examples: file that should exist  
-        | file                              |
-        | /opt/aws/aws.config         |
-        | /var/lib/pgsql/data/pg_hba.conf   |
-    
-	
+        Examples: file that should exist
+        | file                |
+        | /opt/aws/aws.config |
+
+
     Scenario Outline: These gems should be present
         When I run "sudo gem list"
         Then I should see "<output>"
@@ -48,4 +39,4 @@ Feature: Scripted Provisioning of Target Environment
         | output  |
         | bundler |
         | aws-sdk |
-    
+
