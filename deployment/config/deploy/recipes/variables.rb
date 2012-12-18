@@ -47,10 +47,6 @@ end
 
 set :s3_bucket, sdb_var("properties", "S3Bucket")
 set :artifact_url, sdb_var("properties", "ArtifactUrl")
-set :loggly, sdb_var("properties", "LogglyUrl")
-set :sesusername, sdb_var("properties", "SESUsername")
-set :sespassword, sdb_var("properties", "SESPassword")
-set :sesmailer, sdb_var("properties", "SESMailer")
 
 set :artifact do
   File.basename("#{artifact_url}")
@@ -60,30 +56,20 @@ task :staging do
   set :stage, "staging"
   set :rails_env, "staging"
 
-  set :stripe_secret_key, sdb_var("properties", "DevelopmentStripeSecretKey")
-  set :stripe_public_key, sdb_var("properties", "DevelopmentStripePublicKey")
-
   set :database_name, sdb_var(stack, "DBNAME")
   set :database_username, sdb_var(stack, "DBUSER")
   set :database_password, sdb_var(stack, "DBPASSWORD")
   set :database_endpoint, sdb_var(stack, "DatabaseEndpoint")
-  set :redis_domain, sdb_var("properties", "ProductionRedisDomain")
-  set :sesdomain, sdb_var("properties", "DevelopmentDomain")
 end
 
 task :production do
   set :stage, "production"
   set :rails_env, "production"
 
-  set :stripe_secret_key, sdb_var("properties", "ProductionStripeSecretKey")
-  set :stripe_public_key, sdb_var("properties", "ProductionStripePublicKey")
-
   set :database_name, sdb_var("properties", "ProductionDatabaseName")
   set :database_username, sdb_var("properties", "ProductionDatabaseUsername")
   set :database_password, sdb_var("properties", "ProductionDatabasePassword")
   set :database_endpoint, sdb_var("properties", "ProductionDatabaseIP")
-  set :redis_domain, sdb_var("properties", "ProductionRedisDomain")
-  set :sesdomain, sdb_var("properties", "ProductionDomain")
 end
 
 task :rails do

@@ -199,7 +199,6 @@
 
 		  "# Get CD Platform Files\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/jenkins_backup.sh\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/pg_hba.conf\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/config/server.xml\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n",
@@ -286,7 +285,6 @@
 		  "ruby /tmp/s3_upload.rb --filename /tmp/jenkins_backup.sh                                --key jenkins_backup.sh                                 --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/database_export.rb                               --key database_export.rb                                --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb                        --key transient_environments.rb                         --bucket ", { "Ref" : "Bucket" } , "\n",
-		  "ruby /tmp/s3_upload.rb --filename /tmp/pg_hba.conf                                      --key pg_hba.conf                                       --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /tmp/common-step-definitions-1.0.0.gem                --key resources/gems/common-step-definitions-1.0.0.gem  --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                                     --key private/id_rsa                                    --bucket ", { "Ref" : "Bucket" } , "\n",
 		  "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa.pub                                 --key private/id_rsa.pub                                --bucket ", { "Ref" : "Bucket" } , "\n",

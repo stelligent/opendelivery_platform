@@ -34,16 +34,15 @@ task :deploy do
   preconfigure
   update_code
   database.configuration
-  configuration.application
   bundler.install
   virtualhost.configuration
-  whenever.set
   assets.precompile
   postconfigure
   restart
 end
 
-case
-when language == "java"
-after "preconfigure", "deploy", "restart"
+task :deploy_java do
+  preconfigure
+  #deploy_java
+  restart
 end

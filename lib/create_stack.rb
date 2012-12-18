@@ -12,7 +12,6 @@ opts = Trollop::options do
   opt :scriptedorami,     "SCRIPTED or AMI",                                           :short => "m", :type => String
   opt :ami,               "AMI to use",                                                :short => "i", :type => String
   opt :group,             "AMI to use",                                                :short => "t", :type => String
-  opt :sslcertificatearn, "SSL Cert ARN",                                              :short => "r", :type => String
   opt :language,          "Language of application",                                   :short => "u", :type => String
   opt :minsize,           "Mininumum Size of Autoscaling group",                       :short => "q", :type => String
   opt :maxsize,           "Maximum Size of Autoscaling group",                         :short => "z", :type => String
@@ -30,7 +29,6 @@ StackBuilder.build(opts[:templatelocation], opts[:stackname],
                    "SecurityGroupName" => opts[:securitygroup],
                    "S3Bucket"          => opts[:s3bucket],
                    "SNSTopic"          => opts[:snstopic],
-                   "SSLCertificateArn" => opts[:sslcertificatearn],
                    "Language"          => opts[:language],
                    "MinSize"           => opts[:minsize],
                    "MaxSize"           => opts[:maxsize],

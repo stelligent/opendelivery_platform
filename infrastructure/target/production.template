@@ -53,10 +53,6 @@
 	  "Description" : "SNS Topic ID to subscribe to",
 	  "Type" : "String"
     },
-    "SSLCertificateArn" : {
-	  "Description" : "AWS ARN for your SSL certificate in AWS",
-	  "Type" : "String"
-    },
     "Language" : {
 	  "Description" : "Language of application. Can either be Rails or Java",
 	  "Type" : "String",
@@ -133,13 +129,7 @@
             "InstancePort" : "80",
             "InstanceProtocol" : "HTTP",
             "Protocol" : "HTTP"
-          },
-		  { "LoadBalancerPort" : "443",
-		    "InstancePort" : "80",
-		    "InstanceProtocol" : "HTTP",
-		    "Protocol" : "HTTPS",
-		    "SSLCertificateId" : { "Ref" : "SSLCertificateArn" }
-		  }
+          }
         ],
         "HealthCheck" : {
           "Target" : "HTTP:80/",
