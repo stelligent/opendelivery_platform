@@ -4,6 +4,7 @@ opts = Trollop::options do
   opt :imagename, "Name of image", :short =>  "i", :type => String
   opt :autoscalingGroup, "Autoscaling Group", :short =>  "a", :type => String
   opt :sdbdomain, "Name of sdb domain", :short => "q", :type => String
+  opt :amitype, "Type of AMI to create", :short => "t", :type => String
 end
 
 ec2 = AWS::EC2.new
@@ -29,5 +30,5 @@ AWS::SimpleDB.consistent_reads do
   item = domain.items["ami"]
 
   item.attributes.set(
-    "latest" => "#{image.id}")
+    "#{opts[:amitype]}" => "#{image.id}")
 end

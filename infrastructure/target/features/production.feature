@@ -26,11 +26,11 @@ Feature: Scripted Provisioning of Target Environment
         When I run "sudo ls -las <file>"
         Then I should see "<file>"
 
-        Examples: file that should exist
+        Examples: file that should exist  
         | file                |
         | /opt/aws/aws.config |
-
-
+    
+	
     Scenario Outline: These gems should be present
         When I run "sudo gem list"
         Then I should see "<output>"
@@ -39,4 +39,4 @@ Feature: Scripted Provisioning of Target Environment
         | output  |
         | bundler |
         | aws-sdk |
-
+    

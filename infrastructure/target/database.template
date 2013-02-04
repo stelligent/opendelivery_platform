@@ -46,6 +46,7 @@
         "DBInstanceClass" : "db.m1.small",
         "DBName" : { "Ref" : "DatabaseName" },
         "Engine" : "MySQL",
+        "MultiAZ" : "true",
         "EngineVersion" : "5.5",
         "MasterUsername" : { "Ref" : "DBUser" },
         "MasterUserPassword" : { "Ref" : "DBPassword" }

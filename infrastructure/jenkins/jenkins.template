@@ -63,7 +63,7 @@
   "Mappings" : {
     "AWSInstanceType2Arch" : {
       "t1.micro"    : { "Arch" : "64" },
-      "m1.small"    : { "Arch" : "32" },
+      "m1.small"    : { "Arch" : "64" },
       "m1.large"    : { "Arch" : "64" },
       "m1.xlarge"   : { "Arch" : "64" },
       "m2.xlarge"   : { "Arch" : "64" },
@@ -321,11 +321,11 @@
 		  "rm -rf /usr/share/tomcat6/.jenkins\n",
 		  "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
 
-          "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb\n",
-		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/boot.rb --no-check-certificate\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/stack_builder.rb --no-check-certificate\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb --no-check-certificate\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb --no-check-certificate\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb --no-check-certificate\n",
 
 		  "# Set SNS Topic Property\n",
 		  "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n",

@@ -18,7 +18,12 @@
 	  "Type" : "String",
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
-	}
+	},
+
+	"S3Bucket" : {
+	  "Description" : "Bucket for storing and retrieving artifacts",
+	  "Type" : "String"
+    }
   },
 
   "Mappings" : {
@@ -45,8 +50,55 @@
   },
 
   "Resources" : {
+
+	"User" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[{
+            "Effect":"Allow",
+            "Action":"*",
+            "Resource":"*"
+          }
+        ]}
+        }]
+      }
+    },
+
+	"HostKeys" : {
+	  "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+	    "UserName" : { "Ref" : "User" }
+	  }
+	},
+
     "WebServer": {
       "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+	    "AWS::CloudFormation::Init" : {
+		  "config" : {
+			"files" : {
+			  "/tmp/redis-2.6.2-1.el5.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm"]]},
+                "mode" : "000755",
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+				"authentication" : "S3AccessCreds"
+              }
+			}
+		  }
+	    },
+		"AWS::CloudFormation::Authentication" : {
+		  "S3AccessCreds" : {
+		    "type" : "S3",
+		    "accessKeyId" : { "Ref" : "HostKeys" },
+		    "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+		    "buckets" : [ { "Ref" : "S3Bucket" } ]
+		  }
+		}
+	  },
 	  "Properties": {
 		"ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
 	                { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
@@ -56,8 +108,16 @@
 		"Tags": [ { "Key": "Name", "Value": "Redis" } ],
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
-		  "wget https://s3.amazonaws.com/platformsetup-bucket-u64lvcql1hyy/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm\n",
-		  "rpm -Uvh redis-2.6.2-1.el5.x86_64.rpm\n",
+
+	  	  "yum update -y aws-cfn-bootstrap\n",
+
+		  "# Install Packages\n",
+		  "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+		  "    --access-key ", { "Ref" : "HostKeys" },
+		  "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+		  "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+		  "rpm -Uvh /tmp/redis-2.6.2-1.el5.x86_64.rpm\n",
 		  "sysctl vm.overcommit_memory=1\n",
 		  "redis-server\n"
 		]]}}

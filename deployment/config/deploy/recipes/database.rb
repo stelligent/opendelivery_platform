@@ -1,5 +1,5 @@
 namespace :database do
-  task :configuration do
+  task :config do
     config_content = from_template("config/templates/database.yml.erb")
     put config_content, "#{deploy_to}/#{artifact_name}/config/database.yml"
   end

@@ -19,8 +19,8 @@
 	  "Default" : "c1.medium",
 	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
 	},
-	"UseScriptedOrAMI" : {
-	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: SCRIPTED or AMI",
+	"Type" : {
+	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: Infrastructure, Deployment or AMI",
 	  "Type" : "String",
 	  "AllowedValues" : ["SCRIPTED", "AMI"]
 	},
@@ -123,7 +123,7 @@
 	"ElasticLoadBalancer" : {
       "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
-        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "AvailabilityZones" : ["us-east-1a", "us-east-1c", "us-east-1d", "us-east-1e" ],
         "Listeners" : [
    		  { "LoadBalancerPort" : "80",
             "InstancePort" : "80",
@@ -134,9 +134,9 @@
         "HealthCheck" : {
           "Target" : "HTTP:80/",
           "HealthyThreshold" : "3",
-          "UnhealthyThreshold" : "5",
-          "Interval" : "30",
-          "Timeout" : "5"
+          "UnhealthyThreshold" : "2",
+          "Interval" : "5",
+          "Timeout" : "2"
         }
       }
     },
@@ -220,7 +220,7 @@
 		"KeyName"        : { "Ref" : "KeyName" },
 		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 		  "#!/bin/bash -v\n",
-		    "if [ ", { "Ref" : "UseScriptedOrAMI" }, " == 'SCRIPTED' ]; then\n",
+		    "if [ ", { "Ref" : "Type" }, " == 'Infrastructure' ]; then\n",
 
 				"yum update -y aws-cfn-bootstrap\n",
 
@@ -250,7 +250,24 @@
 				"# Add rsa key to Authorized Keys\n",
 				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
 
-				"# Run Capistrano Deployment\n",
+				"dd if=/dev/zero of=/var/swapfile bs=1M count=1024\n",
+				"mkswap /var/swapfile\n",
+				"swapon /var/swapfile\n",
+
+				"echo \"/var/swapfile none swap sw 0 0\" >> /etc/fstab\n",
+
+			"elif [ ", { "Ref" : "Type" }, " == 'Deployment' ]; then\n",
+
+			    "# Install Packages\n",
+			    "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
+			    "    --access-key ", { "Ref" : "HostKeys" },
+			    "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+			    "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+			    "# Add rsa key to Authorized Keys\n",
+			    "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+
+	            "# Run Capistrano Deployment\n",
 				"cd /root/deployment/\n",
 				"HOME=/root cap production deploy key=/tmp/id_rsa type=local language=", { "Ref" : "Language" }, " sdbdomain=", { "Ref" : "SDBDomain" }, "\n",
 
