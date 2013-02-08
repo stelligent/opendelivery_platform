@@ -325,27 +325,6 @@
 	  }
 	},
 
-	"JenkinsStack" : {
-	  "Type" : "AWS::CloudFormation::Stack",
-	  "DependsOn" : "WaitCondition",
-	  "Properties" : {
-	    "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "Bucket" }, "/templates/jenkins.template"]]},
-	    "TimeoutInMinutes" : "20",
-		"Parameters" : {
-		  "Group" : { "Ref" : "Group" },
-		  "S3Bucket" : { "Ref" : "Bucket"},
-		  "HostedZone" : { "Ref" : "HostedZone" },
-		  "ApplicationName" : { "Ref" : "ApplicationName" },
-		  "KeyName" : { "Ref" : "KeyName" },
-		  "InstanceType" : "m1.small",
-		  "Email" : { "Ref" : "Email" },
-		  "SetupTemplate" : { "Ref" : "AWS::StackName" },
-		  "GithubOrganization" : { "Ref" : "GithubOrganization" },
-		  "ProjectName": { "Ref" : "ProjectName" }
-		}
-	  }
-	},
-
 	"WaitHandle" : {
       "Type" : "AWS::CloudFormation::WaitConditionHandle"
     },
