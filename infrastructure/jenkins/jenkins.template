@@ -348,7 +348,7 @@
 		  "echo \"Defaults:tomcat !requiretty\" >> /etc/sudoers\n",
 
           "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
-		  "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }
+		  "#ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }
         ]]}}
       }
     },
