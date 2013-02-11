@@ -49,7 +49,7 @@
     "InstanceType" : {
       "Description" : "Jenkins EC2 instance type",
       "Type" : "String",
-      "Default" : "c1.medium",
+      "Default" : "t1.micro",
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
 
