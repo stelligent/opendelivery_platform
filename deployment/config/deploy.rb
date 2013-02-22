@@ -33,9 +33,9 @@ task :deploy do
   rails
   preconfigure
   update_code
-  database.configuration
+  database.config
   bundler.install
-  virtualhost.configuration
+  virtualhost.config
   postconfigure
   restart
 end
