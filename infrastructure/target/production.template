@@ -22,7 +22,7 @@
 	"Type" : {
 	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: Infrastructure, Deployment or AMI",
 	  "Type" : "String",
-	  "AllowedValues" : ["SCRIPTED", "AMI"]
+	  "AllowedValues" : ["Infrastructure", "Deployment", "AMI"]
 	},
 	"AMI" : {
 	  "Description" : "AMI to create/deploy to",
