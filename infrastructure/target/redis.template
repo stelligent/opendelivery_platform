@@ -130,7 +130,6 @@
 	    "GroupDescription" : "Enable Redis Access",
 		"SecurityGroupIngress" : [
 		  { "IpProtocol" : "tcp", "FromPort" : "6379", "ToPort" : "6379", "CidrIp" : "0.0.0.0/0" },
-		  { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }
 		]
 	  }
 	}
