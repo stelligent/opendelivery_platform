@@ -326,6 +326,7 @@
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/cd_security_group.rb --no-check-certificate\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/terminate_instance.rb --no-check-certificate\n",
 		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/set_properties.rb --no-check-certificate\n",
+		  "wget -P /tmp/ https://raw.github.com/stelligent/continuous_delivery_open_platform/master/lib/search_and_replace_git_repo.rb --no-check-certificate\n",
 
 		  "# Set SNS Topic Property\n",
 		  "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n",
@@ -339,6 +340,8 @@
 		  "echo \"export SIMPLEDB_STACK=", { "Ref" : "SetupTemplate" }, "\" >> /etc/sysconfig/tomcat6\n",
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
+
+          "ruby /tmp/search_and_replace_git_repo.rb ", { "Ref" : "ProjectName"},
 
 		  "service tomcat6 restart\n",
 		  "service httpd restart\n",
