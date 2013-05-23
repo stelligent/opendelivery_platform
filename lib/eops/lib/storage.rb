@@ -1,4 +1,4 @@
-class S3Tools
+class Storage
 
   @s3 = AWS::S3.new
 
