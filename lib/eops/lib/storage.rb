@@ -1,13 +1,17 @@
+require_relative "boot"
+
 class Storage
 
-  @s3 = AWS::S3.new
+  def initialize
+    @s3 = AWS::S3.new
+  end
 
   def upload(file, bucket, key)
-    s3.buckets[bucket_name].objects[key].write(:file => file)
+    @s3.buckets[bucket_name].objects[key].write(:file => file)
   end
 
   def download(bucket, key, output_directory)
-    obj = s3.buckets["#{opts[:bucket]}"].objects["#{opts[:key]}"]
+    obj = @s3.buckets["#{opts[:bucket]}"].objects["#{opts[:key]}"]
 
     base = Pathname.new("#{obj.key}").basename
 
