@@ -1,5 +1,3 @@
-require_relative "boot"
-
 class StackBuilder
   def self.build(template, stack_name, parameters = {})
     cfn = AWS::CloudFormation.new

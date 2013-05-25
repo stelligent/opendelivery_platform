@@ -1,5 +1,3 @@
-require_relative 'boot'
-
 class KeyPair
   def initialize
     @ec2 = AWS::EC2.new

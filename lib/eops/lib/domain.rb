@@ -1,5 +1,3 @@
-require_relative "boot"
-
 class Domain
 
   def initialize

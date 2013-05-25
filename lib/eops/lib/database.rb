@@ -1,5 +1,3 @@
-require_relative 'boot'
-
 class Database
   def initialize
   end

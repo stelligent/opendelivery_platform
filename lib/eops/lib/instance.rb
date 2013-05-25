@@ -1,5 +1,3 @@
-require_relative "boot"
-
 class Instance
   def initialize
     @ec2 = AWS::EC2.new
