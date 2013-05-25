@@ -5,7 +5,7 @@
 
   "Parameters" : {
 
-	"KeyName" : {
+  "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
       "Default" : "development",
@@ -15,74 +15,74 @@
       "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
     "InstanceType" : {
-	  "Type" : "String",
-	  "Default" : "t1.micro",
-	  "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
-	},
-	"Type" : {
-	  "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: Infrastructure, Deployment or AMI",
-	  "Type" : "String",
-	  "AllowedValues" : ["Infrastructure", "Deployment", "AMI"]
-	},
-	"AMI" : {
-	  "Description" : "AMI to create/deploy to",
-	  "Type" : "String",
-	  "Default" : "ami-7341831a"
-	},
-	"SecurityGroupName" : {
-	  "Description" : "Name of Security Group to use",
-	  "Type" : "String"
-	},
-	"Group" : {
-	  "Description" : "AWS IAM User Group",
-	  "Type" : "String"
-	},
-	"ApplicationName" : {
-	  "Description" : "Name of CNAME/A Record to use",
-	  "Type" : "String"
-	},
-	"HostedZone" : {
-	  "Description" : "Route53 Domain to use",
-	  "Type" : "String"
-	},
-	"S3Bucket" : {
-	  "Description" : "Bucket for storing and retrieving artifacts",
-	  "Type" : "String"
+    "Type" : "String",
+    "Default" : "t1.micro",
+    "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+  },
+  "Type" : {
+    "Description" : "When creating the instance, do you want to run the puppet scripts or use the prebuilt AMI. Allowed values are: Infrastructure, Deployment or AMI",
+    "Type" : "String",
+    "AllowedValues" : ["Infrastructure", "Deployment", "AMI"]
+  },
+  "AMI" : {
+    "Description" : "AMI to create/deploy to",
+    "Type" : "String",
+    "Default" : "ami-7341831a"
+  },
+  "SecurityGroupName" : {
+    "Description" : "Name of Security Group to use",
+    "Type" : "String"
+  },
+  "Group" : {
+    "Description" : "AWS IAM User Group",
+    "Type" : "String"
+  },
+  "ApplicationName" : {
+    "Description" : "Name of CNAME/A Record to use",
+    "Type" : "String"
+  },
+  "HostedZone" : {
+    "Description" : "Route53 Domain to use",
+    "Type" : "String"
+  },
+  "S3Bucket" : {
+    "Description" : "Bucket for storing and retrieving artifacts",
+    "Type" : "String"
     },
-	"SNSTopic" : {
-	  "Description" : "SNS Topic ID to subscribe to",
-	  "Type" : "String"
+  "SNSTopic" : {
+    "Description" : "SNS Topic ID to subscribe to",
+    "Type" : "String"
     },
     "Language" : {
-	  "Description" : "Language of application. Can either be Rails or Java",
-	  "Type" : "String",
-	  "AllowedValues" : [ "rails", "java"]
+    "Description" : "Language of application. Can either be Rails or Java",
+    "Type" : "String",
+    "AllowedValues" : [ "rails", "java"]
     },
     "MinSize" : {
-	  "Description" : "Minimum size of Autoscaling Group",
-	  "Type" : "String"
+    "Description" : "Minimum size of Autoscaling Group",
+    "Type" : "String"
     },
     "MaxSize" : {
-	  "Description" : "Maximum size of Autoscaling Group",
-	  "Type" : "String"
+    "Description" : "Maximum size of Autoscaling Group",
+    "Type" : "String"
     },
     "SDBDomain" : {
-	  "Description" : "Maximum size of Autoscaling Group",
-	  "Type" : "String"
+    "Description" : "Maximum size of Autoscaling Group",
+    "Type" : "String"
     }
   },
 
   "Resources" : {
 
-	"addUserToGroup" : {
-	   "Type" : "AWS::IAM::UserToGroupAddition",
-	   "Properties" : {
-	      "GroupName" : { "Ref" : "Group" },
-	      "Users" : [ { "Ref" : "User" } ]
-	   }
-	},
+  "addUserToGroup" : {
+     "Type" : "AWS::IAM::UserToGroupAddition",
+     "Properties" : {
+        "GroupName" : { "Ref" : "Group" },
+        "Users" : [ { "Ref" : "User" } ]
+     }
+  },
 
-	"User" : {
+  "User" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
         "Path": "/",
@@ -98,34 +98,34 @@
       }
     },
 
-	"HostKeys" : {
-	  "Type" : "AWS::IAM::AccessKey",
+  "HostKeys" : {
+    "Type" : "AWS::IAM::AccessKey",
       "Properties" : {
-	    "UserName" : { "Ref" : "User" }
-	  }
-	},
+      "UserName" : { "Ref" : "User" }
+    }
+  },
 
-	"DNS" : {
+  "DNS" : {
       "Type" : "AWS::Route53::RecordSetGroup",
-	  "Properties" : {
-	    "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
-	    "Comment" : "CNAME alias targeted to myELB LoadBalancer.",
-	    "RecordSets" : [
-		  {
-			"Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
-			"Type" : "CNAME",
-			"TTL"  : "900",
-			"ResourceRecords" : [{ "Fn::GetAtt" : ["ElasticLoadBalancer","DNSName"] }]
-		  }]
-	  }
-	},
+    "Properties" : {
+      "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
+      "Comment" : "CNAME alias targeted to myELB LoadBalancer.",
+      "RecordSets" : [
+      {
+      "Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
+      "Type" : "CNAME",
+      "TTL"  : "900",
+      "ResourceRecords" : [{ "Fn::GetAtt" : ["ElasticLoadBalancer","DNSName"] }]
+      }]
+    }
+  },
 
-	"ElasticLoadBalancer" : {
+  "ElasticLoadBalancer" : {
       "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
         "AvailabilityZones" : ["us-east-1a", "us-east-1c", "us-east-1d", "us-east-1e" ],
         "Listeners" : [
-   		  { "LoadBalancerPort" : "80",
+        { "LoadBalancerPort" : "80",
             "InstancePort" : "80",
             "InstanceProtocol" : "HTTP",
             "Protocol" : "HTTP"
@@ -141,7 +141,7 @@
       }
     },
 
-	"WebServerAutoScalingGroup" : {
+  "WebServerAutoScalingGroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
@@ -150,145 +150,145 @@
         "MaxSize" : { "Ref" : "MaxSize" },
         "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
         "Tags": [ { "Key": "Name", "Value": "Target", "PropagateAtLaunch" : "true" } ],
-		"NotificationConfiguration" : {
-		  "TopicARN" : { "Ref" : "SNSTopic" },
-		  "NotificationTypes" : [ "autoscaling:EC2_INSTANCE_LAUNCH","autoscaling:EC2_INSTANCE_LAUNCH_ERROR","autoscaling:EC2_INSTANCE_TERMINATE", "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"]
-		}
+    "NotificationConfiguration" : {
+      "TopicARN" : { "Ref" : "SNSTopic" },
+      "NotificationTypes" : [ "autoscaling:EC2_INSTANCE_LAUNCH","autoscaling:EC2_INSTANCE_LAUNCH_ERROR","autoscaling:EC2_INSTANCE_TERMINATE", "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"]
+    }
       }
     },
 
-	"LaunchConfig": {
+  "LaunchConfig": {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Metadata" : {
-	    "AWS::CloudFormation::Init" : {
-		  "config" : {
-			"sources" : {
-			  "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]},
-			  "/root/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/capistrano.tar.gz"]]}
-			},
-			"files" : {
-			  "/opt/aws/aws.config" : {
-				"content" : { "Fn::Join" : ["", [
-				  "AWS.config(\n",
-					":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-					":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
+      "AWS::CloudFormation::Init" : {
+      "config" : {
+      "sources" : {
+        "/home/ec2-user/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/puppet.tar.gz"]]},
+        "/root/" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/capistrano.tar.gz"]]}
+      },
+      "files" : {
+        "/opt/aws/aws.config" : {
+        "content" : { "Fn::Join" : ["", [
+          "AWS.config(\n",
+          ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+          ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
                   ]]},
-				"mode"   : "000555",
+        "mode"   : "000555",
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
-			  },
+        },
 
-			  "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+        "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
                 "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
-				"authentication" : "S3AccessCreds"
+        "authentication" : "S3AccessCreds"
               },
 
-			  "/tmp/id_rsa" : {
+        "/tmp/id_rsa" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
                 "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
-				"authentication" : "S3AccessCreds"
+        "authentication" : "S3AccessCreds"
               },
 
-			  "/tmp/id_rsa.pub" : {
+        "/tmp/id_rsa.pub" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa.pub"]]},
                 "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",
-				"authentication" : "S3AccessCreds"
+        "authentication" : "S3AccessCreds"
               }
-			}
-		  }
-	    },
-		"AWS::CloudFormation::Authentication" : {
-		  "S3AccessCreds" : {
-		    "type" : "S3",
-		    "accessKeyId" : { "Ref" : "HostKeys" },
-		    "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
-		    "buckets" : [ { "Ref" : "S3Bucket" } ]
-		  }
-		}
-	  },
+      }
+      }
+      },
+    "AWS::CloudFormation::Authentication" : {
+      "S3AccessCreds" : {
+        "type" : "S3",
+        "accessKeyId" : { "Ref" : "HostKeys" },
+        "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+        "buckets" : [ { "Ref" : "S3Bucket" } ]
+      }
+    }
+    },
       "Properties": {
-		"ImageId" : { "Ref" : "AMI" },
-		"InstanceType"     : { "Ref" : "InstanceType" },
-		"SecurityGroups"   : [ { "Ref" : "FrontendGroup" }, { "Ref" : "SecurityGroupName" } ],
-		"KeyName"        : { "Ref" : "KeyName" },
-		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-		  "#!/bin/bash -v\n",
-		    "if [ ", { "Ref" : "Type" }, " == 'Infrastructure' ]; then\n",
+    "ImageId" : { "Ref" : "AMI" },
+    "InstanceType"     : { "Ref" : "InstanceType" },
+    "SecurityGroups"   : [ { "Ref" : "FrontendGroup" }, { "Ref" : "SecurityGroupName" } ],
+    "KeyName"        : { "Ref" : "KeyName" },
+    "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+      "#!/bin/bash -v\n",
+        "if [ ", { "Ref" : "Type" }, " == 'Infrastructure' ]; then\n",
 
-				"yum update -y aws-cfn-bootstrap\n",
+        "yum update -y aws-cfn-bootstrap\n",
 
-				"# Install Packages\n",
-				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
-				"    --access-key ", { "Ref" : "HostKeys" },
-				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+        "# Install Packages\n",
+        "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
+        "    --access-key ", { "Ref" : "HostKeys" },
+        "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+        "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
-				"# Install Ruby Dependency\n",
-				"yum install -y libxslt-devel\n",
+        "# Install Ruby Dependency\n",
+        "yum install -y libxslt-devel\n",
 
-				"# Install Ruby 1.9.3\n",
-				"rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+        "# Install Ruby 1.9.3\n",
+        "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 
-				"# Install Puppet 3.0.1 from Rubygem\n",
-				"gem install puppet --no-rdoc --no-ri\n",
-				"groupadd puppet\n",
+        "# Install Puppet 3.0.1 from Rubygem\n",
+        "gem install puppet --no-rdoc --no-ri\n",
+        "groupadd puppet\n",
 
-				"# Run Puppet\n",
-				"puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
+        "# Run Puppet\n",
+        "puppet apply --modulepath=/home/ec2-user/modules /home/ec2-user/manifests/site.pp\n",
 
-				"# Disable tty for ec2-user\n",
-				"echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
-				"echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
+        "# Disable tty for ec2-user\n",
+        "echo \"Defaults:%ec2-user !requiretty\" >> /etc/sudoers\n",
+        "echo \"Defaults:ec2-user !requiretty\" >> /etc/sudoers\n",
 
-				"# Add rsa key to Authorized Keys\n",
-				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+        "# Add rsa key to Authorized Keys\n",
+        "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
 
-				"dd if=/dev/zero of=/var/swapfile bs=1M count=1024\n",
-				"mkswap /var/swapfile\n",
-				"swapon /var/swapfile\n",
+        "dd if=/dev/zero of=/var/swapfile bs=1M count=1024\n",
+        "mkswap /var/swapfile\n",
+        "swapon /var/swapfile\n",
 
-				"echo \"/var/swapfile none swap sw 0 0\" >> /etc/fstab\n",
+        "echo \"/var/swapfile none swap sw 0 0\" >> /etc/fstab\n",
 
-			"elif [ ", { "Ref" : "Type" }, " == 'Deployment' ]; then\n",
+      "elif [ ", { "Ref" : "Type" }, " == 'Deployment' ]; then\n",
 
-			    "# Install Packages\n",
-			    "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
-			    "    --access-key ", { "Ref" : "HostKeys" },
-			    "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-			    "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+          "# Install Packages\n",
+          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
+          "    --access-key ", { "Ref" : "HostKeys" },
+          "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+          "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
-			    "# Add rsa key to Authorized Keys\n",
-			    "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+          "# Add rsa key to Authorized Keys\n",
+          "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
 
-	            "# Run Capistrano Deployment\n",
-				"cd /root/deployment/\n",
-				"HOME=/root cap production deploy key=/tmp/id_rsa type=local language=", { "Ref" : "Language" }, " sdbdomain=", { "Ref" : "SDBDomain" }, "\n",
+              "# Run Capistrano Deployment\n",
+        "cd /root/deployment/\n",
+        "HOME=/root cap production deploy key=/tmp/id_rsa type=local language=", { "Ref" : "Language" }, " sdbdomain=", { "Ref" : "SDBDomain" }, "\n",
 
-			"else\n",
+      "else\n",
 
-				"# Install Packages\n",
-				"/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
-				"    --access-key ", { "Ref" : "HostKeys" },
-				"    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-				"    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+        "# Install Packages\n",
+        "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r LaunchConfig ",
+        "    --access-key ", { "Ref" : "HostKeys" },
+        "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+        "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
-				"# Add rsa key to Authorized Keys\n",
-				"cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
-		   "fi\n",
+        "# Add rsa key to Authorized Keys\n",
+        "cat /tmp/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys\n",
+       "fi\n",
 
-		   "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
-		]]}}
-	  }
-	},
+       "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
+    ]]}}
+    }
+  },
 
-	"WebServerScaleUpPolicy" : {
+  "WebServerScaleUpPolicy" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
@@ -296,9 +296,9 @@
         "Cooldown" : "60",
         "ScalingAdjustment" : "1"
       }
-	},
+  },
 
-	"WebServerScaleDownPolicy" : {
+  "WebServerScaleDownPolicy" : {
       "Type" : "AWS::AutoScaling::ScalingPolicy",
       "Properties" : {
         "AdjustmentType" : "ChangeInCapacity",
@@ -306,19 +306,20 @@
         "Cooldown" : "60",
         "ScalingAdjustment" : "-1"
       }
-	},
+  },
 
-	"FrontendGroup" : {
-	  "Type" : "AWS::EC2::SecurityGroup",
+  "FrontendGroup" : {
+    "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-	    "GroupDescription" : "Enable SSH Access",
-		"SecurityGroupIngress" : [
-		  { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" }
-		]
-	  }
-	},
+      "GroupDescription" : "Enable SSH Access",
+    "SecurityGroupIngress" : [
+      { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" },
+      { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }
+    ]
+    }
+  },
 
-	"WaitHandle" : {
+  "WaitHandle" : {
       "Type" : "AWS::CloudFormation::WaitConditionHandle"
     },
 
@@ -333,21 +334,21 @@
   },
 
   "Outputs" : {
-	"StackName" : {
+  "StackName" : {
       "Value" : { "Ref" : "AWS::StackName" }
     },
-	"ApplicationName" : {
-	  "Value" : { "Ref" : "ApplicationName" }
-	},
+  "ApplicationName" : {
+    "Value" : { "Ref" : "ApplicationName" }
+  },
     "Domain" : {
       "Value" : { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
       "Description" : "Full domain"
     },
-	"AutoscalingGroup" : {
+  "AutoscalingGroup" : {
       "Value" : { "Ref" : "WebServerAutoScalingGroup" }
     },
     "LoadBalancerDNS" : {
-	  "Value" : { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}
+    "Value" : { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}
     }
   }
 }
