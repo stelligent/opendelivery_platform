@@ -30,9 +30,6 @@ class Stack
     end
   end
 
-
-  end
-
   def destroy(stack_name)
     @cfn.stacks[stack_name].delete
     while stack.exists?
