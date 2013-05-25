@@ -341,7 +341,7 @@
 
           "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
 
-          "ruby /tmp/search_and_replace_git_repo.rb ", { "Ref" : "ProjectName"},
+          "ruby /tmp/search_and_replace_git_repo.rb ", { "Ref" : "ProjectName"}, "\n",
 
       "service tomcat6 restart\n",
       "service httpd restart\n",
