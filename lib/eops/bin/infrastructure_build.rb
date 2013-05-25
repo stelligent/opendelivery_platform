@@ -7,7 +7,7 @@ application_name = ARGV[2]
 @domain = Domain.new
 @storage = Storage.new
 
-s3bucket = domain.get_property(sdb_domain, "properties", "S3Bucket")
+s3bucket = @domain.get_property(sdb_domain, "properties", "S3Bucket")
 
 
 Dir.chdir("#{workspace_dir}/infrastructure/puppet") do
