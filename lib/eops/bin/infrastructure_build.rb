@@ -1,4 +1,4 @@
-require_relative "boot"
+require_relative '../config/initialize'
 
 workspace_dir = ARGV[0]
 sdb_domain = ARGV[1]
