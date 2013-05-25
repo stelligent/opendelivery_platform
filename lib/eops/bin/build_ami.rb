@@ -21,7 +21,6 @@ security_group_id = @domain.get_property(sdb_domain, "properties", "SGID")
 security_group_name = @instance.find_sg_name(security_group_id)
 ssh_key = "development"
 
-
 @stack.create("#{workspace_dir}/infrastructure/target/production.template", stack_name, {
   "Group"             => group,
   "Type"              => type,
