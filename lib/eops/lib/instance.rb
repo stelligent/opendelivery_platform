@@ -12,4 +12,8 @@ class Instance
 
     return @ec2.instances[first_instance].ip_address
   end
+
+  def find_sg_name(sg_id)
+    @ec2.security_groups[sgid].name
+  end
 end
