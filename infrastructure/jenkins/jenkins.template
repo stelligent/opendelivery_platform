@@ -339,6 +339,7 @@
       "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
       "echo \"export SIMPLEDB_STACK=", { "Ref" : "SetupTemplate" }, "\" >> /etc/sysconfig/tomcat6\n",
       "echo \"export PROJECT_NAME=", { "Ref" : "ProjectName" }, "\" >> /etc/sysconfig/tomcat6\n",
+      "echo \"export ORGANIZATION=", { "Ref" : "GithubOrganization" }, "\" >> /etc/sysconfig/tomcat6\n",
 
 
       "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
