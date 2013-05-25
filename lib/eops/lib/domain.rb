@@ -29,14 +29,16 @@ class Domain
 
   def get_property(sdb_domain, item_name, key)
     AWS::SimpleDB.consistent_reads do
-    item = @sdb.domains[sdb_domain].items[item_name]
+      item = @sdb.domains[sdb_domain].items[item_name]
 
       item.attributes.each_value do |name, value|
         if name == key
-          puts value.chomp
+          @property_value = value.chomp
         end
       end
     end
+
+    return @property_value
   end
 
   def set_property(sdb_domain, item_name, property, value)
