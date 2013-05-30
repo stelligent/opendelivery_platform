@@ -27,7 +27,7 @@ $solo_js = @"
 
   "run_list": [
     "recipe[iis]",
-    "recipe[iis::mod_deploy]"
+    "recipe[iis::mod_deploy]",
     "recipe[7-zip]", 
     "recipe[ms_dotnet45]"
   ]
