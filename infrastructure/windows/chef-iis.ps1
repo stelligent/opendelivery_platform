@@ -3,8 +3,9 @@
 
 $chef = "C:\chef"
 $opscode = "C:\opscode"
+$git = "C:\Program Files (x86)\Git"
 
-$Env:PATH += ";$opscode\bin"
+$Env:PATH += ";$opscode\bin;$git\bin"
 
 mkdir -force $chef
 mkdir -force $chef\cache
