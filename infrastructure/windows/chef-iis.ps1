@@ -25,7 +25,8 @@ $solo_js = @"
   },
 
   "run_list": [
-    "recipe[iis]"
+    "recipe[iis]",
+    "recipe[iis::mod_deploy"
   ]
 }
 "@
