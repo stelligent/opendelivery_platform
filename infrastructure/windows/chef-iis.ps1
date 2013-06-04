@@ -29,7 +29,7 @@ $solo_js = @"
     "recipe[iis]",
     "recipe[iis::mod_deploy]",
     "recipe[7-zip]", 
-    "recipe[ms_dotnet45]"
+    "recipe[ms_dotnet4]"
   ]
 }
 "@
