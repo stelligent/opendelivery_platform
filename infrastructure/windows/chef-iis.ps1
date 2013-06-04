@@ -50,6 +50,6 @@ git clone https://github.com/Webtrends/Cookbooks WebTrends
 
 
 cd $chef
-chef-solo -c $chef\solo.rb -j $chef\solo.js -l debug
+chef-solo --no-color -c $chef\solo.rb -j $chef\solo.js -l debug
 
 popd
