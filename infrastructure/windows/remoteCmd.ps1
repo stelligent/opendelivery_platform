@@ -9,6 +9,15 @@
 # accessing the remote server. The full path of the file can be specified with the
 # environment variable DEPLOY_SECRETS="C:\Some\Path\my-deploy-secrets.xml"
 #
+# NOTE: CredSSP must be enabled on client and server. It's a complicated process, but these
+# are some of the hints to get it started.
+# enable CredSSP on a client computer; this command allows the client credentials to be delegated to the server01 computer.:
+#    C:\PS>enable-wsmancredssp -role client -delegatecomputer server01.test.local
+# enable CredSSP on a server computer; this command allows the server01 computer to act as a delegate for another:
+#    C:\PS>connect-wsman server01
+#    C:\PS>set-item wsman:\server01\service\auth\credSSP -value $true
+#Or, if you prefer to run a command locally on the server01 computer, the following command will enable CredSSP on a server computer too:
+#    C:\PS>enable-wsmancredssp -role server
 param([string]$user = $(throw "Please supply a user name"),
 	[string]$remoteHost = $(throw "Please supply a remote host"),
 	[string]$command = $(throw "Please supply a command to run."))
