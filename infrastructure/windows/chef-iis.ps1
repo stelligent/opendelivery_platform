@@ -1,6 +1,8 @@
 
 # Install IIS and supporting utilities with Chef-solo
 
+pushd c:\
+
 $chef = "C:\chef"
 $opscode = "C:\opscode"
 $git = "C:\Program Files (x86)\Git"
@@ -49,3 +51,5 @@ git clone https://github.com/Webtrends/Cookbooks WebTrends
 
 cd $chef
 chef-solo -c $chef\solo.rb -j $chef\solo.js -l debug
+
+popd
