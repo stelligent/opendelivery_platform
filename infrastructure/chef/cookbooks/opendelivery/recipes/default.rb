@@ -1,5 +1,5 @@
 %w{ tomcat }.each do |pkg|
-  windows_package node[pkg] do
+  windows_package pkg do
     source node[pkg]['url']
     options node[pkg]['options']
     action :install
