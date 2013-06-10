@@ -1,7 +1,8 @@
-%w{ tomcat }.each do |pkg|
+%w{ tomcat java }.each do |pkg|
   windows_package pkg do
     source node[pkg]['url']
     options node[pkg]['options']
+    installer_type :custom
     action :install
   end
 
