@@ -6,9 +6,9 @@
     action :install
   end
 
-  path = Pathname.new(node[pkg]['home'])
+  path = Pathname.new(node[pkg]['home']).join('bin')
 
-  windows_path path.join('bin') do
+  windows_path path do
     action :add
   end
 end
