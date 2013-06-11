@@ -29,7 +29,7 @@ default['gems'] = { 'bundler'    => '1.1.4',
                     'rake'       => '0.9.2.2'
                   }
 
-default['path'] = { 'SNS_TOPIC' => 'snsarn',
+default['path'] = {  'SNS_TOPIC' => 'snsarn',
                      'JENKINS_DOMAIN' => 'jenkins.domain.com',
                      'JENKINS_ENVIRONMENT' => 'production',
                      'SIMPLEDB_STACK' => 'stack',
