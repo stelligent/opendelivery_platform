@@ -10,3 +10,14 @@
     action :add
   end
 end
+
+
+%w{ bundler aws-sdk cucumber net-ssh capistrano route53 rspec trollop rake }.each do |gem|
+  gem_package gem do
+    if gem == 'common-step-definitions'
+      source node['common-step-definitions']['source']
+    end
+    version node[gem]['version'] || nil
+    action :install
+  end
+end
