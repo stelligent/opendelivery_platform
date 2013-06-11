@@ -6,7 +6,7 @@
     action :install
   end
 
-  path = Pathname.new(node[pkg]['home']) + '\\' + 'bin'
+  path = "#{node[pkg]['home']}" + '\\' + 'bin'
 
   windows_path path.to_s do
     action :add
