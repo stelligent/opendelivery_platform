@@ -22,7 +22,7 @@ end
 node['path'].each do |var, path|
   windows_batch "set some env vars" do
     code <<-EOH
-    setx #{var} #{path}
+    setx #{var} "#{path}"
     EOH
   end
 end
