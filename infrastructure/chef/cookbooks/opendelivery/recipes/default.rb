@@ -6,7 +6,9 @@
     action :install
   end
 
-  windows_path "#{node[pkg]['home'}\\bin" do
+  path = Pathname.new(node[pkg]['home'])
+
+  windows_path path.join('bin') do
     action :add
   end
 end
@@ -20,7 +22,7 @@ node['gems'].each do |gem, gem_version|
 end
 
 node['path'].each do |var, path|
-  windows_batch "Set environment Variables" do
+  windows_batch "set environment variables" do
     code <<-EOH
     setx #{var} "#{path}"
     EOH
