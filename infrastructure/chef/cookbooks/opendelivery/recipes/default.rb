@@ -8,7 +8,7 @@
 
   path = Pathname.new(node[pkg]['home']).join('bin')
 
-  windows_path path do
+  windows_path path.to_s do
     action :add
   end
 end
