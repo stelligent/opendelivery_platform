@@ -9,7 +9,7 @@ Feature: Scripted Deployment of an Application
         And a password of "password"
 
     Scenario: Is the IIS service running?
-        When I run "iis reset /status"
+        When I run "iisreset /status"
         Then I should see "Status for IIS Admin Service ( IISADMIN ) : Running"
 
 
