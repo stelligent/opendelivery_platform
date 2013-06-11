@@ -17,3 +17,14 @@ default['trollop']['version'] = '2.0'
 default['rake']['version'] = '0.9.2.2'
 
 default['common-step-definitions']['source'] = 'C:\Downloads\common-step-definitions-1.0.0.gem'
+
+default['gems'] = { 'bundler'    => '1.1.4',
+                    'aws-sdk'    => '1.5.6',
+                    'cucumber'   => '1.2.1',
+                    'net-ssh'    => '2.5.2',
+                    'capistrano' => '2.12.0',
+                    'route53'    => '0.2.1',
+                    'rspec'      => '2.10.0'
+                    'trollop'    => '2.0',
+                    'rake'       => '0.9.2.2'
+                  }
