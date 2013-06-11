@@ -20,7 +20,7 @@ node['gems'].each do |gem, gem_version|
 end
 
 node['path'].each do |var, path|
-  windows_batch "set some env vars" do
+  windows_batch "Set environment Variables" do
     code <<-EOH
     setx #{var} "#{path}"
     EOH
