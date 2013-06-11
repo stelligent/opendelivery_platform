@@ -24,7 +24,15 @@ default['gems'] = { 'bundler'    => '1.1.4',
                     'net-ssh'    => '2.5.2',
                     'capistrano' => '2.12.0',
                     'route53'    => '0.2.1',
-                    'rspec'      => '2.10.0'
+                    'rspec'      => '2.10.0',
                     'trollop'    => '2.0',
                     'rake'       => '0.9.2.2'
                   }
+
+default['paths'] = { 'SNS_TOPIC' => 'snsarn',
+                     'JENKINS_DOMAIN' => 'jenkins.domain.com',
+                     'JENKINS_ENVIRONMENT' => 'production',
+                     'SIMPLEDB_STACK' => 'stack',
+                     'PROJECT_NAME' => 'opendelivery',
+                     'ORGANIZATION' => 'stelligent'
+                   }

@@ -6,18 +6,23 @@
     action :install
   end
 
-  windows_path "#{node[pkg]['home']}\bin" do
+  windows_path File.join(node[pkg]['home'], 'bin') do
     action :add
   end
 end
 
 
-%w{ bundler aws-sdk cucumber net-ssh capistrano route53 rspec trollop rake }.each do |gem gem_version|
+node['gems'].each do |gem, gem_version|
   gem_package gem do
-    if gem == 'common-step-definitions'
-      source node['common-step-definitions']['source']
-    end
     version gem_version || nil
     action :install
+  end
+end
+
+node['path'].each do |var, path|
+  windows_batch "set some env vars" do
+    code <<-EOH
+    setx "#{var} "#{path}"
+    EOH
   end
 end
