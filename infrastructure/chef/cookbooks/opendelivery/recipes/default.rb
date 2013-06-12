@@ -8,7 +8,7 @@
 
   path = "#{node[pkg]['home']}" + '\\' + 'bin'
 
-  windows_path path.to_s do
+  windows_path path do
     action :add
   end
 end
