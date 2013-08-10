@@ -29,7 +29,12 @@
     "VPCSecurityGroupId" : {
       "Description" : "Security group ID for VPC",
       "Type" : "String"
-    }    ,
+    },
+
+    "S3Bucket" : {
+      "Description" : "S3 bucket",
+      "Type" : "String"
+    },
 
     "ServerName" : {
       "Description" : "Machine name for server (max 15 char)",

@@ -37,6 +37,10 @@
       "MaxLength" : "15",
       "Type" : "String"
     },
+    "S3Bucket" : {
+      "Description" : "S3 bucket",
+      "Type" : "String"
+    },
 
     "VPCID" : {
       "Description" : "ID of VPC",

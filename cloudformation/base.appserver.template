@@ -52,6 +52,10 @@
       "Description" : "Domain user with permission to join domain",
       "Type" : "String"
     },
+    "S3Bucket" : {
+      "Description" : "S3 bucket",
+      "Type" : "String"
+    },
 
     "DomainPass" : {
       "Description" : "Password for the domain user",
