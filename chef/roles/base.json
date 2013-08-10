@@ -1,0 +1,14 @@
+{
+  "name": "base",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "description": "Role for setting up the base packages for each system",
+
+  "run_list": [
+    "recipe[aws]",
+    "recipe[administration::firewall]",
+    "recipe[7-zip]",
+    "recipe[dotnet]",
+    "recipe[atlas::acctinit]"
+  ]
+}

@@ -1,6 +1,6 @@
 ## DESCRIPTION
 
-The Open Continuous Delivery platform provides a complete working Continuous Delivery solution using industry-standard open source tools such as Jenkins, Puppet, Chef, Capistrano, Ruby, Maven, git, Java, Grails, etc.  
+The Open Continuous Delivery platform provides a complete working Continuous Delivery solution using industry-standard open source tools such as Jenkins, Chef, Ruby, git, Java, Grails, etc.
 
 ## DETAILS
 
@@ -10,6 +10,8 @@ Please see the [wiki](https://github.com/stelligent/continuous_delivery_open_pla
 
 
 ## LICENSE
+
+MIT License
 
 Copyright (c) 2012 Stelligent Systems LLC
 
