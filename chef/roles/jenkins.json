@@ -1,0 +1,16 @@
+{
+  "name": "jenkins",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "description": "Role for setting up jenkins Continuous Delivery environment",
+  "run_list": [
+    "role[base]",
+    "recipe[java]",
+    "recipe[git::windows]",
+    "recipe[tomcat-windows]",
+    "recipe[opendelivery::path]",
+    "recipe[opendelivery::knife]",
+    "recipe[opendelivery::gem]",
+    "recipe[opendelivery::jenkins]"
+  ]
+}

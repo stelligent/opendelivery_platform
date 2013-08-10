@@ -20,18 +20,11 @@ class Stack
         stack.delete
       end
     end
-
-    stack = @cfn.stacks[stack_name]
-    File.open("/tmp/#{stack_name}", "w") do |aFile|
-      stack.outputs.each do |output|
-        cfnOutput = "#{output.key}=#{output.value}\n"
-        aFile.syswrite(cfnOutput)
-      end
-    end
   end
 
   def destroy(stack_name)
-    @cfn.stacks[stack_name].delete
+    stack = @cfn.stacks[stack_name]
+    stack.delete
     while stack.exists?
       sleep 30
     end

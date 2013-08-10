@@ -5,7 +5,8 @@ opts = Trollop::options do
 end
 
 cfn = AWS::CloudFormation.new
-stack = cfn.stacks["#{opts[:stackname]}"]
+
+stack = cfn.stacks[opts[:stackname]]
 stack.delete
 
 while stack.exists?
