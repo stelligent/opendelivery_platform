@@ -37,11 +37,6 @@
       "Type" : "String"
     },
 
-     "GitUsername" : {
-      "Description" : "Git username",
-      "Type" : "String"
-    },
-
     "GitPassword" : {
       "Description" : "Git username",
       "NoEcho": "true",
@@ -254,14 +249,16 @@ g
                       "name" : { "Ref" : "ServerName" }
                     }
                   },
-                  "opendelivery" : {
-                    "chef" : {
-                      "organization" : ""
-                    }
-                  },
                   "git" : {
-                    "username" : { "Ref" : "GitUsername" },
-                    "password" : { "Ref" : "GitPassword" }
+                    "username" : ""
+                    "password" : { "Ref" : "GitPassword" },
+                    "org" : "",
+                    "platform" : {
+                      "repo" : ""
+                     },
+                    "jenkins" : {
+                      "repo" : ""
+                    }
                   },
                   "run_list": [
                     "role[base]",
@@ -271,7 +268,7 @@ g
                     "recipe[opendelivery::path]",
                     "recipe[opendelivery::setup]",
                     "recipe[opendelivery::gem]",
-                    "recipe[opendelivery::jenkins]"
+                    "recipe[opendelivery::windows]"
                   ]
                 },
                 "mode" : "000644",
