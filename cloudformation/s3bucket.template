@@ -1,0 +1,27 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "Creates S3 bucket",
+
+  "Resources": {
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "Tags" : [{
+          "Key"   : "Name",
+          "Value" : "Cd Platform Bucket"
+        }]
+      }
+    }
+  },
+
+  "Outputs": {
+    "BucketName": {
+      "Value": {
+        "Ref": "S3Bucket"
+      },
+      "Description": "Name of S3 bucket"
+    }
+  }
+}

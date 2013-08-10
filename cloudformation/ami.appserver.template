@@ -1,0 +1,348 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Build a single-drive Windows machine in a domain with Chef, Git, EC2 tools to function as the Advent Application Server.",
+
+  "Parameters" : {
+    "KeyPairName" : {
+      "Description" : "Name of an existing Amazon EC2 key pair for RDP access",
+      "Default" : "bsjtestkey",
+      "Type" : "String"
+    },
+    "InstanceType" : {
+      "Description" : "Amazon EC2 instance type",
+      "Type" : "String",
+      "Default" : "m1.small",
+      "AllowedValues" : [ "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
+    },
+
+    "DesiredSize" : {
+      "Description" : "Number of EC2 instances to launch for the backend server",
+      "Type" : "Number",
+      "Default" : "1"
+    },
+
+    "VPCSubnet" : {
+      "Description" : "ID of the subnet that you want to launch the instance into.",
+      "Default" : "subnet-eb378384",
+      "Type" : "String"
+    },
+
+    "VPCSecurityGroupId" : {
+      "Description" : "Security group ID for VPC",
+      "Default" : "sg-5874a337",
+      "Type" : "String"
+    }    ,
+
+    "ServerName" : {
+      "Description" : "Machine name for server (max 15 char)",
+      "MaxLength" : "15",
+      "Default" : "Appserver",
+      "Type" : "String"
+    },
+
+    "VPCID" : {
+      "Description" : "ID of VPC",
+      "Default" : "vpc-0c378363",
+      "Type" : "String"
+    },
+
+    "Domain" : {
+      "Description" : "Domain to join",
+      "Default" : "citest.cloud.advent",
+      "Type" : "String"
+    },
+
+    "DomainUser" : {
+      "Description" : "Domain user with permission to join domain",
+      "Default" : "citest\\svcJoiner",
+      "Type" : "String"
+    },
+
+    "DomainPass" : {
+      "Description" : "Password for the domain user",
+      "Type" : "String"
+    }
+
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "m1.small"   : { "Arch" : "64" },
+      "m1.medium"  : { "Arch" : "64" },
+      "m1.large"   : { "Arch" : "64" },
+      "m1.xlarge"  : { "Arch" : "64" },
+      "m2.xlarge"  : { "Arch" : "64" },
+      "m2.2xlarge" : { "Arch" : "64" },
+      "m2.4xlarge" : { "Arch" : "64" },
+      "c1.medium"  : { "Arch" : "64" },
+      "c1.xlarge"  : { "Arch" : "64" }
+    },
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : {"64" : "ami-90c4b8f9"},
+      "us-west-2"      : {"64" : "ami-needtolookup"},
+      "us-west-1"      : {"64" : "ami-needtolookup"}
+    }
+  },
+
+  "Resources" : {
+    "User" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[{
+            "Effect":"Allow",
+            "Action":"*",
+            "Resource":"*"
+          }]}
+        }]
+      }
+    },
+
+    "HostKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : { "Ref": "User" }
+      }
+    },
+
+    "RootRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [ {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [ "ec2.amazonaws.com" ]
+            },
+            "Action": [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path": "/",
+        "Policies": [ {
+          "PolicyName": "root",
+          "PolicyDocument": {
+            "Statement": [ {
+              "Effect": "Allow",
+              "Action": "*",
+              "Resource": "*"
+            } ]
+          }
+        } ]
+      }
+    },
+    "RootInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [ {
+          "Ref": "RootRole"
+        } ]
+      }
+    },
+
+    "PrivateElasticLoadBalancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "SecurityGroups" : [ { "Ref" : "PrivateLoadBalancerSecurityGroup" } ],
+        "Subnets" : [ { "Ref" : "VPCSubnet" } ],
+        "Listeners" : [ { "LoadBalancerPort" : "80", "InstancePort" : "80", "Protocol" : "HTTP" } ],
+        "Scheme" : "internal",
+        "HealthCheck" : {
+          "Target" : "HTTP:80/",
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "90",
+          "Timeout" : "60"
+        }
+      }
+    },
+
+    "PrivateLoadBalancerSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Private ELB Security Group with HTTP access on port 80 from the Frontend Fleet only",
+        "VpcId" : { "Ref" : "VPCID" },
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "SourceSecurityGroupId" : { "Ref" :"VPCSecurityGroupId" } } ],
+        "SecurityGroupEgress" : [ { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" } ]
+      }
+    },
+
+    "AppServerAutoScalingGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "VPCZoneIdentifier": [ { "Ref" : "VPCSubnet" } ],
+        "AvailabilityZones" : [ "us-east-1a" ],
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "MinSize" : "1",
+        "MaxSize" : "10",
+        "DesiredCapacity" : { "Ref" : "DesiredSize" },
+        "LoadBalancerNames" : [ { "Ref" : "PrivateElasticLoadBalancer" } ],
+        "Tags": [ { "Key": "Name", "Value": "Appserver", "PropagateAtLaunch" : "true" } ]
+      }
+    },
+    "LaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "files" : {
+              "c:\\cfn\\cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]}
+              },
+              "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.Ec2Instance.Metadata.AWS::CloudFormation::Init\n",
+                  "action=cfn-init.exe -v -s ", { "Ref" : "AWS::StackId" },
+                  " -r LaunchConfig",
+                  " --region ", { "Ref" : "AWS::Region" }, "\n"
+                ]]}
+              },
+              "c:\\cfn\\hooks.d\\renamecomputer.ps1" : {
+                "content": { "Fn::Join" : ["", [
+                  "$ServerNamePS=\"", { "Ref" : "ServerName" }, "\"\n",
+                  "Rename-Computer -NewName $ServerNamePS -Restart -Force\n"
+                ]]}
+              },
+              "c:\\cfn\\hooks.d\\joindomain.ps1" : {
+                "content": { "Fn::Join" : ["", [
+                  "$ServerNamePS=\"", { "Ref" : "ServerName" }, "\"\n",
+                  "$UserPS=\"", { "Ref" : "DomainUser" }, "\"\n",
+                  "$PassPS = ConvertTo-SecureString \"", { "Ref" : "DomainPass" }, "\" -AsPlainText -Force \n",
+                  "$DomainCred = New-Object System.Management.Automation.PSCredential $UserPS, $PassPS\n",
+                  "$DomainPS=\"", { "Ref" : "Domain" }, "\"\n",
+                  "$tries = 0\n while ($tries -lt 5) {\n",
+                  "    echo \"Joining server $ServerNamePS to domain $DomainPS with user $UserPS\"\n",
+                  "    Add-Computer -DomainName $DomainPS -Credential $DomainCred -Restart -Force\n",
+          "    if ($? -eq $true) { echo \"Join domain succeeded.\"; exit 0 }\n",
+          "    $tries += 1\n",
+          "    Echo \"Failed to join domain (#$tries). Trying again in 30 seconds...\"\n",
+          "    sleep 30\n",
+          "}\n",
+          "Write-error \"Failed to join domain after multiple retries. Giving up.\"\n",
+          "exit 1\n"
+                ]]}
+              },
+             "c:\\Chef\\client.rb" : {
+                "content": { "Fn::Join" : ["", [
+                  "log_level        :info\n",
+                  "log_location     'C:/Chef/chef-client.log'\n",
+                  "node_name        '", { "Ref" : "ServerName" } , "'\n",
+                  "validation_client_name   'stelligent-validator'\n",
+                  "validation_key          'C:/chef/stelligent-validator.pem'\n",
+                  "chef_server_url          'https://api.opscode.com/organizations/stelligent'\n",
+                  "cache_type               'BasicFile'\n",
+                  "cache_options( :path => 'C:/Chef/.chef/checksums' )\n",
+                  "cookbook_path            ['C:/chef/cookbooks']\n"
+                ]]}
+              },
+              "c:\\Chef\\client.js" : {
+                "content": {
+                   "run_list": [ "role[base_app]" ]
+                }
+              },
+              "C:\\Chef\\stelligent-validator.pem" : {
+                "source" : "https://s3.amazonaws.com//", {"Ref" : "S3Bucket" }, "/cert/stelligent-validator.pem",
+                "authentication" : "S3AccessCreds"
+              },
+              "C:\\Downloads\\chef-install.msi" : {
+                "source" : "https://s3.amazonaws.com//", {"Ref" : "S3Bucket" }, "/3rdParty/chef-client-11.4.4-2.windows.msi",
+                "authentication" : "S3AccessCreds"
+              },
+              "C:\\Downloads\\git-install.exe" : {
+                "source" : "https://s3.amazonaws.com//", {"Ref" : "S3Bucket" }, "/3rdParty/Git-1.8.1.2-preview20130201.exe",
+                "authentication" : "S3AccessCreds"
+              }
+            },
+            "commands" : {
+              "0-rename" : {
+                "command" : "powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File c:\\cfn\\hooks.d\\renamecomputer.ps1",
+                "waitAfterCompletion" : "forever"
+              },
+              "1-joindomain" : {
+                "command" : "powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File c:\\cfn\\hooks.d\\joindomain.ps1",
+                "waitAfterCompletion" : "forever"
+              },
+              "2-git-install" : {
+                "command" : "C:\\Downloads\\git-install.exe /VERYSILENT /SUPPRESSMSGBOXES /NOICONS /NORESTART /log=%TEMP%\\git-log.txt",
+                "waitAfterCompletion" : "30"
+              },
+              "3-chef-install" : {
+                "command" : "C:\\Downloads\\chef-install.msi /passive /log %TEMP%\\chef-log.txt",
+                "waitAfterCompletion" : "30"
+              },
+              "4-chef-client" : {
+                "command" : "C:\\opscode\\chef\\bin\\chef-client -j client.js --no-color",
+                "cwd" : "C:\\Chef",
+                "waitAfterCompletion" : "0"
+              }
+            },
+
+            "services" : {
+              "windows" : {
+                "cfn-hup" : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true",
+                  "files" : ["c:\\cfn\\cfn-hup.conf", "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"]
+                }
+              }
+            }
+          }
+        },
+
+        "AWS::CloudFormation::Authentication" : {
+          "S3AccessCreds" : {
+            "type" : "S3",
+            "accessKeyId" : { "Ref" : "HostKeys" },
+            "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+            "buckets" : [ "AdventResources" ]
+          }
+        }
+      },
+
+      "Properties": {
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile": { "Ref": "RootInstanceProfile" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "SecurityGroups" : [ {"Ref" : "VPCSecurityGroupId"} ],
+        "KeyName" : { "Ref" : "KeyPairName" },
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "<script>\n",
+
+          "cfn-init.exe -v -s ", { "Ref" : "AWS::StackId" },
+          " -r LaunchConfig ",
+          " --region ", { "Ref" : "AWS::Region" }, "\n",
+
+          "cfn-signal.exe -e %ERRORLEVEL% ", { "Fn::Base64" : { "Ref" : "WaitHandle" }}, "\n",
+
+          "</script>"
+        ]]}}
+      }
+    },
+
+    "WaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "WaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "AppServerAutoScalingGroup",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitHandle"},
+        "Timeout" : "3600"
+      }
+    }
+  },
+
+  "Outputs" : {
+  }
+}

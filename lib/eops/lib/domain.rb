@@ -10,13 +10,16 @@ class Domain
     end
   end
 
-
-  def delete(domain_name)
+  def destroy(domain_name)
     @sdb.domains[domain_name].delete
   end
 
+  def destroy_item(domain_name, item_name)
+    @sdb.domains[domain_name].items[item_name].delete
+  end
+
   def load(file_name, sdb_domain, item_name)
-    file = File.open("/tmp/#{file_name}", "r")
+    file = File.open("#{file_name}", "r")
     AWS::SimpleDB.consistent_reads do
       item = @sdb.domains[sdb_domain].items[item_name]
       file.each_line do |line|

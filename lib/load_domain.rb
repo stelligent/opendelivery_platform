@@ -1,22 +1,15 @@
 require_relative "boot"
 
-opts = Trollop::options do
-  opt :itemname, "Name of stack", :short => "n", :type => String
-  opt :filename, "Name of file", :short => "f", :type => String
-  opt :sdbdomain, "Name of sdb domain", :short => "q", :type => String
-end
+sdb_domain = ARGV[0]
+json_file = ARGV[1]
 
-file = File.open("/tmp/#{opts[:filename]}", "r")
+@sdb = AWS::SimpleDB.new
 
-sdb = AWS::SimpleDB.new
+json = File.read(json_file)
+obj = JSON.parse(json)
 
-AWS::SimpleDB.consistent_reads do
-  domain = sdb.domains["#{opts[:sdbdomain]}"]
-  item = domain.items["#{opts[:itemname]}"]
-
-  file.each_line do|line|
-    key,value = line.split '='
-    item.attributes.set(
-      "#{key}" => "#{value}")
+obj.each do |item, attributes|
+  attributes.each do |key,value|
+    @sdb.domains[sdb_domain].items[item].attributes[key].add value
   end
 end
