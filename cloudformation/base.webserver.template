@@ -54,7 +54,6 @@
 
     "VPCID" : {
       "Description" : "ID of VPC",
-      "Default" : "vpc-0c378363",
       "Type" : "String"
     },
 

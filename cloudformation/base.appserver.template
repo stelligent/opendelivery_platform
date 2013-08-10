@@ -24,38 +24,32 @@
 
     "VPCSubnet" : {
       "Description" : "ID of the subnet that you want to launch the instance into.",
-      "Default" : "subnet-eb378384",
       "Type" : "String"
     },
 
     "VPCSecurityGroupId" : {
       "Description" : "Security group ID for VPC",
-      "Default" : "sg-5874a337",
       "Type" : "String"
     }    ,
 
     "ServerName" : {
       "Description" : "Machine name for server (max 15 char)",
       "MaxLength" : "15",
-      "Default" : "Appserver",
       "Type" : "String"
     },
 
     "VPCID" : {
       "Description" : "ID of VPC",
-      "Default" : "vpc-0c378363",
       "Type" : "String"
     },
 
     "Domain" : {
       "Description" : "Domain to join",
-      "Default" : "citest.cloud.advent",
       "Type" : "String"
     },
 
     "DomainUser" : {
       "Description" : "Domain user with permission to join domain",
-      "Default" : "citest\\svcJoiner",
       "Type" : "String"
     },
 
