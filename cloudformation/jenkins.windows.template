@@ -95,8 +95,7 @@ g
             "Effect":"Allow",
             "Action":"*",
             "Resource":"*"
-          }
-                                          ]}
+          }]}
         }]
       }
     },
@@ -211,9 +210,9 @@ g
                   "log_level                :info\n",
                   "log_location             \"#{current_dir}/chef-client.log\"\n",
                   "node_name                '", { "Ref" : "ServerName" } , "'\n",
-                  "validation_client_name   'adventsoftware-validator'\n",
-                  "validation_key           \"#{current_dir}/adventsoftware-validator.pem\"\n",
-                  "chef_server_url          'https://api.opscode.com/organizations/adventsoftware'\n",
+                  "validation_client_name   'stelligent-validator'\n",
+                  "validation_key           \"#{current_dir}/stelligent-validator.pem\"\n",
+                  "chef_server_url          'https://api.opscode.com/organizations/stelligent'\n",
                   "cache_type               'BasicFile'\n",
                   "cache_options( :path => \"#{current_dir}/checksums\" )\n",
                   "cookbook_path            [\"#{current_dir}/../cookbooks\", \"#{ENV['CD']}/cookbooks\", \"#{ENV['CD']}\", '.']\n"

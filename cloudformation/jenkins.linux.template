@@ -94,8 +94,7 @@
             "Effect":"Allow",
             "Action":"*",
             "Resource":"*"
-          }
-                                          ]}
+          }]}
         }]
       }
     },
