@@ -22,6 +22,17 @@
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
 
+    "ServerName" : {
+      "Description" : "Machine name for server",
+      "Type" : "String"
+    },
+
+    "GitPassword" : {
+      "Description" : "Git username",
+      "NoEcho": "true",
+      "Type" : "String"
+    },
+
     "S3Bucket" : {
       "Description" : "Artifact Bucket",
       "Type" : "String",
@@ -144,7 +155,7 @@
                 "group"  : "tomcat"
               },
               "/etc/chef/stelligent-validator.pem" : {
-                "source" : "https://s3.amazonaws.com/StelligentScreencasts/stelligent-validator.pem",
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/stelligent-validator.pem"]]}
                 "authentication" : "S3AccessCreds"
               },
               "/etc/chef/client.rb" : {
@@ -159,10 +170,38 @@
                 "owner" : "root",
                 "group" : "wheel"
               },
-              "/etc/chef/node.json" : {
+              "/etc/chef/client.json" : {
                 "content" : {
+                  "aws" : {
+                    "s3" : {
+                      "bucket" : { "Ref" : "S3Bucket" }
+                    }
+                  },
+
+                  "jenkins" : {
+                    "server" : {
+                      "name" : { "Ref" : "ServerName" }
+                    }
+                  },
+                  "git" : {
+                    "username" : ""
+                    "password" : { "Ref" : "GitPassword" },
+                    "org" : "",
+                    "platform" : {
+                      "repo" : ""
+                    },
+                    "jenkins" : {
+                      "repo" : ""
+                    }
+                  },
                   "run_list": [
-                    "role[jenkins]"
+                    "role[base]",
+                    "recipe[git]",
+                    "recipe[tomcat]",
+                    "recipe[opendelivery::path]",
+                    "recipe[opendelivery::setup]",
+                    "recipe[opendelivery::gem]",
+                    "recipe[opendelivery]"
                   ]
                 },
                 "mode" : "000644",
