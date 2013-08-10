@@ -243,18 +243,18 @@
 
               "c:\\Chef\\client.js" : {
                 "content" : {
+                  "aws" : {
+                    "s3" : {
+                      "bucket" : { "Ref" : "S3Bucket" }
+                    }
+                  },
+
                   "jenkins" : {
                     "server" : {
                       "name" : { "Ref" : "ServerName" }
                     }
                   },
                   "opendelivery" : {
-                    "properties" : {
-                      "s3_Bucket" : {
-                        "item" : "properties",
-                        "value" : { "Ref" : "S3Bucket" }
-                      }
-                    },
                     "chef" : {
                       "organization" : ""
                     }
