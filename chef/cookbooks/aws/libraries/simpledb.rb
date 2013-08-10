@@ -20,7 +20,7 @@ module SimpleDbLib
 
     obj.each do |item, attributes|
       attributes.each do |key,value|
-        @sdb.domains[domain].items[item].attributes[key].add value
+        sdb.domains[domain].items[item].attributes[key].add value
       end
     end
   end
