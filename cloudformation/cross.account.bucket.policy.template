@@ -1,17 +1,19 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "",
+  "Description" : "This template creates a cross account bucket policy",
   "Parameters" : {
 
     "S3Bucket" : {
+      "Description" : "The S3 bucket that you want to give access to",
       "Type" : "String",
-      "Default" : "AdventResources"
+      "Default" : ""
     },
 
     "AccountID" : {
+      "Description" : "The AWS account ID you want to hive access to",
       "Type" : "String",
-      "Default" : "909166785979"
+      "Default" : ""
     }
   },
 
