@@ -33,6 +33,12 @@
       "Type" : "String"
     },
 
+    "ChefOrganization" : {
+      "Description" : "Your Chef Organization",
+      "Type" : "String",
+      "Default" : "stelligent"
+    }
+
     "S3Bucket" : {
       "Description" : "Artifact Bucket",
       "Type" : "String",
@@ -154,8 +160,8 @@
                 "owner"  : "tomcat",
                 "group"  : "tomcat"
               },
-              "/etc/chef/stelligent-validator.pem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/stelligent-validator.pem"]]}
+              "/etc/chef/validator.pem" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, ".pem"]]}
                 "authentication" : "S3AccessCreds"
               },
               "/etc/chef/client.rb" : {
@@ -163,14 +169,14 @@
                   "log_level        :info\n",
                   "log_location     STDOUT\n",
                   "chef_server_url  \"https://api.opscode.com/organizations/stelligent\"\n",
-                  "validation_key         \"/etc/chef/stelligent-validator.pem\"\n",
+                  "validation_key         \"/etc/chef/validator.pem\"\n",
                   "validation_client_name \"stelligent-validator\""
                 ]] },
                 "mode" : "000644",
                 "owner" : "root",
                 "group" : "wheel"
               },
-              "/etc/chef/client.json" : {
+              "/etc/chef/node.json" : {
                 "content" : {
                   "aws" : {
                     "s3" : {
