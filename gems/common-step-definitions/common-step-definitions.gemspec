@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.email       = 'manatee@stelligent.com'
   s.files       = FileList["lib/*.rb","lib/common-step-definitions/*.rb"]
   s.add_dependency('net-ssh','2.3.0')
+  s.license       = 'MIT'
 end
