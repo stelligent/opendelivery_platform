@@ -26,9 +26,13 @@
       "Description" : "Machine name for server",
       "Type" : "String"
     },
-
-    "GitPassword" : {
+    "GitUsername" : {
       "Description" : "Git username",
+      "NoEcho": "true",
+      "Type" : "String"
+    },
+    "GitPassword" : {
+      "Description" : "Git password",
       "NoEcho": "true",
       "Type" : "String"
     },
@@ -123,13 +127,13 @@
       }
     },
 
-     "WebServerGroup" : {
+    "WebServerGroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : { "Fn::GetAZs" : "" },
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
-        "MaxSize" : "10",
+        "MaxSize" : "1",
         "DesiredCapacity" : "1"
       }
     },
@@ -161,16 +165,16 @@
                 "group"  : "tomcat"
               },
               "/etc/chef/validator.pem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, ".pem"]]}
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, ".pem"]]},
                 "authentication" : "S3AccessCreds"
               },
               "/etc/chef/client.rb" : {
                 "content" : { "Fn::Join" : ["", [
                   "log_level        :info\n",
                   "log_location     STDOUT\n",
-                  "chef_server_url  \"https://api.opscode.com/organizations/stelligent\"\n",
+                  "chef_server_url  \"https://api.opscode.com/organizations/", { "Ref" : "ChefOrganization" }, "\"\n",
                   "validation_key         \"/etc/chef/validator.pem\"\n",
-                  "validation_client_name \"stelligent-validator\""
+                  "validation_client_name \"", { "Ref" : "ChefOrganization" }, "-validator\""
                 ]] },
                 "mode" : "000644",
                 "owner" : "root",
@@ -190,7 +194,7 @@
                     }
                   },
                   "git" : {
-                    "username" : ""
+                    "username" : { "Ref" : "GitUsername" },
                     "password" : { "Ref" : "GitPassword" },
                     "org" : "",
                     "platform" : {
@@ -232,7 +236,6 @@
         "InstanceType"   : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ {"Ref" : "FrontendGroup"} ],
         "KeyName"        : { "Ref" : "KeyName" },
-        "Tags": [ { "Key": "Name", "Value": "Jenkins" } ],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash\n",
           "yum update -y aws-cfn-bootstrap\n",
@@ -258,22 +261,11 @@
 
           "chef-client -j /etc/chef/node.json\n",
 
-          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
+          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n"
         ]]}}
       }
     },
 
-    "IPAddress" : {
-      "Type" : "AWS::EC2::EIP"
-    },
-
-    "IPAssoc" : {
-      "Type" : "AWS::EC2::EIPAssociation",
-      "Properties" : {
-        "InstanceId" : { "Ref" : "WebServer" },
-        "EIP" : { "Ref" : "IPAddress" }
-      }
-    },
 
     "FrontendGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
