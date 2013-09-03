@@ -1,0 +1,53 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "",
+  "Parameters" : {
+
+    "S3Bucket" : {
+      "Type" : "String",
+      "Default" : "AdventResources"
+    },
+
+    "AccountID" : {
+      "Type" : "String",
+      "Default" : "909166785979"
+    }
+  },
+
+  "Resources" : {
+
+    "BucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "PolicyDocument": {
+          "Version"      : "2008-10-17",
+          "Id": "Policy1376976828589",
+          "Statement"    : [{
+            "Sid": "Stmt1376976826840",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObjectAcl",
+              "s3:PutObject",
+              "s3:DeleteObject"
+            ],
+            "Effect"     : "Allow",
+            "Resource"   : { "Fn::Join" : ["", ["arn:aws:s3:::", {"Ref" : "S3Bucket"} , "/*"]]},
+            "Principal"  : {
+              "AWS": [
+                "arn:aws:iam::",{ "Ref" : "AccountID" }, ":user/*"
+              ]}
+          }]
+        },
+        "Bucket" : {"Ref" : "S3Bucket"}
+      }
+    }
+  },
+
+  "Outputs" : {
+    "BucketName" : {
+      "Value" : { "Ref" : "S3Bucket" },
+      "Description" : "Name of S3 bucket"
+    }
+  }
+}
