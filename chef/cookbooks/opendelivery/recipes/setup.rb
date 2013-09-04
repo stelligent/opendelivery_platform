@@ -11,7 +11,7 @@ when "windows"
 else
 
  execute "Clone platform repo" do
-    code <<-EOH
+    command <<-EOH
      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/
     EOH
   end

@@ -8,8 +8,8 @@ template "git-config" do
 end
 
 execute "Setup jenkins repo" do
-  code <<-EOH
-  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']}.git #{node['tomcat']['home']/.jenkins}
+  command <<-EOH
+  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']}.git #{node['tomcat']['home']}/.jenkins
   EOH
 end
 
