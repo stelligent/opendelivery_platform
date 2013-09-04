@@ -41,7 +41,7 @@
       "Description" : "Your Chef Organization",
       "Type" : "String",
       "Default" : "stelligent"
-    }
+    },
 
     "S3Bucket" : {
       "Description" : "Artifact Bucket",
