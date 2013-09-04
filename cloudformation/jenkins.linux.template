@@ -146,7 +146,6 @@
           "config" : {
             "users" : {
               "tomcat" : {
-                "homeDir" : "/usr/share/tomcat7"
               }
             },
             "packages" : {
