@@ -1,9 +1,10 @@
-directory "#{node['tomcat']['windows']['home']}/.ssh" do
+
+directory "#{node['tomcat']['home']}/.ssh" do
   action :create
 end
 
 template "git-config" do
-  path "#{node['tomcat']['windows']['home']}/.ssh/config"
+  path "#{node['tomcat']['home']}/.ssh/config"
   source "git-config.erb"
 end
 
