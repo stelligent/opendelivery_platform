@@ -1,3 +1,4 @@
+include_recipe "aws"
 case node['platform']
 when "windows"
 

@@ -32,5 +32,5 @@ case node['platform']
 when "windows"
   default['opendelivery']['setup']['path'] = "Z:\\#{node['git']['platform']['repo']}\\config\\#{node['opendelivery']['setup']['file']}"
 else
-  default['opendelivery']['setup']['path'] = "/tmp/#{node['git']['platform']['repo']}\\config\\#{node['opendelivery']['setup']['file']}"
+  default['opendelivery']['setup']['path'] = "/tmp/#{node['git']['platform']['repo']}/config/#{node['opendelivery']['setup']['file']}"
 end
