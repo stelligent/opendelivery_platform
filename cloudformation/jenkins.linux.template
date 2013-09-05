@@ -44,7 +44,7 @@
     },
 
     "S3Bucket" : {
-      "Description" : "Artifact Bucket",
+      "Description" : "S3 Bucket to pull your hosted chef validator key from",
       "Type" : "String",
       "Default" : "cdplatform"
     }
