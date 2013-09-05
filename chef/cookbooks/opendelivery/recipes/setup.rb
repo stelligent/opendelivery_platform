@@ -10,9 +10,9 @@ when "windows"
 
 else
 
- execute "Clone platform repo" do
+  execute "Clone platform repo" do
     command <<-EOH
-     git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/
+      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/#{node['git']['platform']['repo']}
     EOH
   end
 end
