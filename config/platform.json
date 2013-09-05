@@ -1,0 +1,8 @@
+{
+  "Development" : {
+    "InstanceType"   : "m1.small",
+  },
+  "Production" : {
+    "InstanceType"   : "m1.large",
+  }
+}
