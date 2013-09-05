@@ -1,3 +1,5 @@
+include_recipe "aws"
+
 case node['platform']
 when "windows"
 
@@ -10,9 +12,9 @@ when "windows"
 
 else
 
- execute "Clone platform repo" do
-    code <<-EOH
-     git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/
+  execute "Clone platform repo" do
+    command <<-EOH
+      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/#{node['git']['platform']['repo']}
     EOH
   end
 end

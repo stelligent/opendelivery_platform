@@ -13,7 +13,7 @@ else
 
   node['opendelivery']['config'].each do |key, value|
     execute "set environment variables" do
-      code <<-EOH
+      command <<-EOH
         echo "export #{key}=#{value}" >> /etc/sysconfig/tomcat6
       EOH
     end

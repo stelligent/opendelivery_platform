@@ -41,10 +41,10 @@
       "Description" : "Your Chef Organization",
       "Type" : "String",
       "Default" : "stelligent"
-    }
+    },
 
     "S3Bucket" : {
-      "Description" : "Artifact Bucket",
+      "Description" : "S3 Bucket to pull your hosted chef validator key from",
       "Type" : "String",
       "Default" : "cdplatform"
     }
@@ -144,6 +144,10 @@
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
           "config" : {
+            "users" : {
+              "tomcat" : {
+              }
+            },
             "packages" : {
               "yum" : {
                 "gcc-c++"       : [],
@@ -165,7 +169,7 @@
                 "group"  : "tomcat"
               },
               "/etc/chef/validator.pem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, ".pem"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, "-hostedchef.pem"]]},
                 "authentication" : "S3AccessCreds"
               },
               "/etc/chef/client.rb" : {
@@ -254,7 +258,7 @@
           "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/i686/chef-11.4.4-2.el6.i686.rpm\n",
           "rpm -Uvh chef-11.4.4-2.el6.i686.rpm\n",
 
-          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r LaunchConfig ",
+          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackId" }, " -r LaunchConfig ",
           "    --access-key ", { "Ref" : "HostKeys" },
           "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
           "    --region ", { "Ref" : "AWS::Region" }, "\n",

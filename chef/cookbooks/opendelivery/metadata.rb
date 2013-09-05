@@ -7,6 +7,6 @@ description       "Installs and configures Open Delivery implementations"
 version           "1.0.0"
 recipe            "opendelivery", "Main installation"
 
-%w{ powershell git tomcat-windows aws windows }.each do |cb|
+%w{ powershell git tomcat aws windows }.each do |cb|
   depends cb
 end

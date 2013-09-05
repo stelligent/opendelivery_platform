@@ -1,15 +1,16 @@
-directory "#{node['tomcat']['windows']['home']}/.ssh" do
+
+directory "#{node['tomcat']['home']}/.ssh" do
   action :create
 end
 
 template "git-config" do
-  path "#{node['tomcat']['windows']['home']}/.ssh/config"
+  path "#{node['tomcat']['home']}/.ssh/config"
   source "git-config.erb"
 end
 
 execute "Setup jenkins repo" do
-  code <<-EOH
-  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']}.git #{node['tomcat']['home']/.jenkins}
+  command <<-EOH
+  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']}.git #{node['tomcat']['home']}/.jenkins
   EOH
 end
 
