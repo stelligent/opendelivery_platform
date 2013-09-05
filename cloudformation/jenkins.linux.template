@@ -158,16 +158,6 @@
               }
             },
             "files" : {
-              "/opt/aws/aws.config" : {
-                "content" : { "Fn::Join" : ["", [
-                  "AWS.config(\n",
-                  ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-                  ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
-                ]]},
-                "mode"   : "000500",
-                "owner"  : "tomcat",
-                "group"  : "tomcat"
-              },
               "/etc/chef/validator.pem" : {
                 "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, "-hostedchef.pem"]]},
                 "authentication" : "S3AccessCreds"
@@ -200,12 +190,12 @@
                   "git" : {
                     "username" : { "Ref" : "GitUsername" },
                     "password" : { "Ref" : "GitPassword" },
-                    "org" : "",
+                    "org" : "stelligent",
                     "platform" : {
-                      "repo" : ""
+                      "repo" : "opendelivery_platform"
                     },
                     "jenkins" : {
-                      "repo" : ""
+                      "repo" : "opendelivery_jenkins"
                     }
                   },
                   "run_list": [
@@ -235,6 +225,7 @@
         }
       },
       "Properties": {
+        "IamInstanceProfile" : { "Ref": "RootInstanceProfile" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref" : "InstanceType" },
@@ -255,8 +246,8 @@
           "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
           "# Install Chef\n",
-          "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/i686/chef-11.4.4-2.el6.i686.rpm\n",
-          "rpm -Uvh chef-11.4.4-2.el6.i686.rpm\n",
+          "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.6.0-1.el6.x86_64.rpm\n", 
+          "rpm -Uvh chef-11.6.0-1.el6.x86_64.rpm\n",
 
           "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackId" }, " -r LaunchConfig ",
           "    --access-key ", { "Ref" : "HostKeys" },
