@@ -213,7 +213,18 @@
                   "opendelivery" : {
                     "chef" : {
                       "organization" : "stelligent"
+                    },
+                    "setup" : {
+                      "path" : "/tmp/opendelivery_platform"
                     }
+                  },
+                  "tomcat":{
+                    "user" : "tomcat",
+                    "group" : "tomcat",
+                    "base" : "/usr/share/tomcat6",
+                    "tmp_dir" : "/var/cache/tomcat6/temp",
+                    "work_dir" : "/var/cache/tomcat6/work",
+                    "keytool" : "/usr/lib/jvm/java/bin/keytool"
                   },
                   "git" : {
                     "username" : { "Ref" : "GitUsername" },
