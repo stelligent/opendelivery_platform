@@ -1,4 +1,4 @@
-aws_s3file node['rabbitmq']['exe']['path'] do
+amazon_s3file node['rabbitmq']['exe']['path'] do
   key node['rabbitmq']['exe']['key']
   bucket node['rabbitmq']['bucket']
   action :create

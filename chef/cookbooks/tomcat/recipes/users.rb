@@ -1,9 +1,10 @@
 #
-# Author:: Kendrick Martin (<kendrick.martin@webtrends.com>)
-# Cookbook Name:: java
-# Recipe:: windows
+# Cookbook Name:: tomcat
+# Recipe:: users
 #
-# Copyright 2008-2012 Webtrends, Inc.
+# Author:: Jamie Winsor (<jamie@vialstudios.com>)
+#
+# Copyright 2010-2012, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +19,14 @@
 # limitations under the License.
 #
 
-Chef::Log.warn("No download url set for java installer.") unless node['java']['windows']['url']
-
-windows_package node['java']['windows']['package_name'] do
-  source node['java']['windows']['url']
-  action :install
-  installer_type :custom
-  options "/s"
+template "#{node["tomcat"]["config_dir"]}/tomcat-users.xml" do
+  source "tomcat-users.xml.erb"
+  owner "root"
+  group "root"
+  mode "0644"
+  variables(
+    :users => TomcatCookbook.users,
+    :roles => TomcatCookbook.roles
+  )
+  notifies :restart, "service[tomcat]"
 end

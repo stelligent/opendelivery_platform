@@ -20,8 +20,6 @@
 # remove the deprecated Ubuntu jdk packages
 default['java']['remove_deprecated_packages'] = false
 
-default['java']['bucket'] = node['aws']['s3']['bucket']
-
 # default jdk attributes
 default['java']['install_flavor'] = "openjdk"
 default['java']['jdk_version'] = '6'
@@ -41,13 +39,8 @@ when "arch"
   default['java']['openjdk_packages'] = ["openjdk#{node['java']['jdk_version']}}"]
 when "windows"
   default['java']['install_flavor'] = "windows"
+  default['java']['windows']['url'] = nil
   default['java']['windows']['package_name'] = "Java(TM) SE Development Kit 7 (64-bit)"
-  default['java']['windows']['home'] = 'C:\java\jre7'
-  default['java']['windows']['options'] = "/s INSTALLDIR=#{node['java']['windows']['home']}"
-
-  default['java']['windows']['file'] = 'jre-7-windows-x64.exe'
-  default['java']['windows']['key'] = "3rdParty/#{node['java']['windows']['file']}"
-  default['java']['windows']['path'] = "Z:\\#{node['java']['windows']['file']}"
 when "debian"
   default['java']['java_home'] = "/usr/lib/jvm/default-java"
   default['java']['openjdk_packages'] = ["openjdk-#{node['java']['jdk_version']}-jdk", "default-jre-headless"]
@@ -59,11 +52,15 @@ else
   default['java']['openjdk_packages'] = ["openjdk-#{node['java']['jdk_version']}-jdk"]
 end
 
-if node['java']['install_flavor'] == 'ibm'
+case node['java']['install_flavor']
+when 'ibm'
   default['java']['ibm']['url'] = nil
   default['java']['ibm']['checksum'] = nil
   default['java']['ibm']['accept_ibm_download_terms'] = false
   default['java']['java_home'] = "/opt/ibm/java"
+when 'oracle_rpm'
+  default['java']['oracle_rpm']['type'] = 'jdk'
+  default['java']['java_home'] = "/usr/java/latest"
 end
 
 # if you change this to true, you can download directly from Oracle

@@ -1,4 +1,4 @@
-aws_s3file node['dotnet']['update']['path'] do
+amazon_s3file node['dotnet']['update']['path'] do
   key node['dotnet']['update']['key']
   bucket node['dotnet']['bucket']
   action :create

@@ -1,6 +1,6 @@
 path = win_friendly_path( ::File.join( node['tomcat']['home'],'.jenkins'))
 
-aws_s3file node['jenkins']['path'] do
+amazon_s3file node['jenkins']['path'] do
   key node['jenkins']['key']
   bucket node['opendelivery']['bucket']
   action :create
