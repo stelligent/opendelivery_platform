@@ -47,6 +47,18 @@
       "Description" : "S3 Bucket to pull your hosted chef validator key from",
       "Type" : "String",
       "Default" : "cdplatform"
+    },
+
+    "SDBDomain" : {
+      "Description" : "The Name of the SDB domain to create",
+      "Type" : "String",
+      "Default" : "jenkins1"
+    },
+
+    "SDBFile" : {
+      "Description" : "The name of the json file to load simpledb with",
+      "Type" : "String",
+      "Default" : "platform.json"
     }
   },
 
@@ -176,15 +188,27 @@
               },
               "/etc/chef/node.json" : {
                 "content" : {
-                  "aws" : {
+                  "amazon" : {
+                    "region" : { "Ref" : "AWS::Region"},
                     "s3" : {
                       "bucket" : { "Ref" : "S3Bucket" }
+                    },
+                    "simpledb" : {
+                      "domain" : { "Ref": "SDBDomain" }
+                    },
+                    "access" : {
+                      "key" : { "Ref" : "HostKeys" }
+                    },
+                    "secret" : {
+                      "key" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
+                    },
+                    "setup" : {
+                      "file" : { "Ref" : "SDBFile" }
                     }
                   },
-
-                  "jenkins" : {
-                    "server" : {
-                      "name" : { "Ref" : "ServerName" }
+                  "opendelivery" : {
+                    "chef" : {
+                      "organization" : "stelligent"
                     }
                   },
                   "git" : {
@@ -192,14 +216,22 @@
                     "password" : { "Ref" : "GitPassword" },
                     "org" : "stelligent",
                     "platform" : {
-                      "repo" : "opendelivery_platform"
+                      "repo" :  {
+                        "name" : "opendelivery_platform",
+                        "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_platform.git"]]}
+                      },
+                      "branch" : { "Ref" : "PlatformBranch" }
                     },
                     "jenkins" : {
-                      "repo" : "opendelivery_jenkins"
+                      "repo" : {
+                        "name" : "opendelivery_jenkins",
+                        "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_jenkins.git"]]}
+                        }
+                      "branch" : { "Ref" : "JenkinsBranch" }
                     }
                   },
                   "run_list": [
-                    "role[base]",
+                    "recipe[amazon]",
                     "recipe[git]",
                     "recipe[tomcat]",
                     "recipe[opendelivery::path]",
@@ -246,7 +278,7 @@
           "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
           "# Install Chef\n",
-          "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.6.0-1.el6.x86_64.rpm\n", 
+          "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.6.0-1.el6.x86_64.rpm\n",
           "rpm -Uvh chef-11.6.0-1.el6.x86_64.rpm\n",
 
           "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackId" }, " -r LaunchConfig ",
