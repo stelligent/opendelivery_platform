@@ -18,22 +18,11 @@
 # limitations under the License.
 #
 
-aws_s3file node['java']['windows']['path'] do
-  key node['java']['windows']['key']
-  bucket node['java']['bucket']
-  action :create
-end
+Chef::Log.warn("No download url set for java installer.") unless node['java']['windows']['url']
 
 windows_package node['java']['windows']['package_name'] do
-  source node['java']['windows']['path']
-  options node['java']['windows']['options']
-  installer_type :custom
+  source node['java']['windows']['url']
   action :install
-end
-
-windows_batch "Set Java Home" do
-  code <<-EOH
-  setx JAVA_HOME '#{node['java']['windows']['home']}'
-  setx JAVA_HOME '#{node['java']['windows']['home']}' /m
-  EOH
+  installer_type :custom
+  options "/s"
 end
