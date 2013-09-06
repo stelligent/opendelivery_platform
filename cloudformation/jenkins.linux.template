@@ -215,7 +215,7 @@
                       "organization" : "stelligent"
                     },
                     "setup" : {
-                      "path" : "/tmp/opendelivery_platform"
+                      "path" : "/tmp/opendelivery_platform/config/platform.json"
                     }
                   },
                   "tomcat":{
