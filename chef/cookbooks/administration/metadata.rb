@@ -1,3 +1,0 @@
-name "administration"
-
-depends 'amazon'
