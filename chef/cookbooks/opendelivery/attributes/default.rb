@@ -1,36 +1,29 @@
 default['jenkins']['file'] = "jenkins.war"
 default['jenkins']['key'] = "3rdParty/#{node['jenkins']['file']}"
-default['jenkins']['path'] = "#{node['tomcat']['home']}/webapps/#{node['jenkins']['file']}"
+default['jenkins']['path'] = "#{node['tomcat']['windows']['home']}/webapps/#{node['jenkins']['file']}"
 
-default['jenkins']['server']['name'] = ""
+default['opendelivery']['domain'] = node['amazon']['simpledb']['domain']
+default['opendelivery']['bucket'] = node['amazon']['s3']['bucket']
+default['opendelivery']['chef']['organization'] = ''
 
-default['git']['username'] = ""
-default['git']['password'] = ""
-default['git']['org'] = ''
-default['git']['platform']['repo'] = ''
-default['git']['jenkins']['repo'] = ''
+default['opendelivery']['setup']['file'] = ""
+default['opendelivery']['setup']['path'] = "Z:\\atlas_platform\\config\\#{node['opendelivery']['setup']['file']}"
 
-default['opendelivery']['domain'] = node['jenkins']['server']['name']
-default['opendelivery']['bucket'] = node['aws']['s3']['bucket']
 
 default['opendelivery']['gems'] = {
-  'bundler'    => '1.1.4',
-  'cucumber'   => '1.2.1',
-  'net-ssh'    => '2.5.2',
-  'rspec'      => '2.10.0',
-  'trollop'    => '2.0',
-  'rake'       => '0.9.2.2'
+  'bundler'      => '1.1.4',
+  'cucumber'     => '1.2.1',
+  'net-ssh'      => '2.5.2',
+  'rspec'        => '2.10.0',
+  'trollop'      => '2.0',
+  'rake'         => '0.9.2.2',
+  'opendelivery' => '0.0.18'
 }
 
 default['opendelivery']['config'] = {
-  'PROJECT_NAME' => node['jenkins']['server']['name']
+  'PROJECT_NAME'        => node['amazon']['simpledb']['domain'],
+  'GIT_PLATFORM_REPO'   => node['git']['platform']['repo'],
+  'GIT_PLATFORM_BRANCH' => node['git']['platform']['branch'],
+  'GIT_JENKINS_REPO'    => node['git']['jenkins']['repo'],
+  'GIT_JENKINS_BRANCH'  => node['git']['jenkins']['branch']
 }
-
-default['opendelivery']['setup']['file'] = "platform.json"
-
-case node['platform']
-when "windows"
-  default['opendelivery']['setup']['path'] = "Z:\\#{node['git']['platform']['repo']}\\config\\#{node['opendelivery']['setup']['file']}"
-else
-  default['opendelivery']['setup']['path'] = "/tmp/#{node['git']['platform']['repo']}/config/#{node['opendelivery']['setup']['file']}"
-end
