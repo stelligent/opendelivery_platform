@@ -5,6 +5,6 @@
   "description": "Role for setting up the base packages for each system",
 
   "run_list": [
-    "recipe[aws]"
+    "recipe[amazon]"
   ]
 }
