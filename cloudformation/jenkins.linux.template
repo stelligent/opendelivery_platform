@@ -21,14 +21,8 @@
       "Default" : "t1.micro",
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
-
-    "ServerName" : {
-      "Description" : "Machine name for server",
-      "Type" : "String"
-    },
     "GitUsername" : {
       "Description" : "Git username",
-      "NoEcho": "true",
       "Type" : "String"
     },
     "GitPassword" : {
@@ -59,6 +53,16 @@
       "Description" : "The name of the json file to load simpledb with",
       "Type" : "String",
       "Default" : "platform.json"
+    },
+    "JenkinsBranch" : {
+      "Description" : "Git branch to use for the jenkins repo",
+      "Type" : "String",
+      "Default" : "master"
+    },
+    "PlatformBranch" : {
+      "Description" : "Git branch to use for the platform repo",
+      "Type" : "String",
+      "Default" : "master"
     }
   },
 
@@ -226,7 +230,7 @@
                       "repo" : {
                         "name" : "opendelivery_jenkins",
                         "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_jenkins.git"]]}
-                        }
+                        },
                       "branch" : { "Ref" : "JenkinsBranch" }
                     }
                   },
