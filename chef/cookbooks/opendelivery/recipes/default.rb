@@ -29,5 +29,5 @@ ruby_block "Update config.xml for each jenkins job" do
       File.open(config, "w") {|file| file.puts output_of_gsub}
     end
   end
-  notifies :restart, "service[#{node['tomcat']['service']}]"
+  notifies :restart, "service[\"tomcat#{node['tomcat']['base_version']}\"]"
 end
