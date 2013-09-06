@@ -1,4 +1,4 @@
-include_recipe "aws"
+include_recipe "amazon"
 
 case node['platform']
 when "windows"
@@ -6,7 +6,7 @@ when "windows"
   windows_batch "Clone platform repo" do
     code <<-EOH
       set PATH=%PATH%;C:\\Program Files (x86)\\Git\\bin
-      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" Z:\\
+      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']['name']}.git" Z:\\
     EOH
   end
 
@@ -14,7 +14,7 @@ else
 
   execute "Clone platform repo" do
     command <<-EOH
-      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']}.git" /tmp/#{node['git']['platform']['repo']}
+      git clone "https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['platform']['repo']['name']}.git" /tmp/#{node['git']['platform']['repo']['name']}
     EOH
   end
 end
