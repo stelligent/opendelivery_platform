@@ -226,7 +226,7 @@
                       "repo" : {
                         "name" : "opendelivery_jenkins",
                         "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_jenkins.git"]]}
-                        }
+                        },
                       "branch" : { "Ref" : "JenkinsBranch" }
                     }
                   },
