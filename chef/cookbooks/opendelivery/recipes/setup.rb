@@ -1,5 +1,3 @@
-include_recipe "amazon"
-
 case node['platform']
 when "windows"
 
@@ -19,12 +17,12 @@ else
   end
 end
 
-aws_simpledb_create node['opendelivery']['domain'] do
+amazon_simpledb_create node['opendelivery']['domain'] do
   domain node['opendelivery']['domain']
   action :create
 end
 
-aws_simpledb_load "Load initial configuration" do
+amazon_simpledb_load "Load initial configuration" do
   domain node['opendelivery']['domain']
   json_file node['opendelivery']['setup']['path']
 end
