@@ -244,16 +244,7 @@
                         },
                       "branch" : { "Ref" : "JenkinsBranch" }
                     }
-                  },
-                  "run_list": [
-                    "recipe[amazon]",
-                    "recipe[git]",
-                    "recipe[tomcat]",
-                    "recipe[opendelivery::path]",
-                    "recipe[opendelivery::setup]",
-                    "recipe[opendelivery::gem]",
-                    "recipe[opendelivery]"
-                  ]
+                  }
                 },
                 "mode" : "000644",
                 "owner" : "root",
@@ -301,10 +292,9 @@
           "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
           "    --region ", { "Ref" : "AWS::Region" }, "\n",
 
-          "chef-client -j client.js -o \"recipe[amazon],recipe[amazon::simpledb],recipe[amazon::load]\" --no-color\n",
-          "chef-client -j /etc/chef/node.json\n",
+          "chef-client -j node.json -o \"recipe[amazon],recipe[amazon::simpledb],recipe[amazon::load]\" --no-color\n",
 
-          "chef-client -j client.js -o \"recipe[amazon],recipe[git],recipe[tomcat],recipe[opendelivery::path],recipe[opendelivery::gem],recipe[opendelivery::jenkins]\" --no-color\n",
+          "chef-client -j node.json -o \"recipe[amazon],recipe[git],recipe[tomcat],recipe[opendelivery::path],recipe[opendelivery::gem],recipe[opendelivery::jenkins]\" --no-color\n",
 
           "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n"
         ]]}}
