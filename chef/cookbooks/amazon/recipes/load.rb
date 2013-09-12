@@ -1,9 +1,21 @@
-windows_batch "Clone platform repo" do
-  code <<-EOH
-  Z:
-  set PATH=%PATH%;C:\\Program Files (x86)\\Git\\bin
-  git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']}
-  EOH
+case node['platform']
+when "windows"
+
+  windows_batch "Clone platform repo" do
+    code <<-EOH
+    Z:
+    set PATH=%PATH%;C:\\Program Files (x86)\\Git\\bin
+    git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']}
+    EOH
+  end
+
+else
+  execute "Clone platform repo" do
+    command <<-EOH
+      cd /tmp/
+      git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']}
+    EOH
+  end
 end
 
 amazon_simpledb_load "Load initial configuration" do
