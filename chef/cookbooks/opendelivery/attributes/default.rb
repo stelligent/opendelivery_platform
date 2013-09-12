@@ -1,14 +1,10 @@
 default['jenkins']['file'] = "jenkins.war"
 default['jenkins']['key'] = "3rdParty/#{node['jenkins']['file']}"
-default['jenkins']['path'] = "#{node['tomcat']['windows']['home']}/webapps/#{node['jenkins']['file']}"
+default['jenkins']['path'] = "#{node['tomcat']['home']}/webapps/#{node['jenkins']['file']}"
 
 default['opendelivery']['domain'] = node['amazon']['simpledb']['domain']
 default['opendelivery']['bucket'] = node['amazon']['s3']['bucket']
 default['opendelivery']['chef']['organization'] = ''
-
-default['opendelivery']['setup']['file'] = ""
-default['opendelivery']['setup']['path'] = "Z:\\atlas_platform\\config\\#{node['opendelivery']['setup']['file']}"
-
 
 default['opendelivery']['gems'] = {
   'bundler'      => '1.1.4',
