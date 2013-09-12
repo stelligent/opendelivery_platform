@@ -5,7 +5,7 @@ when "windows"
     code <<-EOH
     Z:
     set PATH=%PATH%;C:\\Program Files (x86)\\Git\\bin
-    git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']}
+    git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']['url']}
     EOH
   end
 
@@ -13,7 +13,7 @@ else
   execute "Clone platform repo" do
     command <<-EOH
       cd /tmp/
-      git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']}
+      git clone -b #{node['git']['jenkins']['branch']} #{node['git']['platform']['repo']['url']}
     EOH
   end
 end
