@@ -7,6 +7,6 @@ default['amazon']['region'] = ''
 
 
 default['amazon']['setup']['file'] = ""
-default['amazon']['setup']['path'] = "Z:\\atlas_platform\\config\\#{node['amazon']['setup']['file']}"
+default['amazon']['setup']['path'] = "z:\\#{node['git']['platform']['repo']['name']}\\config\\#{node['amazon']['setup']['file']}"
 
 default['amazon']['gem']['version'] = '1.16.0'
