@@ -1,6 +1,5 @@
-amazon_s3file node['jenkins']['path'] do
-  key node['jenkins']['key']
-  bucket node['opendelivery']['bucket']
+remote_file node['jenkins']['path'] do
+  source node['jenkins']['url']
   action :create
 end
 
