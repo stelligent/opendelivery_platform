@@ -1,6 +1,14 @@
+jenkins_home = '/usr/share/.jenkins'
+
 remote_file node['jenkins']['path'] do
   source node['jenkins']['url']
   action :create
+end
+
+windows_batch "Set Jenkins Home" do
+  code <<-EOH
+  echo "export JENKINS_HOME=#{jenkins_home}" >> /etc/sysconfig/tomcat6
+  EOH
 end
 
 directory "#{node['tomcat']['home']}/.ssh" do
@@ -14,6 +22,11 @@ end
 
 execute "Setup jenkins repo" do
   command <<-EOH
-  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']['name']}.git #{node['tomcat']['home']}/.jenkins
+  git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']['name']}.git #{jenkins_home}
   EOH
+end
+
+directory jenkins_home do
+  owner node["tomcat"]["user"]
+  group node["tomcat"]["group"]
 end
