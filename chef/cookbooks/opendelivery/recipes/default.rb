@@ -5,8 +5,8 @@ remote_file node['jenkins']['path'] do
   action :create
 end
 
-windows_batch "Set Jenkins Home" do
-  code <<-EOH
+execute "Set Jenkins Home" do
+  command <<-EOH
   echo "export JENKINS_HOME=#{jenkins_home}" >> /etc/sysconfig/tomcat6
   EOH
 end
