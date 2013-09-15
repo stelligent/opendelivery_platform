@@ -1,6 +1,7 @@
 jenkins_home = '/usr/share/.jenkins'
 
 remote_file node['jenkins']['path'] do
+  not_if do File.exists?(node['jenkins']['path']) end
   source node['jenkins']['url']
   action :create
 end
@@ -30,5 +31,5 @@ end
 directory jenkins_home do
   owner node["tomcat"]["user"]
   group node["tomcat"]["group"]
-  notifies :restart, resources(:service => "tomcat")
+  notifies :restart, resources(:service => "tomcat"), :immediately
 end
