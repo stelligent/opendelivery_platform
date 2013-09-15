@@ -21,6 +21,7 @@ template "git-config" do
 end
 
 execute "Setup jenkins repo" do
+  only_if do Dir[jenkins_home].empty? end
   command <<-EOH
   git clone https://#{node['git']['username']}:#{node['git']['password']}@github.com/#{node['git']['org']}/#{node['git']['jenkins']['repo']['name']}.git #{jenkins_home}
   EOH
