@@ -1,6 +1,5 @@
-default['jenkins']['file'] = "jenkins.war"
-default['jenkins']['key'] = "3rdParty/#{node['jenkins']['file']}"
-default['jenkins']['path'] = "#{node['tomcat']['home']}/webapps/#{node['jenkins']['file']}"
+default['jenkins']['url'] = "http://mirrors.jenkins-ci.org/war/1.530/jenkins.war"
+default['jenkins']['path'] = "#{node['tomcat']['home']}/webapps/jenkins.war"
 
 default['opendelivery']['domain'] = node['amazon']['simpledb']['domain']
 default['opendelivery']['bucket'] = node['amazon']['s3']['bucket']
@@ -13,7 +12,7 @@ default['opendelivery']['gems'] = {
   'rspec'        => '2.10.0',
   'trollop'      => '2.0',
   'rake'         => '0.9.2.2',
-  'opendelivery' => '0.0.18'
+  'opendelivery' => '0.0.19'
 }
 
 default['opendelivery']['config'] = {
