@@ -29,5 +29,5 @@ end
 directory jenkins_home do
   owner node["tomcat"]["user"]
   group node["tomcat"]["group"]
-  notifies :restart, resources(:service => node['tomcat']['service'])
+  notifies :restart, resources(:service => "tomcat")
 end
