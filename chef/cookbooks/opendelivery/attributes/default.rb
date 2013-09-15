@@ -1,5 +1,6 @@
 default['jenkins']['url'] = "http://mirrors.jenkins-ci.org/war/1.530/jenkins.war"
 default['jenkins']['path'] = "#{node['tomcat']['home']}/webapps/jenkins.war"
+default['jenkins']['home'] = '/usr/share/.jenkins'
 
 default['opendelivery']['domain'] = node['amazon']['simpledb']['domain']
 default['opendelivery']['bucket'] = node['amazon']['s3']['bucket']
