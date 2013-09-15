@@ -17,8 +17,8 @@ default['opendelivery']['gems'] = {
 
 default['opendelivery']['config'] = {
   'PROJECT_NAME'        => node['amazon']['simpledb']['domain'],
-  'GIT_PLATFORM_REPO'   => node['git']['platform']['repo'],
+  'GIT_PLATFORM_REPO'   => node['git']['platform']['repo']['url'],
   'GIT_PLATFORM_BRANCH' => node['git']['platform']['branch'],
-  'GIT_JENKINS_REPO'    => node['git']['jenkins']['repo'],
+  'GIT_JENKINS_REPO'    => node['git']['jenkins']['repo']['url'],
   'GIT_JENKINS_BRANCH'  => node['git']['jenkins']['branch']
 }
