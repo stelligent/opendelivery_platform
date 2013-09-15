@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "This template creates a cross account bucket policy",
+  "Description" : "This template creates a cross account bucket policy. Running this CloudFormation template will give your specified AWS Account READ/WRITE access to your specified S3 Bucket",
   "Parameters" : {
 
     "S3Bucket" : {
