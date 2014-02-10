@@ -303,10 +303,21 @@
           "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
 
           "# Install Ruby Dependency\n",
-          "yum install -y libxslt-devel\n",
-
+          
           "# Install Ruby 1.9.3\n",
-          "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+          "yum -y erase ruby rubygems\n",
+          "yum -y install ruby19-devel\n",
+          "yum -y install libxml2-devel\n",
+          "yum -y install libxslt-devel\n",
+          "yum -y install git\n",
+          "yum -y install make\n",
+          "yum -y install gcc\n",
+
+          "# Move Ruby 1.9.3 to Default Ruby\n",
+          "rm -rf /usr/bin/ruby\n"
+          "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
+          "rm -rf /usr/bin/gem\n"
+          "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
           "# Install S3 Gems\n",
           "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
