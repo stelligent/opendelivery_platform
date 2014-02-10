@@ -5,6 +5,37 @@
 
   "Parameters" : {
 
+    "Email" : {
+      "Type" : "String",
+      "Default" : "aws@stelligent.com"
+    },
+
+    "SetupTemplate" : {
+      "Type" : "String"
+    },
+
+    "ApplicationName" : {
+      "Type" : "String",
+      "Default" : "jenkins"
+    },
+
+    "HostedZone" : {
+      "Type" : "String",
+      "Default" : "integratebutton.com"
+    },
+
+    "Group" : {
+      "Type" : "String"
+    },
+
+    "GithubOrganization" : {
+      "Type" : "String"
+    },
+
+    "ProjectName" : {
+      "Type" : "String"
+    },
+
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
@@ -18,51 +49,14 @@
     "InstanceType" : {
       "Description" : "Jenkins EC2 instance type",
       "Type" : "String",
-      "Default" : "t1.micro",
+      "Default" : "c1.medium",
       "ConstraintDescription" : "must be a valid EC2 instance type."
-    },
-    "GitUsername" : {
-      "Description" : "Git username",
-      "Type" : "String"
-    },
-    "GitPassword" : {
-      "Description" : "Git password",
-      "NoEcho": "true",
-      "Type" : "String"
-    },
-
-    "ChefOrganization" : {
-      "Description" : "Your Chef Organization",
-      "Type" : "String",
-      "Default" : "stelligent"
     },
 
     "S3Bucket" : {
-      "Description" : "S3 Bucket to pull your hosted chef validator key from",
+      "Description" : "Artifact Bucket",
       "Type" : "String",
       "Default" : "cdplatform"
-    },
-
-    "SDBDomain" : {
-      "Description" : "The Name of the SDB domain to create",
-      "Type" : "String",
-      "Default" : "jenkins1"
-    },
-
-    "SDBFile" : {
-      "Description" : "The name of the json file to load simpledb with",
-      "Type" : "String",
-      "Default" : "platform.json"
-    },
-    "JenkinsBranch" : {
-      "Description" : "Git branch to use for the jenkins repo",
-      "Type" : "String",
-      "Default" : "master"
-    },
-    "PlatformBranch" : {
-      "Description" : "Git branch to use for the platform repo",
-      "Type" : "String",
-      "Default" : "master"
     }
   },
 
@@ -86,38 +80,11 @@
 
   "Resources" : {
 
-    "RootRole" : {
-      "Type" : "AWS::IAM::Role",
+    "addUserToGroup" : {
+      "Type" : "AWS::IAM::UserToGroupAddition",
       "Properties" : {
-        "AssumeRolePolicyDocument" : {
-          "Statement" : [{
-            "Effect" : "Allow",
-            "Principal" : {
-              "Service" : [ "ec2.amazonaws.com"]
-            },
-            "Action" : ["sts:AssumeRole"]
-          }]
-        },
-        "Path" : "/",
-        "Policies" : [{
-          "PolicyName" : "root",
-          "PolicyDocument" : {
-            "Statement" : [{
-              "Effect" : "Allow",
-              "Action" : "*",
-              "Resource" : "*"
-            }]
-          }
-        }]
-      }
-    },
-    "RootInstanceProfile" : {
-      "Type" : "AWS::IAM::InstanceProfile",
-      "Properties" : {
-        "Path" : "/",
-        "Roles" : [{
-          "Ref" : "RootRole"
-        }]
+        "GroupName" : { "Ref" : "Group" },
+        "Users" : [ { "Ref" : "User" } ]
       }
     },
 
@@ -131,8 +98,19 @@
             "Effect":"Allow",
             "Action":"*",
             "Resource":"*"
-          }]}
+          }
+                                          ]}
         }]
+      }
+    },
+
+    "MySNSTopic" : {
+      "Type" : "AWS::SNS::Topic",
+      "Properties" : {
+        "Subscription" : [ {
+          "Endpoint" : { "Ref": "Email" },
+          "Protocol" : "email"
+        } ]
       }
     },
 
@@ -143,112 +121,148 @@
       }
     },
 
-    "WebServerGroup" : {
-      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+    "JenkinsDNS" : {
+      "Type" : "AWS::Route53::RecordSetGroup",
       "Properties" : {
-        "AvailabilityZones" : { "Fn::GetAZs" : "" },
-        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
-        "MinSize" : "1",
-        "MaxSize" : "1",
-        "DesiredCapacity" : "1"
+        "HostedZoneName" : { "Fn::Join" : [ "", [ {"Ref" : "HostedZone"}, "." ]]},
+        "RecordSets" : [
+          {
+            "Name" : { "Fn::Join" : ["", [ { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }, "." ]]},
+            "Type" : "A",
+            "TTL"  : "900",
+            "ResourceRecords" : [ { "Ref" : "IPAddress" } ]
+          }]
       }
     },
 
-
-    "LaunchConfig": {
-      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+    "WebServer": {
+      "Type": "AWS::EC2::Instance",
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
           "config" : {
-            "users" : {
-              "tomcat" : {
-              }
-            },
             "packages" : {
               "yum" : {
-                "gcc-c++"       : [],
-                "autoconf"      : [],
-                "automake"      : [],
-                "libxml2-devel" : [],
-                "libxslt-devel" : []
+                "tomcat6"       : [],
+                "git"           : [],
+                "gcc"           : [],
+                "libxslt-devel" : [],
+                "ruby-devel"    : [],
+                "httpd"         : []
               }
             },
+
             "files" : {
-              "/etc/chef/validator.pem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/cert/", { "Ref" : "ChefOrganization" }, "-hostedchef.pem"]]},
+              "/usr/share/tomcat6/webapps/jenkins.war" : {
+                "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
+                "mode" : "000700",
+                "owner" : "tomcat",
+                "group" : "tomcat",
                 "authentication" : "S3AccessCreds"
               },
-              "/etc/chef/client.rb" : {
-                "content" : { "Fn::Join" : ["", [
-                  "log_level        :info\n",
-                  "log_location     STDOUT\n",
-                  "chef_server_url  \"https://api.opscode.com/organizations/", { "Ref" : "ChefOrganization" }, "\"\n",
-                  "validation_key         \"/etc/chef/validator.pem\"\n",
-                  "validation_client_name \"", { "Ref" : "ChefOrganization" }, "-validator\""
-                ]] },
-                "mode" : "000644",
-                "owner" : "root",
-                "group" : "wheel"
+              "/usr/share/tomcat6/.ssh/id_rsa" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "mode" : "000600",
+                "owner" : "tomcat",
+                "group" : "tomcat",
+                "authentication" : "S3AccessCreds"
               },
-              "/etc/chef/node.json" : {
-                "content" : {
-                  "amazon" : {
-                    "region" : { "Ref" : "AWS::Region"},
-                    "s3" : {
-                      "bucket" : { "Ref" : "S3Bucket" }
-                    },
-                    "simpledb" : {
-                      "domain" : { "Ref": "SDBDomain" }
-                    },
-                    "access" : {
-                      "key" : { "Ref" : "HostKeys" }
-                    },
-                    "secret" : {
-                      "key" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
-                    },
-                    "setup" : {
-                      "file" : { "Ref" : "SDBFile" }
-                    }
-                  },
-                  "opendelivery" : {
-                    "chef" : {
-                      "organization" : "stelligent"
-                    },
-                    "setup" : {
-                      "file" : "platform.json"
-                    }
-                  },
-                  "tomcat":{
-                    "user" : "tomcat",
-                    "group" : "tomcat",
-                    "base" : "/usr/share/tomcat6",
-                    "tmp_dir" : "/var/cache/tomcat6/temp",
-                    "work_dir" : "/var/cache/tomcat6/work",
-                    "keytool" : "/usr/lib/jvm/java/bin/keytool"
-                  },
-                  "git" : {
-                    "username" : { "Ref" : "GitUsername" },
-                    "password" : { "Ref" : "GitPassword" },
-                    "org" : "stelligent",
-                    "platform" : {
-                      "repo" :  {
-                        "name" : "opendelivery_platform",
-                        "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_platform.git"]]}
-                      },
-                      "branch" : { "Ref" : "PlatformBranch" }
-                    },
-                    "jenkins" : {
-                      "repo" : {
-                        "name" : "opendelivery_jenkins",
-                        "url" : { "Fn::Join" : ["", ["https://", { "Ref" : "GitUsername" }, ":", { "Ref" : "GitPassword" }, "@github.com/stelligent/opendelivery_jenkins.git"]]}
-                        },
-                      "branch" : { "Ref" : "JenkinsBranch" }
-                    }
-                  }
-                },
-                "mode" : "000644",
+              "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
+                "mode" : "000700",
                 "owner" : "root",
-                "group" : "wheel"
+                "group" : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/cron.hourly/jenkins_backup.sh" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/cron.hourly/transient_environments.rb" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/tomcat6/server.xml" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
+                "mode"   : "000554",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/usr/share/tomcat6/aws_access" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
+                ]]},
+                "mode"   : "000400",
+                "owner"  : "tomcat",
+                "group"  : "tomcat",
+                "authentication" : "S3AccessCreds"
+              },
+              "/opt/aws/aws.config" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWS.config(\n",
+                  ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+                  ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
+                ]]},
+                "mode"   : "000500",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
+              },
+
+              "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
+                "mode" : "000600",
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+                "authentication" : "S3AccessCreds"
+              },
+
+              "/etc/httpd/conf.d/virtualhost.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "NameVirtualHost *:80\n",
+                  "<VirtualHost *:80>\n",
+                  "ProxyPass         /jenkins  http://localhost:8080/jenkins\n",
+                  "ProxyPassReverse  /jenkins  http://localhost:8080/jenkins\n",
+                  "ProxyRequests     Off\n",
+
+                  "<Proxy http://localhost:8080/jenkins*>\n",
+                  "Order deny,allow\n",
+                  "Allow from all\n",
+                  "</Proxy>\n",
+                  "RewriteEngine On\n",
+                  "RewriteRule   ^/$ http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "/jenkins$1 [NC,P]\n",
+                  "</VirtualHost>"
+                ]]},
+                "mode"   : "000544",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+              "/usr/share/tomcat6/.ssh/config" : {
+                "content" : { "Fn::Join" : ["", [
+                  "Host github.com\n",
+                  "StrictHostKeyChecking no\n"
+                ]]},
+                "mode"   : "000600",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+              "/usr/share/tomcat6/.route53" : {
+                "content" : { "Fn::Join" : ["", [
+                  "access_key: ", { "Ref" : "HostKeys" }, "\n",
+                  "secret_key: ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\n",
+                  "api: '2012-02-29'\n",
+                  "endpoint: https://route53.amazonaws.com/\n",
+                  "default_ttl: '3600'"
+                ]]},
+                "mode"   : "000700",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
               }
             }
           }
@@ -258,57 +272,114 @@
             "type" : "S3",
             "accessKeyId" : { "Ref" : "HostKeys" },
             "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
-            "buckets" : [ { "Ref" : "S3Bucket" } ]
+            "buckets" : [ { "Ref" : "S3Bucket"} ]
           }
         }
       },
       "Properties": {
-        "IamInstanceProfile" : { "Ref": "RootInstanceProfile" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ {"Ref" : "FrontendGroup"} ],
         "KeyName"        : { "Ref" : "KeyName" },
+        "Tags": [ { "Key": "Name", "Value": "Jenkins" } ],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
-          "#!/bin/bash\n",
+          "#!/bin/bash -v\n",
+          "yum -y install java-1.6.0-openjdk*\n",
           "yum update -y aws-cfn-bootstrap\n",
 
-          "# Remove Ruby 1.8.7\n",
-          "yum erase -y ruby rubygems\n",
+          "# Install packages\n",
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+          "    --access-key ",  { "Ref" : "HostKeys" },
+          "    --secret-key ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+          "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
+
+          "# Copy Github credentials to root ssh directory\n",
+          "cp /usr/share/tomcat6/.ssh/* /root/.ssh/\n",
+
+          "# Install Ruby Dependency\n",
+          "yum install -y libxslt-devel\n",
 
           "# Install Ruby 1.9.3\n",
-          "yum -y install ruby19-devel\n",
+          "rpm -Uvh /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
 
-          "# Move Ruby 1.9.3 to Default Ruby\n",
-          "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
-          "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
+          "# Install S3 Gems\n",
+          "gem install /home/ec2-user/common-step-definitions-1.0.0.gem\n",
 
-          "# Install Chef\n",
-          "wget https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chef-11.6.0-1.el6.x86_64.rpm\n",
-          "rpm -Uvh chef-11.6.0-1.el6.x86_64.rpm\n",
+          "# Install Public Gems\n",
+          "gem install bundler     --version 1.1.4    --no-rdoc --no-ri\n",
+          "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+          "gem install cucumber    --version 1.2.1    --no-rdoc --no-ri\n",
+          "gem install net-ssh     --version 2.5.2    --no-rdoc --no-ri\n",
+          "gem install capistrano  --version 2.12.0   --no-rdoc --no-ri\n",
+          "gem install route53     --version 0.2.1    --no-rdoc --no-ri\n",
+          "gem install rspec       --version 2.10.0   --no-rdoc --no-ri\n",
+          "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
+          "gem install rake        --version 0.9.2.2  --no-rdoc --no-ri\n",
 
-          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackId" }, " -r LaunchConfig ",
-          "    --access-key ", { "Ref" : "HostKeys" },
-          "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
-          "    --region ", { "Ref" : "AWS::Region" }, "\n",
+          "# Update Jenkins with versioned configuration\n",
+          "rm -rf /usr/share/tomcat6/.jenkins\n",
+          "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
 
-          "chef-client -j /etc/chef/node.json -o \"recipe[git],recipe[amazon],recipe[amazon::simpledb],recipe[amazon::load]\" --no-color\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/boot.rb --no-check-certificate\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/stack_builder.rb --no-check-certificate\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/cd_security_group.rb --no-check-certificate\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/terminate_instance.rb --no-check-certificate\n",
+          "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/set_properties.rb --no-check-certificate\n",
 
-          "chef-client -j /etc/chef/node.json -o \"recipe[amazon],recipe[tomcat],recipe[opendelivery::path],recipe[opendelivery::gem],recipe[opendelivery]\" --no-color\n",
+          "# Set SNS Topic Property\n",
+          "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n",
 
-          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n"
+          "ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "InternalGroup" }, "\n",
+
+          "# Add Jenkins Environment Variable\n",
+          "echo \"export SNS_TOPIC=", { "Ref" : "MySNSTopic" }, "\" >> /etc/sysconfig/tomcat6\n",
+          "echo \"export JENKINS_DOMAIN=", { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "\" >> /etc/sysconfig/tomcat6\n",
+          "echo \"export JENKINS_ENVIRONMENT=", { "Ref" : "ApplicationName" }, "\" >> /etc/sysconfig/tomcat6\n",
+          "echo \"export SIMPLEDB_STACK=", { "Ref" : "SetupTemplate" }, "\" >> /etc/sysconfig/tomcat6\n",
+
+          "chown -R tomcat:tomcat /usr/share/tomcat6/\n",
+
+          "service tomcat6 restart\n",
+          "service httpd restart\n",
+
+          "# Disable tty for ec2-user\n",
+          "echo \"Defaults:%tomcat !requiretty\" >> /etc/sudoers\n",
+          "echo \"Defaults:tomcat !requiretty\" >> /etc/sudoers\n",
+
+          "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'\n",
+          "ruby /tmp/terminate_instance.rb --stackname ", { "Ref" : "SetupTemplate" }
         ]]}}
       }
     },
 
+    "IPAddress" : {
+      "Type" : "AWS::EC2::EIP"
+    },
+
+    "IPAssoc" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "Properties" : {
+        "InstanceId" : { "Ref" : "WebServer" },
+        "EIP" : { "Ref" : "IPAddress" }
+      }
+    },
 
     "FrontendGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable SSH and access to Apache and Tomcat",
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : "0.0.0.0/0"},
           {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"}
+        ]
+      }
+    },
+
+    "InternalGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH and access to Apache and Tomcat",
+        "SecurityGroupIngress" : [
         ]
       }
     },
@@ -319,7 +390,7 @@
 
     "WaitCondition" : {
       "Type" : "AWS::CloudFormation::WaitCondition",
-      "DependsOn" : "WebServerGroup",
+      "DependsOn" : "WebServer",
       "Properties" : {
         "Handle" : { "Ref" : "WaitHandle" },
         "Timeout" : "990"
@@ -328,5 +399,12 @@
   },
 
   "Outputs" : {
+    "Domain" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] },
+      "Description" : "URL for newly created Jenkins app"
+    },
+    "InstanceIPAddress" : {
+      "Value" : { "Ref" : "IPAddress" }
+    }
   }
 }
