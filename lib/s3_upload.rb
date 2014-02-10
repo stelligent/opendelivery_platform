@@ -1,3 +1,5 @@
+require_relative "boot"
+
 opts = Trollop::options do
   opt :filename, "Name of file", :short => "n", :type => String
   opt :bucket, "Name of S3 bucket", :short => "b", :type => String
