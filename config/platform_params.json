@@ -34,5 +34,9 @@
     {
         "ParameterKey": "Email",
         "ParameterValue": "jonny@stelligent.com"
+    },
+    {
+        "ParameterKey": "Bucket",
+        "ParameterValue": "havoctes"
     }
 ]

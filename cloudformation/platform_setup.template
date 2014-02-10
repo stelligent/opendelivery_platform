@@ -8,7 +8,6 @@
   "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
-      "Default" : "production",
       "MinLength": "1",
       "MaxLength": "64",
       "AllowedPattern" : "[-_ a-zA-Z0-9]*",
@@ -17,23 +16,19 @@
 
     "InstanceType" : {
     "Type" : "String",
-    "Default" : "t1.micro",
     "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.medium", "c1.xlarge"]
   },
 
   "ApplicationName" : {
-    "Type" : "String",
-    "Default" : "jenkins29"
+    "Type" : "String"
   },
 
   "HostedZone" : {
-    "Type" : "String",
-    "Default" : "opencdplatform.com"
+    "Type" : "String"
   },
 
   "GithubUsername" : {
-    "Type" : "String",
-    "Default" : "student29"
+    "Type" : "String"
   },
 
   "GithubPassword" : {
@@ -42,22 +37,18 @@
   },
 
   "GithubOrganization" : {
-    "Type" : "String",
-    "Default" : "OpenDelivery"
+    "Type" : "String"
   },
 
   "ProjectName" : {
-    "Type" : "String",
-    "Default" : "simple_app_29"
+    "Type" : "String"
   },
 
   "Email" : {
-    "Type" : "String",
-    "Default" : "aws@stelligent.com"
+    "Type" : "String"
   },
   "Bucket" : {
-    "Type" : "String",
-    "Default" : "havoctest"
+    "Type" : "String"
   }
   },
 
