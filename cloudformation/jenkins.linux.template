@@ -314,9 +314,9 @@
           "yum -y install gcc\n",
 
           "# Move Ruby 1.9.3 to Default Ruby\n",
-          "rm -rf /usr/bin/ruby\n"
+          "rm -rf /usr/bin/ruby\n",
           "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
-          "rm -rf /usr/bin/gem\n"
+          "rm -rf /usr/bin/gem\n",
           "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
           "# Install S3 Gems\n",
