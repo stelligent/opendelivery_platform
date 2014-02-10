@@ -227,10 +227,12 @@
       "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa\n",
 
       "# Install RubyGems\n",
-      "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
-      "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
-      "gem install bigdecimal  --version 1.1.0    --no-rdoc --no-ri\n",
-      "gem install github_api  --version 0.7.0    --no-rdoc --no-ri\n",
+      "/usr/bin/gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
+      "/usr/bin/gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+      "/usr/bin/gem install bigdecimal  --version 1.1.0    --no-rdoc --no-ri\n",
+      "/usr/bin/gem install github_api  --version 0.7.0    --no-rdoc --no-ri\n",
+
+      "/usr/bin/gem list\n"
 
       "# Create Simple DB Domain\n",
       "ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",
