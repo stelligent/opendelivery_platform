@@ -1,0 +1,38 @@
+[
+    {
+        "ParameterKey": "KeyName",
+        "ParameterValue": "havoc-test"
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue": "m1.large"
+    },
+    {
+        "ParameterKey": "ApplicationName",
+        "ParameterValue": "jenkins"
+    },
+    {
+        "ParameterKey": "HostedZone",
+        "ParameterValue": "elasticoperations.com"
+    },
+    {
+        "ParameterKey": "GithubUsername",
+        "ParameterValue": "stelligent-service-user"
+    },
+    {
+        "ParameterKey": "GithubPassword",
+        "ParameterValue": "iaMgA2lnA9"
+    },
+    {
+        "ParameterKey": "GithubOrganization",
+        "ParameterValue": "stelligent"
+    },
+    {
+        "ParameterKey": "ProjectName",
+        "ParameterValue": "havoc"
+    },
+    {
+        "ParameterKey": "Email",
+        "ParameterValue": "jonny@stelligent.com"
+    }
+]
