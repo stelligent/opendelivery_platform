@@ -181,16 +181,20 @@
       "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
       "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
-      "# Remove Ruby 1.8.7\n",
-      "yum erase -y ruby rubygems\n",
-
       "# Install Ruby 1.9.3\n",
+      "yum -y erase ruby rubygems\n",
       "yum -y install ruby19-devel\n",
       "yum -y install libxml2-devel\n",
       "yum -y install libxslt-devel\n",
       "yum -y install git\n",
       "yum -y install make\n",
       "yum -y install gcc\n",
+
+      "# Move Ruby 1.9.3 to Default Ruby\n",
+      "rm -rf /usr/bin/ruby\n",
+      "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
+      "rm -rf /usr/bin/gem\n",
+      "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
       "# Get CD Platform Files\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/config/jenkins_backup.sh --no-check-certificate\n",
@@ -208,12 +212,8 @@
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/transient_environments.rb --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/platform_setup.template --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/jenkins.linux.template --no-check-certificate\n",
-      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm\n",
-
-      "# Move Ruby 1.9.3 to Default Ruby\n",
-      "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
-      "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
+      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm --no-check-certificate\n",
+      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
 
       "# Generate SSH keypairs\n",
       "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa\n",
