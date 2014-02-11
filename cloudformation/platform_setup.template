@@ -146,7 +146,7 @@
           },
 
         "/tmp/common-step-definitions-1.0.0.gem" : {
-        "source" : "https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/gems/common-step-definitions-1.0.0.gem",
+        "source" : "https://s3-us-west-2.amazonaws.com/havoctest/resources/gems/common-step-definitions-1.0.0.gem",
         "mode"   : "000500",
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
@@ -216,7 +216,7 @@
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/jenkins.linux.template --no-check-certificate\n",
       "# see how we hardcoded the us-west2 endpoint? this needs to be moved to a mapping \n",
       "#wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm --no-check-certificate\n",
-      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
+      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/havoctest/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
 
       "# Generate SSH keypairs\n",
       "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa\n",
