@@ -305,7 +305,7 @@
       "ruby /tmp/s3_upload.rb --filename /tmp/jenkins.linux.template                           --key templates/jenkins.template                        --bucket ", { "Ref" : "Bucket" } , "\n",
       "#ruby /tmp/s3_upload.rb --filename /tmp/platform/infrastructure/puppet/puppet.tar.gz     --key puppet.tar.gz                                     --bucket ", { "Ref" : "Bucket" } , "\n",
       "#ruby /tmp/s3_upload.rb --filename /tmp/platform/capistrano.tar.gz                       --key capistrano.tar.gz                                 --bucket ", { "Ref" : "Bucket" } , "\n",
-      "ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm                  --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm     --bucket ", { "Ref" : "Bucket" } , "\n",
+      "#ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm                  --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm     --bucket ", { "Ref" : "Bucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /tmp/redis-2.6.2-1.el5.x86_64.rpm                     --key resources/rpm/redis-2.6.2-1.el5.x86_64.rpm        --bucket ", { "Ref" : "Bucket" } , "\n",
 
         "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
