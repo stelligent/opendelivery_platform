@@ -345,8 +345,10 @@
           "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/set_properties.rb --no-check-certificate\n",
 
           "# Set SNS Topic Property\n",
+          "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n"
           "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --itemname properties --property SNSTopic --value ", { "Ref" : "MySNSTopic" }, "\n",
 
+          "echo ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "InternalGroup" }, "\n",
           "ruby /tmp/cd_security_group.rb --sdbdomain ", { "Ref" : "SetupTemplate" }, " --securityGroupName ", { "Ref" : "InternalGroup" }, "\n",
 
           "# Add Jenkins Environment Variable\n",
