@@ -254,8 +254,8 @@
       "# Clone Github Repository\n",
       "#git clone git@github.com:stelligent/opendelivery_platform.git /tmp/platform\n",
       "#git clone git@github.com:stelligent/opendelivery_jenkins.git /tmp/jenkins\n",
-      "#git clone https://",{ "Ref" : "GithubUsername" },":",{ "Ref" : "GithubPassword" },"github.com/stelligent/opendelivery_platform.git /tmp/jenkins\n",
-      "#git clone https://",{ "Ref" : "GithubUsername" },":",{ "Ref" : "GithubPassword" },"github.com/stelligent/opendelivery_jenkins.git /tmp/jenkins\n",
+      "git clone https://",{ "Ref" : "GithubUsername" },":",{ "Ref" : "GithubPassword" },"github.com/stelligent/opendelivery_platform.git /tmp/jenkins\n",
+      "git clone https://",{ "Ref" : "GithubUsername" },":",{ "Ref" : "GithubPassword" },"github.com/stelligent/opendelivery_jenkins.git /tmp/jenkins\n",
 
 
 
