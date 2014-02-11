@@ -146,6 +146,12 @@
         "AWS::CloudFormation::Init" : {
           "config" : {
             "files" : {
+              "/tmp/setup.mysql" : {
+                "content" : "this is just a file proving this actually works...",
+                "mode"  : "000644",
+                "owner" : "root",
+                "group" : "root"
+              },
               "/usr/share/tomcat6/webapps/jenkins.war" : {
                 "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
                 "mode" : "000700",
@@ -258,12 +264,6 @@
                 "mode"   : "000700",
                 "owner"  : "tomcat",
                 "group"  : "tomcat"
-              },
-              "/tmp/setup.mysql" : {
-                "content" : "this is just a file proving this actually works...",
-                "mode"  : "000644",
-                "owner" : "root",
-                "group" : "root"
               }
             },
             "packages" : {
