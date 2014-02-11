@@ -213,7 +213,8 @@
                 "content" : { "Fn::Join" : ["", [
                   "AWS.config(\n",
                   ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-                  ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
+                  ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, 
+                  ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
                 ]]},
                 "mode"   : "000500",
                 "owner"  : "tomcat",
@@ -324,7 +325,7 @@
 
           "# Install Public Gems\n",
           "gem install bundler     --version 1.1.4    --no-rdoc --no-ri\n",
-          "gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+          "gem install aws-sdk                        --no-rdoc --no-ri\n",
           "gem install cucumber    --version 1.2.1    --no-rdoc --no-ri\n",
           "gem install net-ssh     --version 2.5.2    --no-rdoc --no-ri\n",
           "gem install capistrano  --version 2.12.0   --no-rdoc --no-ri\n",

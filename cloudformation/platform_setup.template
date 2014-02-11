@@ -131,16 +131,17 @@
       "config" : {
 
       "files" : {
-        "/opt/aws/aws.config" : {
-        "content" : { "Fn::Join" : ["", [
-          "AWS.config(\n",
-          ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-          ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\")\n"
-                  ]]},
-        "mode"   : "000500",
-                "owner"  : "ec2-user",
-                "group"  : "ec2-user"
-        },
+          "/opt/aws/aws.config" : {
+            "content" : { "Fn::Join" : ["", [
+              "AWS.config(\n",
+              ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+              ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, 
+              ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
+            ]]},
+            "mode"   : "000500",
+            "owner"  : "tomcat",
+            "group"  : "tomcat"
+          },
 
         "/tmp/common-step-definitions-1.0.0.gem" : {
         "source" : "https://s3.amazonaws.com/OpenDelivery/resources/gems/common-step-definitions-1.0.0.gem",
@@ -219,7 +220,7 @@
 
       "# Install RubyGems\n",
       "/usr/bin/gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
-      "/usr/bin/gem install aws-sdk     --version 1.5.6    --no-rdoc --no-ri\n",
+      "/usr/bin/gem install aws-sdk                        --no-rdoc --no-ri\n",
       "/usr/bin/gem install bigdecimal  --version 1.1.0    --no-rdoc --no-ri\n",
       "/usr/bin/gem install github_api  --version 0.7.0    --no-rdoc --no-ri\n",
 
