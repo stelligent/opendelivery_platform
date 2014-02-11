@@ -226,6 +226,11 @@
 
       "/usr/bin/gem list\n",
 
+      "# Add id_rsa to ssh agent\n",
+      "eval `ssh-agent -s` \n",
+      "ssh-add /root/.ssh/id_rsa\n",
+
+
       "# Create Simple DB Domain\n",
       "echo ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",
       "ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",

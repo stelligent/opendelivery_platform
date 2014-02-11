@@ -334,6 +334,10 @@
           "gem install trollop     --version 2.0      --no-rdoc --no-ri\n",
           "gem install rake        --version 0.9.2.2  --no-rdoc --no-ri\n",
 
+          "# Add id_rsa to ssh agent\n",
+          "eval `ssh-agent -s` \n",
+          "ssh-add /root/.ssh/id_rsa\n",
+
           "# Update Jenkins with versioned configuration\n",
           "rm -rf /usr/share/tomcat6/.jenkins\n",
           "git clone git@github.com:", { "Ref" : "GithubOrganization" }, "/", { "Ref" : "ProjectName" }, "_jenkins.git /usr/share/tomcat6/.jenkins\n",
