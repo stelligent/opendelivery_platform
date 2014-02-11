@@ -141,8 +141,8 @@
               ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
             ]]},
             "mode"   : "000500",
-            "owner"  : "tomcat",
-            "group"  : "tomcat"
+            "owner"  : "root",
+            "group"  : "root"
           },
 
         "/tmp/common-step-definitions-1.0.0.gem" : {
