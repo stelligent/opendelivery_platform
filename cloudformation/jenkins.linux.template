@@ -180,13 +180,6 @@
                 "group"  : "root",
                 "authentication" : "S3AccessCreds"
               },
-              "/etc/tomcat6/server.xml" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
-                "mode"   : "000554",
-                "owner"  : "root",
-                "group"  : "root",
-                "authentication" : "S3AccessCreds"
-              },
               "/usr/share/tomcat6/aws_access" : {
                 "content" : { "Fn::Join" : ["", [
                   "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
