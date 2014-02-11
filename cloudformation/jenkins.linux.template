@@ -104,7 +104,7 @@
             "Action":"*",
             "Resource":"*"
           }
-                                          ]}
+          ]}
         }]
       }
     },
@@ -145,6 +145,127 @@
       "Metadata" : {
         "AWS::CloudFormation::Init" : {
           "config" : {
+            "files" : {
+              "/usr/share/tomcat6/webapps/jenkins.war" : {
+                "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
+                "mode" : "000700",
+                "owner" : "tomcat",
+                "group" : "tomcat",
+                "authentication" : "S3AccessCreds"
+              },
+              "/usr/share/tomcat6/.ssh/id_rsa" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "mode" : "000600",
+                "owner" : "tomcat",
+                "group" : "tomcat",
+                "authentication" : "S3AccessCreds"
+              },
+              "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
+                "mode" : "000700",
+                "owner" : "root",
+                "group" : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/cron.hourly/jenkins_backup.sh" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/cron.hourly/transient_environments.rb" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
+                "mode"   : "000500",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/etc/tomcat6/server.xml" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
+                "mode"   : "000554",
+                "owner"  : "root",
+                "group"  : "root",
+                "authentication" : "S3AccessCreds"
+              },
+              "/usr/share/tomcat6/aws_access" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
+                ]]},
+                "mode"   : "000400",
+                "owner"  : "tomcat",
+                "group"  : "tomcat",
+                "authentication" : "S3AccessCreds"
+              },
+              "/opt/aws/aws.config" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWS.config(\n",
+                  ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
+                  ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\",\n", 
+                  ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
+                ]]},
+                "mode"   : "000500",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
+              },
+
+              "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
+                "mode" : "000600",
+                "owner" : "ec2-user",
+                "group" : "ec2-user",
+                "authentication" : "S3AccessCreds"
+              },
+
+              "/etc/httpd/conf.d/virtualhost.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "NameVirtualHost *:80\n",
+                  "<VirtualHost *:80>\n",
+                  "ProxyPass         /jenkins  http://localhost:8080/jenkins\n",
+                  "ProxyPassReverse  /jenkins  http://localhost:8080/jenkins\n",
+                  "ProxyRequests     Off\n",
+
+                  "<Proxy http://localhost:8080/jenkins*>\n",
+                  "Order deny,allow\n",
+                  "Allow from all\n",
+                  "</Proxy>\n",
+                  "RewriteEngine On\n",
+                  "RewriteRule   ^/$ http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "/jenkins$1 [NC,P]\n",
+                  "</VirtualHost>"
+                ]]},
+                "mode"   : "000544",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+              "/usr/share/tomcat6/.ssh/config" : {
+                "content" : { "Fn::Join" : ["", [
+                  "Host github.com\n",
+                  "StrictHostKeyChecking no\n"
+                ]]},
+                "mode"   : "000600",
+                "owner"  : "root",
+                "group"  : "root"
+              },
+              "/usr/share/tomcat6/.route53" : {
+                "content" : { "Fn::Join" : ["", [
+                  "access_key: ", { "Ref" : "HostKeys" }, "\n",
+                  "secret_key: ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\n",
+                  "api: '2012-02-29'\n",
+                  "endpoint: https://route53.amazonaws.com/\n",
+                  "default_ttl: '3600'"
+                ]]},
+                "mode"   : "000700",
+                "owner"  : "tomcat",
+                "group"  : "tomcat"
+              },
+              "/tmp/setup.mysql" : {
+                "content" : "this is just a file proving this actually works...",
+                "mode"  : "000644",
+                "owner" : "root",
+                "group" : "root"
+              }
+            },
             "packages" : {
               "yum" : {
                 "tomcat6"       : [],
@@ -155,129 +276,7 @@
                 "httpd"         : []
               }
             }
-          },
-          "files" : {
-            "/usr/share/tomcat6/webapps/jenkins.war" : {
-              "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
-              "mode" : "000700",
-              "owner" : "tomcat",
-              "group" : "tomcat",
-              "authentication" : "S3AccessCreds"
-            },
-            "/usr/share/tomcat6/.ssh/id_rsa" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
-              "mode" : "000600",
-              "owner" : "tomcat",
-              "group" : "tomcat",
-              "authentication" : "S3AccessCreds"
-            },
-            "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
-              "mode" : "000700",
-              "owner" : "root",
-              "group" : "root",
-              "authentication" : "S3AccessCreds"
-            },
-            "/etc/cron.hourly/jenkins_backup.sh" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
-              "mode"   : "000500",
-              "owner"  : "root",
-              "group"  : "root",
-              "authentication" : "S3AccessCreds"
-            },
-            "/etc/cron.hourly/transient_environments.rb" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
-              "mode"   : "000500",
-              "owner"  : "root",
-              "group"  : "root",
-              "authentication" : "S3AccessCreds"
-            },
-            "/etc/tomcat6/server.xml" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
-              "mode"   : "000554",
-              "owner"  : "root",
-              "group"  : "root",
-              "authentication" : "S3AccessCreds"
-            },
-            "/usr/share/tomcat6/aws_access" : {
-              "content" : { "Fn::Join" : ["", [
-                "AWSAccessKeyId=", { "Ref" : "HostKeys" }, "\n",
-                "AWSSecretKey=", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}
-              ]]},
-              "mode"   : "000400",
-              "owner"  : "tomcat",
-              "group"  : "tomcat",
-              "authentication" : "S3AccessCreds"
-            },
-            "/opt/aws/aws.config" : {
-              "content" : { "Fn::Join" : ["", [
-                "AWS.config(\n",
-                ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-                ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\",\n", 
-                ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
-              ]]},
-              "mode"   : "000500",
-              "owner"  : "tomcat",
-              "group"  : "tomcat"
-            },
-
-            "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
-              "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
-              "mode" : "000600",
-              "owner" : "ec2-user",
-              "group" : "ec2-user",
-              "authentication" : "S3AccessCreds"
-            },
-
-            "/etc/httpd/conf.d/virtualhost.conf" : {
-              "content" : { "Fn::Join" : ["", [
-                "NameVirtualHost *:80\n",
-                "<VirtualHost *:80>\n",
-                "ProxyPass         /jenkins  http://localhost:8080/jenkins\n",
-                "ProxyPassReverse  /jenkins  http://localhost:8080/jenkins\n",
-                "ProxyRequests     Off\n",
-
-                "<Proxy http://localhost:8080/jenkins*>\n",
-                "Order deny,allow\n",
-                "Allow from all\n",
-                "</Proxy>\n",
-                "RewriteEngine On\n",
-                "RewriteRule   ^/$ http://", { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, ".", { "Ref" : "HostedZone" }]] }, "/jenkins$1 [NC,P]\n",
-                "</VirtualHost>"
-              ]]},
-              "mode"   : "000544",
-              "owner"  : "root",
-              "group"  : "root"
-            },
-            "/usr/share/tomcat6/.ssh/config" : {
-              "content" : { "Fn::Join" : ["", [
-                "Host github.com\n",
-                "StrictHostKeyChecking no\n"
-              ]]},
-              "mode"   : "000600",
-              "owner"  : "root",
-              "group"  : "root"
-            },
-            "/usr/share/tomcat6/.route53" : {
-              "content" : { "Fn::Join" : ["", [
-                "access_key: ", { "Ref" : "HostKeys" }, "\n",
-                "secret_key: ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\n",
-                "api: '2012-02-29'\n",
-                "endpoint: https://route53.amazonaws.com/\n",
-                "default_ttl: '3600'"
-              ]]},
-              "mode"   : "000700",
-              "owner"  : "tomcat",
-              "group"  : "tomcat"
-            },
-            "/tmp/setup.mysql" : {
-              "content" : "this is just a file proving this actually works...",
-              "mode"  : "000644",
-              "owner" : "root",
-              "group" : "root"
-            }
-          }
-          
+          }          
         },
         "AWS::CloudFormation::Authentication" : {
           "S3AccessCreds" : {
