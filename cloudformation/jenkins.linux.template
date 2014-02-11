@@ -165,35 +165,35 @@
                 "authentication" : "S3AccessCreds"
               },
               "/usr/share/tomcat6/.ssh/id_rsa" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
                 "mode" : "000600",
                 "owner" : "tomcat",
                 "group" : "tomcat",
                 "authentication" : "S3AccessCreds"
               },
               "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700",
                 "owner" : "root",
                 "group" : "root",
                 "authentication" : "S3AccessCreds"
               },
               "/etc/cron.hourly/jenkins_backup.sh" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
                 "mode"   : "000500",
                 "owner"  : "root",
                 "group"  : "root",
                 "authentication" : "S3AccessCreds"
               },
               "/etc/cron.hourly/transient_environments.rb" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
                 "mode"   : "000500",
                 "owner"  : "root",
                 "group"  : "root",
                 "authentication" : "S3AccessCreds"
               },
               "/etc/tomcat6/server.xml" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/server.xml"]]},
                 "mode"   : "000554",
                 "owner"  : "root",
                 "group"  : "root",
@@ -222,7 +222,7 @@
               },
 
               "/tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm" : {
-                "source" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm"]]},
                 "mode" : "000600",
                 "owner" : "ec2-user",
                 "group" : "ec2-user",

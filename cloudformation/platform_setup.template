@@ -144,7 +144,7 @@
           },
 
         "/tmp/common-step-definitions-1.0.0.gem" : {
-        "source" : "https://s3.amazonaws.com/OpenDelivery/resources/gems/common-step-definitions-1.0.0.gem",
+        "source" : "https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/gems/common-step-definitions-1.0.0.gem",
         "mode"   : "000500",
                 "owner"  : "ec2-user",
                 "group"  : "ec2-user"
@@ -208,8 +208,8 @@
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/transient_environments.rb --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/platform_setup.template --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/jenkins.linux.template --no-check-certificate\n",
-      "wget -P /tmp/ https://s3.amazonaws.com/OpenDelivery/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
-      "wget -P /tmp/ https://s3.amazonaws.com/OpenDelivery/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm\n",
+      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm\n",
+      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/OpenDelivery/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm\n",
 
       "# Move Ruby 1.9.3 to Default Ruby\n",
       "ln -s /usr/bin/ruby1.9 /usr/bin/ruby\n",
@@ -328,7 +328,7 @@
           "Type" : "AWS::CloudFormation::Stack",
           "DependsOn" : "WaitCondition",
           "Properties" : {
-            "TemplateURL" : { "Fn::Join" : ["", ["https://s3.amazonaws.com/", { "Ref" : "Bucket" }, "/templates/jenkins.template"]]},
+            "TemplateURL" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "Bucket" }, "/templates/jenkins.template"]]},
             "TimeoutInMinutes" : "20",
             "Parameters" : {
                "Group" : { "Ref" : "Group" },
