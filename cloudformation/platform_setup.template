@@ -135,7 +135,7 @@
             "content" : { "Fn::Join" : ["", [
               "AWS.config(\n",
               ":access_key_id => \"", { "Ref" : "HostKeys" }, "\",\n",
-              ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\n", 
+              ":secret_access_key => \"", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]}, "\",\n", 
               ":region => \"", { "Ref" : "AWS::Region" }, "\")\n"
             ]]},
             "mode"   : "000500",
