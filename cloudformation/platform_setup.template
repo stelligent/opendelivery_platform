@@ -199,8 +199,9 @@
       "ln -s /usr/bin/gem1.9 /usr/bin/gem\n",
 
       "# Get CD Platform Files\n",
-      "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/config/jenkins_backup.sh --no-check-certificate\n",
-      "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/config/server.xml --no-check-certificate\n",
+      "#TODO what is up with these files\n",
+      "#wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/config/jenkins_backup.sh --no-check-certificate\n",
+      "#wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/config/server.xml --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/boot.rb --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/stack_builder.rb --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/database_export.rb --no-check-certificate\n",
