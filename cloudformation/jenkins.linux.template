@@ -173,13 +173,6 @@
                 "group" : "root",
                 "authentication" : "S3AccessCreds"
               },
-              "/etc/cron.hourly/jenkins_backup.sh" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/jenkins_backup.sh"]]},
-                "mode"   : "000500",
-                "owner"  : "root",
-                "group"  : "root",
-                "authentication" : "S3AccessCreds"
-              },
               "/etc/cron.hourly/transient_environments.rb" : {
                 "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
                 "mode"   : "000500",
@@ -299,10 +292,10 @@
           "yum -y install java-1.6.0-openjdk*\n",
           "yum update -y aws-cfn-bootstrap\n",
 
-          "# Install packages\n",
-          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
-          "    --access-key ",  { "Ref" : "HostKeys" },
-          "    --secret-key ", {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+          "# Install Packages\n",
+          "/opt/aws/bin/cfn-init -v -s ", { "Ref" : "AWS::StackName" }, " -r WebServer ",
+          "    --access-key ", { "Ref" : "HostKeys" },
+          "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
           "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
 
           "# Copy Github credentials to root ssh directory\n",
