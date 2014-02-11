@@ -349,7 +349,7 @@
                "HostedZone" : { "Ref" : "HostedZone" },
                "ApplicationName" : { "Ref" : "ApplicationName" },
                "KeyName" : { "Ref" : "KeyName" },
-               "InstanceType" : "m1.small",
+               "InstanceType" : "m1.large",
                "Email" : { "Ref" : "Email" },
                "SetupTemplate" : { "Ref" : "AWS::StackName" },
                "GithubOrganization" : { "Ref" : "GithubOrganization" },
