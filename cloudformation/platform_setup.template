@@ -227,18 +227,23 @@
       "/usr/bin/gem list\n",
 
       "# Create Simple DB Domain\n",
+      "echo ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",
       "ruby /tmp/create_domain.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, "\n",
 
       "# Set S3 Bucket Property\n",
+      "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property S3Bucket --value ", { "Ref" : "Bucket" }, "\n",
       "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property S3Bucket --value ", { "Ref" : "Bucket" }, "\n",
 
       "# Set Base AWS AMI\n",
+      "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ami-7341831a\n",
       "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ami-7341831a\n",
 
       "# Set CFN User Group\n",
+      "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property GROUP --value ", { "Ref" : "Group" }, "\n",
       "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property GROUP --value ", { "Ref" : "Group" }, "\n",
 
       "# Setup Git Repository\n",
+      "echo ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
       "ruby /tmp/add_github_key.rb  --publicKey /root/.ssh/id_rsa.pub --user ", { "Ref" : "GithubUsername" }, " --pass ", { "Ref" : "GithubPassword" }, "\n",
 
       "# Clone Github Repository\n",
