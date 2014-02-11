@@ -342,7 +342,7 @@
 
           "# Add id_rsa to ssh agent\n",
           "eval `ssh-agent -s` \n",
-          "ssh-add /root/.ssh/id_rsa\n",
+          "ssh-add /usr/share/tomcat6/.ssh/id_rsa\n",
 
           "# Update Jenkins with versioned configuration\n",
           "rm -rf /usr/share/tomcat6/.jenkins\n",
