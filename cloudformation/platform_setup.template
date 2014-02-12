@@ -237,8 +237,10 @@
       "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property S3Bucket --value ", { "Ref" : "Bucket" }, "\n",
 
       "# Set Base AWS AMI\n",
-      "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ami-7341831a\n",
-      "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ami-7341831a\n",
+      "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ",{ "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },"\n",
+      "ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname ami --property base --value ",{ "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                  { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },"\n",
 
       "# Set CFN User Group\n",
       "echo ruby /tmp/set_properties.rb --sdbdomain ", { "Ref" : "AWS::StackName" }, " --itemname properties --property GROUP --value ", { "Ref" : "Group" }, "\n",
