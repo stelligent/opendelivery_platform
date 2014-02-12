@@ -300,8 +300,8 @@
       "#ruby /tmp/s3_upload.rb --filename /tmp/ruby-1.9.3p0-2.amzn1.x86_64.rpm                  --key resources/rpm/ruby-1.9.3p0-2.amzn1.x86_64.rpm     --bucket ", { "Ref" : "Bucket" } , "\n",
       "#ruby /tmp/s3_upload.rb --filename /tmp/redis-2.6.2-1.el5.x86_64.rpm                     --key resources/rpm/redis-2.6.2-1.el5.x86_64.rpm        --bucket ", { "Ref" : "Bucket" } , "\n",
 
-      "ruby /tmp/s3_upload.rb --filename /tmp/database_export.rb                               --key database_export.rb                                --bucket ", { "Ref" : "Bucket" } , "\n",
-      "ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb                        --key transient_environments.rb                         --bucket ", { "Ref" : "Bucket" } , "\n",
+      "#ruby /tmp/s3_upload.rb --filename /tmp/database_export.rb                               --key database_export.rb                                --bucket ", { "Ref" : "Bucket" } , "\n",
+      "#ruby /tmp/s3_upload.rb --filename /tmp/transient_environments.rb                        --key transient_environments.rb                         --bucket ", { "Ref" : "Bucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa                                     --key private/id_rsa                                    --bucket ", { "Ref" : "Bucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /root/.ssh/id_rsa.pub                                 --key private/id_rsa.pub                                --bucket ", { "Ref" : "Bucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                          --key templates/platform_setup.template                 --bucket ", { "Ref" : "Bucket" } , "\n",
