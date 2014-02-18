@@ -154,7 +154,7 @@
               },
               "/usr/share/tomcat6/webapps/jenkins.war" : {
                 "source" : "http://mirrors.jenkins-ci.org/war/1.480/jenkins.war",
-                "mode" : "000700",
+                "mode" : "000744",
                 "owner" : "tomcat",
                 "group" : "tomcat",
                 "authentication" : "S3AccessCreds"
