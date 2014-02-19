@@ -5,7 +5,7 @@
     },
     {
         "ParameterKey": "InstanceType",
-        "ParameterValue": "m1.small"
+        "ParameterValue": "m1.large"
     },
     {
         "ParameterKey": "ApplicationName",
