@@ -6,7 +6,7 @@
   "Parameters" : {
 
     "Email" : {
-      "Type" : "String",
+      "Type" : "String"
     },
 
     "SetupTemplate" : {
@@ -19,7 +19,7 @@
     },
 
     "HostedZone" : {
-      "Type" : "String",
+      "Type" : "String"
     },
 
     "Group" : {
