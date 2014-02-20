@@ -73,6 +73,15 @@
       "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
       "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
       "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
+    },
+    "S3RegionEndPoints" : {
+      "us-east-1"      : { "Endpoint" : "s3-external-1.amazonaws.com" },
+      "us-west-1"      : { "Endpoint" : "s3-us-west-1.amazonaws.com" },
+      "us-west-2"      : { "Endpoint" : "s3-us-west-2.amazonaws.com" },
+      "sa-east-1"      : { "Endpoint" : "s3-sa-east-1.amazonaws.com" },
+      "eu-west-1"      : { "Endpoint" : "s3-eu-west-1.amazonaws.com" },
+      "ap-southeast-1" : { "Endpoint" : "s3-ap-southeast-1.amazonaws.com" },
+      "ap-northeast-1" : { "Endpoint" : "s3-ap-northeast-1.amazonaws.com" }
     }
   },
   "Resources" : {
@@ -312,11 +321,13 @@
           "Type" : "AWS::CloudFormation::Stack",
           "DependsOn" : "WaitCondition",
           "Properties" : {
-            "TemplateURL" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/templates/jenkins.template"]]},
+            "TemplateURL" : { "Fn::Join" : ["", ["https://", { "Fn::FindInMap" : [ "S3RegionEndPoints", { "Ref" : "AWS::Region" }, "Endpoint"]} ,"/", { "Ref" : "StackBucket" }, "/templates/jenkins.template"]]},
+
             "TimeoutInMinutes" : "20",
             "Parameters" : {
                "Group" : { "Ref" : "Group" },
-               "S3Bucket" : { "Ref" : "StackBucket"},
+               "ReadOnlyBucket" : { "Ref" : "ReadOnlyBucket"},
+               "StackBucket" : { "Ref" : "StackBucket"},
                "HostedZone" : { "Ref" : "HostedZone" },
                "ApplicationName" : { "Ref" : "ApplicationName" },
                "KeyName" : { "Ref" : "KeyName" },
