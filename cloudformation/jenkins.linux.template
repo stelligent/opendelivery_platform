@@ -53,8 +53,13 @@
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
 
-    "S3Bucket" : {
-      "Description" : "Artifact Bucket",
+    "ReadOnlyBucket" : {
+      "Description" : "Bucket with the binaries required for building and deploy Havoc",
+      "Type" : "String",
+      "Default" : "cdplatform"
+    },
+    "StackBucket" : {
+      "Description" : "Bucket for storing artifacts for this pipeline",
       "Type" : "String",
       "Default" : "cdplatform"
     }
@@ -80,6 +85,15 @@
       "eu-west-1"      : { "32" : "ami-24506250", "64" : "ami-20506254" },
       "ap-southeast-1" : { "32" : "ami-74dda626", "64" : "ami-7edda62c" },
       "ap-northeast-1" : { "32" : "ami-dcfa4edd", "64" : "ami-e8fa4ee9" }
+    },
+    "S3RegionEndPoints" : {
+      "us-east-1"      : { "Endpoint" : "s3-external-1.amazonaws.com" },
+      "us-west-1"      : { "Endpoint" : "s3-us-west-1.amazonaws.com" },
+      "us-west-2"      : { "Endpoint" : "s3-us-west-2.amazonaws.com" },
+      "sa-east-1"      : { "Endpoint" : "s3-sa-east-1.amazonaws.com" },
+      "eu-west-1"      : { "Endpoint" : "s3-eu-west-1.amazonaws.com" },
+      "ap-southeast-1" : { "Endpoint" : "s3-ap-southeast-1.amazonaws.com" },
+      "ap-northeast-1" : { "Endpoint" : "s3-ap-northeast-1.amazonaws.com" }
     }
   },
 
@@ -160,21 +174,21 @@
                 "authentication" : "S3AccessCreds"
               },
               "/usr/share/tomcat6/.ssh/id_rsa" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/private/id_rsa"]]},
+                "source" : { "Fn::Join" : ["", ["https://", { "Fn::FindInMap" : [ "S3RegionEndPoints", { "Ref" : "AWS::Region" }, "Endpoint"]} ,"/", { "Ref" : "StackBucket" }, "/private/id_rsa"]]},
                 "mode" : "000600",
                 "owner" : "tomcat",
                 "group" : "tomcat",
                 "authentication" : "S3AccessCreds"
               },
               "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700",
                 "owner" : "root",
                 "group" : "root",
                 "authentication" : "S3AccessCreds"
               },
               "/etc/cron.hourly/transient_environments.rb" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "S3Bucket" }, "/transient_environments.rb"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/transient_environments.rb"]]},
                 "mode"   : "000500",
                 "owner"  : "root",
                 "group"  : "root",
@@ -260,7 +274,7 @@
             "type" : "S3",
             "accessKeyId" : { "Ref" : "HostKeys" },
             "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
-            "buckets" : [ { "Ref" : "S3Bucket"} ]
+            "buckets" : [ { "Ref" : "StackBucket"} ]
           }
         }
       },
