@@ -55,13 +55,11 @@
 
     "ReadOnlyBucket" : {
       "Description" : "Bucket with the binaries required for building and deploy Havoc",
-      "Type" : "String",
-      "Default" : "cdplatform"
-    },
+      "Type" : "String"
+      },
     "StackBucket" : {
       "Description" : "Bucket for storing artifacts for this pipeline",
-      "Type" : "String",
-      "Default" : "cdplatform"
+      "Type" : "String"
     }
   },
 
