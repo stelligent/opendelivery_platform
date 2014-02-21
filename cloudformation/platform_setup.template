@@ -219,7 +219,8 @@
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/lib/transient_environments.rb --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/platform_setup.template --no-check-certificate\n",
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/jenkins.linux.template --no-check-certificate\n",
-      "wget -P /tmp/ https://s3-us-west-2.amazonaws.com/",{ "Ref" : "ReadOnlyBucket" },"/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
+      "# we assume this will be in US-East-1. \n"
+      "wget -P /tmp/ https://s3-external-1.amazonaws.com/",{ "Ref" : "ReadOnlyBucket" },"/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
 
       "# Generate SSH keypairs\n",
       "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa\n",
