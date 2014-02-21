@@ -176,14 +176,14 @@
                 "authentication" : "S3AccessCreds"
               },
               "/home/ec2-user/common-step-definitions-1.0.0.gem" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-external-1.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/resources/gems/common-step-definitions-1.0.0.gem"]]},
                 "mode" : "000700",
                 "owner" : "root",
                 "group" : "root",
                 "authentication" : "S3AccessCreds"
               },
               "/etc/cron.hourly/transient_environments.rb" : {
-                "source" : { "Fn::Join" : ["", ["https://s3-us-west-2.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/transient_environments.rb"]]},
+                "source" : { "Fn::Join" : ["", ["https://s3-external-1.amazonaws.com/", { "Ref" : "ReadOnlyBucket" }, "/transient_environments.rb"]]},
                 "mode"   : "000500",
                 "owner"  : "root",
                 "group"  : "root",
