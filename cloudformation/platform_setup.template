@@ -221,6 +221,7 @@
       "wget -P /tmp/ https://raw.github.com/stelligent/opendelivery_platform/master/cloudformation/jenkins.linux.template --no-check-certificate\n",
       "# we assume this will be in US-East-1. \n",
       "wget -P /tmp/ https://s3-external-1.amazonaws.com/",{ "Ref" : "ReadOnlyBucket" },"/resources/rpm/redis-2.6.2-1.el5.x86_64.rpm --no-check-certificate\n",
+      "wget -P /tmp/ https://s3-external-1.amazonaws.com/",{ "Ref" : "ReadOnlyBucket" },"/capistrano.tar.gz --no-check-certificate\n",
 
       "# Generate SSH keypairs\n",
       "ssh-keygen -t rsa -N \"\" -f /root/.ssh/id_rsa\n",
@@ -289,6 +290,8 @@
       "ruby /tmp/s3_upload.rb --filename /tmp/platform_setup.template                          --key templates/platform_setup.template                 --bucket ", { "Ref" : "StackBucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /tmp/jenkins.linux.template                           --key templates/jenkins.template                        --bucket ", { "Ref" : "StackBucket" } , "\n",
       "ruby /tmp/s3_upload.rb --filename /tmp/redis-2.6.2-1.el5.x86_64.rpm                     --key resources/rpm/redis-2.6.2-1.el5.x86_64.rpm        --bucket ", { "Ref" : "StackBucket" } , "\n",
+      "ruby /tmp/s3_upload.rb --filename /tmp/puppet.tar.gz                                    --key resources/rpm/puppet.tar.gz                       --bucket ", { "Ref" : "StackBucket" } , "\n",
+      "ruby /tmp/s3_upload.rb --filename /tmp/capistrano.tar.gz                                --key resources/rpm/capistrano.tar.gz                   --bucket ", { "Ref" : "StackBucket" } , "\n",
 
         "/opt/aws/bin/cfn-signal", " -e 0", " '", { "Ref" : "WaitHandle" }, "'","\n"
     ]]}}
