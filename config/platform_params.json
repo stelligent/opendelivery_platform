@@ -1,7 +1,7 @@
 [
     {
         "ParameterKey": "KeyName",
-        "ParameterValue": "havoc-test"
+        "ParameterValue": "havoc-jonny"
     },
     {
         "ParameterKey": "InstanceType",
@@ -13,7 +13,7 @@
     },
     {
         "ParameterKey": "HostedZone",
-        "ParameterValue": "elasticoperations.com"
+        "ParameterValue": "jsywulak.com"
     },
     {
         "ParameterKey": "GithubUsername",
@@ -36,7 +36,7 @@
         "ParameterValue": "jonny@stelligent.com"
     },
     {
-        "ParameterKey": "Bucket",
-        "ParameterValue": "havoctest"
+        "ParameterKey": "ReadOnlyBucket",
+        "ParameterValue": "havoc-readonly"
     }
 ]
